@@ -90,6 +90,19 @@ export default function Workouts() {
     navigate(createPageUrl(`ActiveWorkout?templateId=${template.id}`));
   };
 
+  const handleAddWorkoutToFolder = async (folder) => {
+    const name = prompt("Workout name:");
+    if (!name?.trim()) return;
+    const created = await base44.entities.WorkoutTemplate.create({
+      name: name.trim(),
+      folder_id: folder.id,
+      order: templates.length,
+      exercises: [],
+    });
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+    navigate(createPageUrl(`EditWorkout?id=${created.id}`));
+  };
+
   return (
     <div className="max-w-lg mx-auto px-4 pt-6 pb-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -144,6 +157,7 @@ export default function Workouts() {
             onDeleteWorkout={handleDeleteWorkout}
             onDuplicateWorkout={handleDuplicateWorkout}
             onStartWorkout={handleStartWorkout}
+            onAddWorkout={handleAddWorkoutToFolder}
           />
         ))}
 
