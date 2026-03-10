@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Zap, Plus, FolderPlus, Dumbbell } from "lucide-react";
+import { Zap, Plus, FolderPlus, Dumbbell, History } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
@@ -92,7 +92,14 @@ export default function Workouts() {
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-6 pb-4 space-y-4">
-      <h1 className="text-2xl font-bold">Workouts</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Workouts</h1>
+        <Link to={createPageUrl("WorkoutHistory")}>
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+            <History className="w-5 h-5" />
+          </Button>
+        </Link>
+      </div>
 
       {/* Quick Workout */}
       <Link to={createPageUrl("ActiveWorkout")}>
