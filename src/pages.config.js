@@ -52,6 +52,7 @@ import LogWeight from './pages/LogWeight';
 import Workouts from './pages/Workouts';
 import ActiveWorkout from './pages/ActiveWorkout';
 import EditWorkout from './pages/EditWorkout';
+import Exercises from './pages/Exercises';
 import __Layout from './Layout.jsx';
 
 
@@ -61,6 +62,7 @@ export const PAGES = {
     "Workouts": Workouts,
     "ActiveWorkout": ActiveWorkout,
     "EditWorkout": EditWorkout,
+    "Exercises": Exercises,
 }
 
 export const pagesConfig = {
