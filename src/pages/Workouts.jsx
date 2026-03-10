@@ -179,6 +179,7 @@ export default function Workouts() {
             onEdit={handleEditWorkout}
             onDelete={handleDeleteWorkout}
             onDuplicate={handleDuplicateWorkout}
+            onArchive={handleArchiveWorkout}
             onStart={handleStartWorkout}
           />
         ))}
