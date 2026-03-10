@@ -78,11 +78,21 @@ export default function Workouts() {
 
   const handleDuplicateWorkout = async (template) => {
     await base44.entities.WorkoutTemplate.create({
-      name: `${template.name} (Copy)`,
+      name: `Duplicate (${template.name})`,
       folder_id: template.folder_id,
       order: templates.length,
       exercises: template.exercises,
     });
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+  };
+
+  const handleArchiveWorkout = async (template) => {
+    let archiveFolder = folders.find((f) => f.name === "Archived");
+    if (!archiveFolder) {
+      archiveFolder = await base44.entities.WorkoutFolder.create({ name: "Archived", order: 999 });
+      queryClient.invalidateQueries({ queryKey: ["folders"] });
+    }
+    await base44.entities.WorkoutTemplate.update(template.id, { folder_id: archiveFolder.id });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
 
