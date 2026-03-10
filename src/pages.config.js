@@ -53,6 +53,7 @@ import Workouts from './pages/Workouts';
 import ActiveWorkout from './pages/ActiveWorkout';
 import EditWorkout from './pages/EditWorkout';
 import Exercises from './pages/Exercises';
+import ExerciseDetail from './pages/ExerciseDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +64,7 @@ export const PAGES = {
     "ActiveWorkout": ActiveWorkout,
     "EditWorkout": EditWorkout,
     "Exercises": Exercises,
+    "ExerciseDetail": ExerciseDetail,
 }
 
 export const pagesConfig = {
