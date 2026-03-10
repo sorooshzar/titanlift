@@ -2,213 +2,233 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const RANK_COLORS = {
-  none: "#2a2a2a",
+  none: "#1e1e2e",
   wood: "#8B6914",
   bronze: "#CD7F32",
-  silver: "#C0C0C0",
+  silver: "#A8A8C0",
   gold: "#FFD700",
-  platinum: "#E5E4E2",
-  diamond: "#B9F2FF",
+  platinum: "#B0E0E6",
+  diamond: "#7DF9FF",
   champion: "#9B59B6",
   titan: "#E74C3C",
   olympian: "#FF6B35",
 };
 
 const RECOVERY_COLORS = {
-  fresh: "#2a2a2a",
-  light: "#4a7a3a",
-  moderate: "#c9a820",
-  heavy: "#e06020",
-  sore: "#d03030",
+  fresh: "#1e1e2e",
+  light: "#2d5a1b",
+  moderate: "#7a5c00",
+  heavy: "#7a3000",
+  sore: "#7a0000",
 };
 
-// SVG muscle paths for front view
+// Improved anatomical mannequin - front view
 const FRONT_MUSCLES = {
-  chest: {
-    paths: [
-      "M 115 115 Q 130 105 150 110 L 150 140 Q 135 145 115 135 Z",
-      "M 185 115 Q 170 105 150 110 L 150 140 Q 165 145 185 135 Z",
-    ],
-    label: "Chest",
-    cx: 150, cy: 125,
-  },
   shoulders: {
     paths: [
-      "M 100 100 Q 105 85 120 90 L 115 120 Q 100 115 100 100 Z",
-      "M 200 100 Q 195 85 180 90 L 185 120 Q 200 115 200 100 Z",
+      // Left shoulder
+      "M 88 108 Q 78 100 80 118 Q 82 130 92 132 Q 96 120 96 112 Z",
+      // Right shoulder
+      "M 212 108 Q 222 100 220 118 Q 218 130 208 132 Q 204 120 204 112 Z",
     ],
     label: "Shoulders",
-    cx: 150, cy: 92,
+  },
+  chest: {
+    paths: [
+      // Left pec
+      "M 120 118 Q 118 110 130 106 Q 148 102 150 112 L 148 138 Q 134 142 122 136 Z",
+      // Right pec
+      "M 180 118 Q 182 110 170 106 Q 152 102 150 112 L 152 138 Q 166 142 178 136 Z",
+    ],
+    label: "Chest",
   },
   biceps: {
     paths: [
-      "M 95 120 Q 100 115 108 118 L 105 160 Q 95 158 92 145 Z",
-      "M 205 120 Q 200 115 192 118 L 195 160 Q 205 158 208 145 Z",
+      // Left bicep
+      "M 84 136 Q 80 130 84 128 Q 92 136 94 150 Q 94 164 90 168 Q 84 160 82 150 Z",
+      // Right bicep
+      "M 216 136 Q 220 130 216 128 Q 208 136 206 150 Q 206 164 210 168 Q 216 160 218 150 Z",
     ],
     label: "Biceps",
-    cx: 100, cy: 138,
   },
   forearms: {
     paths: [
-      "M 92 158 Q 98 155 105 160 L 100 200 Q 90 198 88 180 Z",
-      "M 208 158 Q 202 155 195 160 L 200 200 Q 210 198 212 180 Z",
+      // Left forearm
+      "M 82 170 Q 78 165 80 172 Q 82 188 84 200 Q 88 208 90 200 Q 92 188 92 172 Z",
+      // Right forearm
+      "M 218 170 Q 222 165 220 172 Q 218 188 216 200 Q 212 208 210 200 Q 208 188 208 172 Z",
     ],
     label: "Forearms",
-    cx: 95, cy: 178,
   },
   abs: {
     paths: [
-      "M 132 142 L 150 140 L 150 200 L 132 198 Z",
-      "M 168 142 L 150 140 L 150 200 L 168 198 Z",
+      // Upper abs
+      "M 136 140 Q 150 136 164 140 L 164 160 Q 150 156 136 160 Z",
+      // Mid abs
+      "M 136 162 Q 150 158 164 162 L 164 180 Q 150 176 136 180 Z",
+      // Lower abs
+      "M 138 182 Q 150 178 162 182 L 160 198 Q 150 200 140 198 Z",
     ],
     label: "Abs",
-    cx: 150, cy: 170,
   },
   quads: {
     paths: [
-      "M 125 205 Q 135 200 148 202 L 145 270 Q 130 268 122 245 Z",
-      "M 175 205 Q 165 200 152 202 L 155 270 Q 170 268 178 245 Z",
+      // Left quad
+      "M 122 215 Q 118 210 126 208 Q 140 206 146 210 L 144 272 Q 136 274 126 268 Q 118 252 118 235 Z",
+      // Right quad
+      "M 178 215 Q 182 210 174 208 Q 160 206 154 210 L 156 272 Q 164 274 174 268 Q 182 252 182 235 Z",
     ],
     label: "Quads",
-    cx: 150, cy: 235,
   },
   calves: {
     paths: [
-      "M 125 280 Q 132 275 140 278 L 138 330 Q 128 328 123 310 Z",
-      "M 175 280 Q 168 275 160 278 L 162 330 Q 172 328 177 310 Z",
+      // Left calf
+      "M 122 284 Q 118 280 124 278 Q 132 276 138 280 L 136 328 Q 130 332 124 328 Q 118 314 118 300 Z",
+      // Right calf
+      "M 178 284 Q 182 280 176 278 Q 168 276 162 280 L 164 328 Q 170 332 176 328 Q 182 314 182 300 Z",
     ],
     label: "Calves",
-    cx: 150, cy: 305,
   },
 };
 
+// Back view muscles
 const BACK_MUSCLES = {
   traps: {
     paths: [
-      "M 130 90 Q 150 80 170 90 L 168 110 Q 150 105 132 110 Z",
+      "M 132 88 Q 150 80 168 88 Q 164 106 150 110 Q 136 106 132 88 Z",
     ],
     label: "Traps",
-    cx: 150, cy: 98,
   },
   shoulders: {
     paths: [
-      "M 100 100 Q 105 85 120 90 L 118 120 Q 100 115 100 100 Z",
-      "M 200 100 Q 195 85 180 90 L 182 120 Q 200 115 200 100 Z",
+      "M 88 108 Q 78 100 80 118 Q 82 130 92 132 Q 96 120 96 112 Z",
+      "M 212 108 Q 222 100 220 118 Q 218 130 208 132 Q 204 120 204 112 Z",
     ],
     label: "Rear Delts",
-    cx: 150, cy: 92,
   },
   lats: {
     paths: [
-      "M 115 115 Q 130 110 145 115 L 140 170 Q 120 165 115 140 Z",
-      "M 185 115 Q 170 110 155 115 L 160 170 Q 180 165 185 140 Z",
+      "M 114 118 Q 112 112 120 112 Q 136 114 144 118 L 140 172 Q 128 172 118 164 Q 112 150 112 134 Z",
+      "M 186 118 Q 188 112 180 112 Q 164 114 156 118 L 160 172 Q 172 172 182 164 Q 188 150 188 134 Z",
     ],
     label: "Lats",
-    cx: 150, cy: 140,
   },
   back: {
     paths: [
-      "M 135 110 Q 150 108 165 110 L 163 170 Q 150 168 137 170 Z",
+      "M 138 114 Q 150 110 162 114 L 160 172 Q 150 174 140 172 Z",
     ],
-    label: "Back",
-    cx: 150, cy: 140,
+    label: "Middle Back",
+  },
+  forearms: {
+    paths: [
+      "M 82 170 Q 78 165 80 172 Q 82 188 84 200 Q 88 208 90 200 Q 92 188 92 172 Z",
+      "M 218 170 Q 222 165 220 172 Q 218 188 216 200 Q 212 208 210 200 Q 208 188 208 172 Z",
+    ],
+    label: "Forearms",
   },
   glutes: {
     paths: [
-      "M 125 195 Q 140 188 150 190 L 150 215 Q 135 218 122 210 Z",
-      "M 175 195 Q 160 188 150 190 L 150 215 Q 165 218 178 210 Z",
+      "M 124 208 Q 120 204 126 202 Q 140 200 150 204 L 150 222 Q 140 228 128 224 Q 120 218 120 210 Z",
+      "M 176 208 Q 180 204 174 202 Q 160 200 150 204 L 150 222 Q 160 228 172 224 Q 180 218 180 210 Z",
     ],
     label: "Glutes",
-    cx: 150, cy: 205,
   },
   hamstrings: {
     paths: [
-      "M 123 218 Q 135 215 148 218 L 145 280 Q 130 278 122 255 Z",
-      "M 177 218 Q 165 215 152 218 L 155 280 Q 170 278 178 255 Z",
+      "M 122 228 Q 118 222 126 222 Q 140 220 146 224 L 144 278 Q 136 280 126 274 Q 118 258 118 242 Z",
+      "M 178 228 Q 182 222 174 222 Q 160 220 154 224 L 156 278 Q 164 280 174 274 Q 182 258 182 242 Z",
     ],
     label: "Hamstrings",
-    cx: 150, cy: 248,
   },
   calves: {
     paths: [
-      "M 125 285 Q 132 280 140 283 L 138 330 Q 128 328 123 310 Z",
-      "M 175 285 Q 168 280 160 283 L 162 330 Q 172 328 177 310 Z",
+      "M 122 284 Q 118 280 124 278 Q 132 276 138 280 L 136 328 Q 130 332 124 328 Q 118 314 118 300 Z",
+      "M 178 284 Q 182 280 176 278 Q 168 276 162 280 L 164 328 Q 170 332 176 328 Q 182 314 182 300 Z",
     ],
     label: "Calves",
-    cx: 150, cy: 308,
   },
 };
 
-const BODY_OUTLINE_FRONT = "M 150 30 Q 165 30 170 45 Q 175 58 170 70 Q 165 80 158 82 Q 175 85 185 95 Q 200 82 208 100 Q 215 120 210 155 Q 208 170 205 185 L 200 210 Q 195 205 188 202 Q 180 200 175 202 L 180 220 Q 185 260 180 290 Q 178 310 176 330 Q 174 340 170 345 L 162 345 Q 158 340 158 330 L 160 290 Q 162 270 158 250 Q 155 240 152 250 Q 150 260 148 250 Q 145 240 142 250 Q 138 270 140 290 L 142 330 Q 142 340 138 345 L 130 345 Q 126 340 124 330 Q 122 310 120 290 Q 115 260 120 220 L 125 202 Q 120 200 115 202 Q 108 205 100 210 L 95 185 Q 92 170 90 155 Q 85 120 92 100 Q 100 82 115 95 Q 125 85 142 82 Q 135 80 130 70 Q 125 58 130 45 Q 135 30 150 30 Z";
+// Body outline path
+const BODY_OUTLINE = `
+  M 150 32
+  Q 162 32 167 44 Q 172 56 168 68 Q 165 78 158 82
+  Q 172 86 184 96 Q 200 86 208 100 Q 216 118 212 150
+  Q 210 168 206 184 L 202 212
+  Q 196 208 188 206 Q 180 204 176 206
+  L 180 224 Q 184 258 180 288
+  Q 178 308 176 328 Q 174 338 170 344
+  L 162 344 Q 158 340 158 330
+  L 160 290 Q 162 272 158 254 Q 154 244 150 254
+  Q 146 244 142 254 Q 138 272 140 290
+  L 142 330 Q 142 340 138 344
+  L 130 344 Q 126 338 124 328
+  Q 122 308 120 288 Q 116 258 120 224
+  L 124 206 Q 120 204 112 206 Q 104 208 98 212
+  L 94 184 Q 90 168 88 150 Q 84 118 92 100 Q 100 86 116 96
+  Q 128 86 142 82 Q 135 78 132 68 Q 128 56 133 44 Q 138 32 150 32 Z
+`;
 
-const BODY_OUTLINE_BACK = "M 150 30 Q 165 30 170 45 Q 175 58 170 70 Q 165 80 158 82 Q 175 85 185 95 Q 200 82 208 100 Q 215 120 210 155 Q 208 170 205 185 L 200 210 Q 195 205 188 202 Q 180 200 175 202 L 180 220 Q 185 260 180 290 Q 178 310 176 330 Q 174 340 170 345 L 162 345 Q 158 340 158 330 L 160 290 Q 162 270 158 250 Q 155 240 152 250 Q 150 260 148 250 Q 145 240 142 250 Q 138 270 140 290 L 142 330 Q 142 340 138 345 L 130 345 Q 126 340 124 330 Q 122 310 120 290 Q 115 260 120 220 L 125 202 Q 120 200 115 202 Q 108 205 100 210 L 95 185 Q 92 170 90 155 Q 85 120 92 100 Q 100 82 115 95 Q 125 85 142 82 Q 135 80 130 70 Q 125 58 130 45 Q 135 30 150 30 Z";
+// Head shape
+const HEAD_PATH = "M 150 10 Q 165 10 170 22 Q 174 32 168 38 Q 162 44 150 44 Q 138 44 132 38 Q 126 32 130 22 Q 135 10 150 10 Z";
 
 function getColor(muscle, muscleRanks, recoveryData, showRecovery) {
-  if (showRecovery && recoveryData[muscle]) {
+  if (showRecovery) {
     const level = recoveryData[muscle];
     return RECOVERY_COLORS[level] || RECOVERY_COLORS.fresh;
   }
   const rank = muscleRanks[muscle] || "none";
-  return RANK_COLORS[rank] || RANK_COLORS.none;
+  return RANK_COLORS[rank];
 }
 
-function MuscleView({ muscles, outline, muscleRanks, recoveryData, showRecovery }) {
+function MuscleView({ muscles, muscleRanks, recoveryData, showRecovery }) {
   const [hoveredMuscle, setHoveredMuscle] = useState(null);
 
   return (
-    <svg viewBox="60 20 180 340" className="w-full h-full max-h-[400px]">
-      {/* Body outline */}
-      <path
-        d={outline}
-        fill="hsl(var(--secondary))"
-        stroke="hsl(var(--border))"
-        strokeWidth="1"
-        opacity="0.5"
-      />
-      
+    <svg viewBox="60 5 180 355" className="w-full h-full" style={{ maxHeight: 380 }}>
+      {/* Body fill */}
+      <path d={BODY_OUTLINE} fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="1.5" />
+      {/* Head */}
+      <ellipse cx="150" cy="26" rx="17" ry="18" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="1.5" />
+
       {/* Muscle groups */}
-      {Object.entries(muscles).map(([muscleKey, data]) =>
-        data.paths.map((path, i) => (
-          <path
-            key={`${muscleKey}-${i}`}
-            d={path}
-            fill={getColor(muscleKey, muscleRanks, recoveryData, showRecovery)}
-            stroke="rgba(0,0,0,0.3)"
-            strokeWidth="0.5"
-            opacity={hoveredMuscle === muscleKey ? 0.9 : 0.75}
-            className="transition-all duration-300 cursor-pointer"
-            onMouseEnter={() => setHoveredMuscle(muscleKey)}
-            onMouseLeave={() => setHoveredMuscle(null)}
-            onClick={() => setHoveredMuscle(muscleKey === hoveredMuscle ? null : muscleKey)}
-          />
-        ))
+      {Object.entries(muscles).map(([key, data]) =>
+        data.paths.map((path, i) => {
+          const color = getColor(key, muscleRanks, recoveryData, showRecovery);
+          const isHovered = hoveredMuscle === key;
+          return (
+            <path
+              key={`${key}-${i}`}
+              d={path}
+              fill={color}
+              stroke={isHovered ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.2)"}
+              strokeWidth={isHovered ? 1.5 : 0.5}
+              opacity={color === "#1e1e2e" ? 0.6 : isHovered ? 1 : 0.85}
+              className="transition-all duration-200 cursor-pointer"
+              onMouseEnter={() => setHoveredMuscle(key)}
+              onMouseLeave={() => setHoveredMuscle(null)}
+              onTouchStart={() => setHoveredMuscle(key === hoveredMuscle ? null : key)}
+            />
+          );
+        })
       )}
-      
-      {/* Hovered muscle label */}
-      {hoveredMuscle && muscles[hoveredMuscle] && (
-        <g>
-          <rect
-            x={muscles[hoveredMuscle].cx - 30}
-            y={muscles[hoveredMuscle].cy - 24}
-            width="60"
-            height="18"
-            rx="4"
-            fill="hsl(var(--popover))"
-            stroke="hsl(var(--border))"
-            strokeWidth="0.5"
-          />
-          <text
-            x={muscles[hoveredMuscle].cx}
-            y={muscles[hoveredMuscle].cy - 12}
-            textAnchor="middle"
-            fill="hsl(var(--foreground))"
-            fontSize="8"
-            fontWeight="600"
-          >
-            {muscles[hoveredMuscle].label}
-          </text>
-        </g>
-      )}
+
+      {/* Tooltip */}
+      {hoveredMuscle && muscles[hoveredMuscle] && (() => {
+        // Find approximate center of first path via simple bbox estimate
+        const rank = muscleRanks[hoveredMuscle] || "none";
+        return (
+          <g>
+            <rect x="110" y="182" width="80" height="22" rx="5"
+              fill="hsl(var(--popover))" stroke="hsl(var(--border))" strokeWidth="0.8" />
+            <text x="150" y="196" textAnchor="middle"
+              fill="hsl(var(--foreground))" fontSize="9" fontWeight="700">
+              {muscles[hoveredMuscle].label}
+              {!showRecovery && rank !== "none" ? ` · ${rank.charAt(0).toUpperCase() + rank.slice(1)}` : ""}
+            </text>
+          </g>
+        );
+      })()}
     </svg>
   );
 }
@@ -218,57 +238,42 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
 
   return (
     <div className="relative">
-      {/* View indicator */}
-      <div className="flex justify-center gap-2 mb-2">
+      {/* Toggle buttons */}
+      <div className="flex justify-center gap-2 mb-3">
         <button
           onClick={() => setView("front")}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-            view === "front"
-              ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-muted-foreground"
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+            view === "front" ? "bg-primary text-white" : "bg-secondary text-muted-foreground"
           }`}
-        >
-          Front
-        </button>
+        >Front</button>
         <button
           onClick={() => setView("back")}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-            view === "back"
-              ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-muted-foreground"
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+            view === "back" ? "bg-primary text-white" : "bg-secondary text-muted-foreground"
           }`}
-        >
-          Back
-        </button>
+        >Back</button>
       </div>
 
-      {/* Swipeable muscle model */}
+      {/* Model with swipe support */}
       <div
-        className="relative overflow-hidden touch-pan-y"
-        onTouchStart={(e) => {
-          const touch = e.touches[0];
-          e.currentTarget._startX = touch.clientX;
-        }}
+        className="relative overflow-hidden"
+        onTouchStart={(e) => { e.currentTarget._startX = e.touches[0].clientX; }}
         onTouchEnd={(e) => {
-          const touch = e.changedTouches[0];
-          const diff = touch.clientX - (e.currentTarget._startX || 0);
-          if (Math.abs(diff) > 50) {
-            setView(diff > 0 ? "front" : "back");
-          }
+          const diff = e.changedTouches[0].clientX - (e.currentTarget._startX || 0);
+          if (Math.abs(diff) > 50) setView(diff > 0 ? "front" : "back");
         }}
       >
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
-            initial={{ opacity: 0, x: view === "front" ? -20 : 20 }}
+            initial={{ opacity: 0, x: view === "front" ? -30 : 30 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: view === "front" ? 20 : -20 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, x: view === "front" ? 30 : -30 }}
+            transition={{ duration: 0.18 }}
             className="flex justify-center"
           >
             <MuscleView
               muscles={view === "front" ? FRONT_MUSCLES : BACK_MUSCLES}
-              outline={view === "front" ? BODY_OUTLINE_FRONT : BODY_OUTLINE_BACK}
               muscleRanks={muscleRanks}
               recoveryData={recoveryData}
               showRecovery={showRecovery}
@@ -276,10 +281,8 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {/* Swipe hint */}
       <p className="text-center text-[10px] text-muted-foreground mt-1">
-        Swipe to rotate • Tap muscles for details
+        Swipe to rotate · Tap to identify
       </p>
     </div>
   );
