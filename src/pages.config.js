@@ -48,11 +48,13 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Profile from './pages/Profile';
+import LogWeight from './pages/LogWeight';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Profile": Profile,
+    "LogWeight": LogWeight,
 }
 
 export const pagesConfig = {
