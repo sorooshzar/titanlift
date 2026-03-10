@@ -12,6 +12,7 @@ export default function ExerciseDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get("id");
   const [tab, setTab] = useState("learn");
+  const [graphMode, setGraphMode] = useState("volume"); // volume | reps | maxWeight | e1rm
 
   const { data: exercises = [] } = useQuery({
     queryKey: ["exercises"],
@@ -25,24 +26,35 @@ export default function ExerciseDetail() {
     queryFn: () => base44.entities.WorkoutLog.list("-created_date", 200),
   });
 
-  // Calculate volume over time for this exercise
-  const volumeData = [];
+  // Calculate all graph data for this exercise
+  const allChartData = [];
   workoutLogs.forEach((log) => {
     log.exercises?.forEach((ex) => {
       if (ex.exercise_id === id) {
-        let volume = 0;
+        let volume = 0, maxReps = 0, maxWeight = 0;
         ex.sets?.forEach((s) => {
-          if (s.completed) volume += (s.weight || 0) * (s.reps || 0);
+          if (s.completed) {
+            volume += (s.weight || 0) * (s.reps || 0);
+            if ((s.reps || 0) > maxReps) maxReps = s.reps || 0;
+            if ((s.weight || 0) > maxWeight) maxWeight = s.weight || 0;
+          }
         });
-        if (volume > 0) {
-          volumeData.push({
+        const e1rm = maxWeight > 0 && maxReps > 0 ? Math.round(maxWeight * (1 + maxReps / 30)) : 0;
+        if (volume > 0 || maxReps > 0) {
+          allChartData.push({
             date: format(new Date(log.started_at || log.created_date), "MMM d"),
-            volume,
+            volume, reps: maxReps, maxWeight, e1rm,
           });
         }
       }
     });
   });
+  const graphMetrics = {
+    volume: { key: "volume", label: "Volume (kg)", color: "hsl(var(--primary))" },
+    reps: { key: "reps", label: "Max Reps", color: "#22c55e" },
+    maxWeight: { key: "maxWeight", label: "Max Weight (kg)", color: "#f59e0b" },
+    e1rm: { key: "e1rm", label: "Est. 1RM (kg)", color: "#8b5cf6" },
+  };
 
   if (!exercise) {
     return (
@@ -136,23 +148,32 @@ export default function ExerciseDetail() {
       )}
 
       {tab === "stats" && (
-        <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="text-sm font-semibold mb-4">Volume Over Time</h3>
-          {volumeData.length > 0 ? (
+        <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+          {/* Graph mode selector */}
+          <div className="flex gap-1.5 flex-wrap">
+            {Object.entries(graphMetrics).map(([k, m]) => (
+              <button
+                key={k}
+                onClick={() => setGraphMode(k)}
+                className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all border ${
+                  graphMode === k
+                    ? "text-white border-transparent"
+                    : "bg-secondary text-muted-foreground border-transparent"
+                }`}
+                style={graphMode === k ? { backgroundColor: m.color } : {}}
+              >
+                {k === "e1rm" ? "Est. 1RM" : k === "maxWeight" ? "Max Weight" : k === "reps" ? "Reps" : "Volume"}
+              </button>
+            ))}
+          </div>
+
+          {allChartData.length > 0 ? (
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={volumeData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
+                <LineChart data={allChartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--popover))",
@@ -161,14 +182,14 @@ export default function ExerciseDetail() {
                       fontSize: "12px",
                       color: "hsl(var(--foreground))",
                     }}
-                    formatter={(value) => [`${value} kg`, "Volume"]}
+                    formatter={(v) => [`${v}`, graphMetrics[graphMode].label]}
                   />
                   <Line
                     type="monotone"
-                    dataKey="volume"
-                    stroke="hsl(var(--primary))"
+                    dataKey={graphMetrics[graphMode].key}
+                    stroke={graphMetrics[graphMode].color}
                     strokeWidth={2}
-                    dot={{ fill: "hsl(var(--primary))", r: 3 }}
+                    dot={{ fill: graphMetrics[graphMode].color, r: 3 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
