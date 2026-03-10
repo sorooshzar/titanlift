@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronRight, MoreVertical, Pencil, Trash2, Copy, FolderOpen } from "lucide-react";
+import { ChevronDown, ChevronRight, MoreVertical, Pencil, Trash2, FolderOpen, Plus, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import WorkoutCard from "./WorkoutCard";
 
-export default function FolderCard({ folder, templates, onRenameFolder, onDeleteFolder, onEditWorkout, onDeleteWorkout, onDuplicateWorkout, onStartWorkout }) {
+export default function FolderCard({ folder, templates, onRenameFolder, onDeleteFolder, onEditWorkout, onDeleteWorkout, onDuplicateWorkout, onStartWorkout, onAddWorkout }) {
   const [open, setOpen] = useState(true);
 
   const folderTemplates = templates
@@ -35,6 +35,9 @@ export default function FolderCard({ folder, templates, onRenameFolder, onDelete
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAddWorkout && onAddWorkout(folder); }}>
+              <Plus className="w-4 h-4 mr-2" /> Add Workout
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onRenameFolder(folder); }}>
               <Pencil className="w-4 h-4 mr-2" /> Rename
             </DropdownMenuItem>
