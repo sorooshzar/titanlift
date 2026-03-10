@@ -49,12 +49,14 @@
  */
 import Profile from './pages/Profile';
 import LogWeight from './pages/LogWeight';
+import Workouts from './pages/Workouts';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Profile": Profile,
     "LogWeight": LogWeight,
+    "Workouts": Workouts,
 }
 
 export const pagesConfig = {
