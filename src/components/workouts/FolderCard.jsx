@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import WorkoutCard from "./WorkoutCard";
 
-export default function FolderCard({ folder, templates, onRenameFolder, onDeleteFolder, onEditWorkout, onDeleteWorkout, onDuplicateWorkout, onStartWorkout, onAddWorkout }) {
+export default function FolderCard({ folder, templates, onRenameFolder, onDeleteFolder, onEditWorkout, onDeleteWorkout, onDuplicateWorkout, onArchiveWorkout, onStartWorkout, onAddWorkout }) {
   const [open, setOpen] = useState(true);
 
   const folderTemplates = templates
@@ -74,6 +74,7 @@ export default function FolderCard({ folder, templates, onRenameFolder, onDelete
                   onEdit={onEditWorkout}
                   onDelete={onDeleteWorkout}
                   onDuplicate={onDuplicateWorkout}
+                  onArchive={onArchiveWorkout}
                   onStart={onStartWorkout}
                 />
               ))}
