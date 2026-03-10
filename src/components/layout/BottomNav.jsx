@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { User, Dumbbell, Library, Settings, Plus, X, Zap, Scale } from "lucide-react";
+import { User, Dumbbell, Library, Plus, X, Zap, Scale, Ruler } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function BottomNav() {
@@ -15,7 +15,7 @@ export default function BottomNav() {
     { name: "Workouts", icon: Dumbbell, page: "Workouts" },
     { name: "plus", icon: Plus, page: null },
     { name: "Exercises", icon: Library, page: "Exercises" },
-    { name: "Settings", icon: Settings, page: "Settings" },
+    { name: "Measure", icon: Ruler, page: "Measurements" },
   ];
 
   const isActive = (page) => currentPage === page;
