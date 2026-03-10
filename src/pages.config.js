@@ -50,6 +50,7 @@
 import Profile from './pages/Profile';
 import LogWeight from './pages/LogWeight';
 import Workouts from './pages/Workouts';
+import ActiveWorkout from './pages/ActiveWorkout';
 import __Layout from './Layout.jsx';
 
 
@@ -57,6 +58,7 @@ export const PAGES = {
     "Profile": Profile,
     "LogWeight": LogWeight,
     "Workouts": Workouts,
+    "ActiveWorkout": ActiveWorkout,
 }
 
 export const pagesConfig = {
