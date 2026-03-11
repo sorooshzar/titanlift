@@ -185,6 +185,7 @@ export default function Profile() {
     log.exercises?.forEach(ex => {
       const muscle = ex.muscle_group;
       if (!muscle) return;
+      // Always use raw kg values (base unit) for rank calculations
       let volume = 0;
       ex.sets?.forEach(s => { if (s.completed) volume += (s.weight || 0) * (s.reps || 0); });
       muscleRanks[muscle] = (muscleRanks[muscle] || 0) + volume;
