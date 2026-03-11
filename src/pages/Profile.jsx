@@ -259,7 +259,7 @@ export default function Profile() {
               <p className="font-bold text-sm truncate">{user?.full_name || "Athlete"}</p>
               <div className="flex gap-3 shrink-0">
                 <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{workoutLogs.length}</span> workouts</span>
-                <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{latestWeight ? `${latestWeight}kg` : "--"}</span> weight</span>
+                <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{latestWeightDisplay ? `${latestWeightDisplay}${weightUnit}` : "--"}</span> weight</span>
               </div>
             </div>
             {/* XP Bar */}
