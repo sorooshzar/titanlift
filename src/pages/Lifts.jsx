@@ -293,7 +293,7 @@ export default function Lifts() {
       </div>
 
       {tab === "workouts" ? (
-        <WorkoutsTab folders={folders} templates={templates} queryClient={queryClient} navigate={navigate} />
+        <WorkoutsTab folders={folders} templates={templates} queryClient={queryClient} navigate={navigate} startWorkout={startWorkout} />
       ) : (
         <ExercisesTab />
       )}
