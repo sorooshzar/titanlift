@@ -6,8 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MUSCLE_HIERARCHY, getSubsectionsForMain, normalizeSubsection } from "@/components/utils/muscleHierarchy";
 
-const BODY_PARTS = ["Chest", "Back", "Shoulders", "Biceps", "Triceps", "Quads", "Hamstrings", "Glutes", "Calves", "Abs", "Forearms", "Traps"];
 const EQUIPMENT = ["Barbell", "Dumbbell", "Machine", "Smith Machine", "Bodyweight", "Cable", "Band", "Other"];
 const SORT_OPTIONS = [
   { id: "name", label: "Name (A–Z)" },
@@ -19,11 +19,10 @@ export default function ExerciseFilters({ filters, onFiltersChange }) {
   const [showBodyParts, setShowBodyParts] = useState(false);
   const [showEquipment, setShowEquipment] = useState(false);
 
-  const toggleBodyPart = (bp) => {
-    const key = bp.toLowerCase();
-    const current = filters.bodyParts || [];
-    const next = current.includes(key) ? current.filter((x) => x !== key) : [...current, key];
-    onFiltersChange({ ...filters, bodyParts: next });
+  const toggleMainGroup = (mainGroup) => {
+    const current = filters.mainGroups || [];
+    const next = current.includes(mainGroup) ? current.filter((x) => x !== mainGroup) : [...current, mainGroup];
+    onFiltersChange({ ...filters, mainGroups: next });
   };
 
   const toggleEquipment = (eq) => {
@@ -35,51 +34,33 @@ export default function ExerciseFilters({ filters, onFiltersChange }) {
 
   const setSort = (id) => onFiltersChange({ ...filters, sort: id });
 
-  const bpCount = (filters.bodyParts || []).length;
+  const bpCount = (filters.mainGroups || []).length;
   const eqCount = (filters.equipment || []).length;
 
   return (
-    <div className="flex gap-2 items-center">
-      {/* Body Part Filter */}
-      <div className="relative flex-1">
-        <button
-          onClick={() => { setShowBodyParts(!showBodyParts); setShowEquipment(false); }}
-          className={`flex items-center gap-1 w-full px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
-            bpCount > 0 ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
-          }`}
-        >
-          <span className="flex-1 text-left truncate">
-            {bpCount > 0 ? `Body Part (${bpCount})` : "Body Part"}
-          </span>
-          <ChevronDown className="w-3 h-3 flex-shrink-0" />
-        </button>
-        {showBodyParts && (
-          <div className="absolute top-full left-0 mt-1 w-44 bg-popover border border-border rounded-xl shadow-xl z-20 p-2 max-h-56 overflow-y-auto">
-            {BODY_PARTS.map((bp) => {
-              const key = bp.toLowerCase();
-              const active = (filters.bodyParts || []).includes(key);
-              return (
-                <button key={bp} onClick={() => toggleBodyPart(bp)}
-                  className="flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-xs hover:bg-secondary transition-colors">
-                  <span className={active ? "text-primary font-semibold" : "text-foreground"}>{bp}</span>
-                  {active && <Check className="w-3 h-3 text-primary" />}
-                </button>
-              );
-            })}
-            {bpCount > 0 && (
-              <button onClick={() => onFiltersChange({ ...filters, bodyParts: [] })}
-                className="w-full mt-1 py-1.5 text-xs text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
-                Clear
-              </button>
-            )}
-          </div>
-        )}
+    <div className="space-y-2">
+      {/* Main Group Chips */}
+      <div className="flex flex-wrap gap-2">
+        {Object.keys(MUSCLE_HIERARCHY).map((mainGroup) => {
+          const active = (filters.mainGroups || []).includes(mainGroup);
+          return (
+            <button
+              key={mainGroup}
+              onClick={() => toggleMainGroup(mainGroup)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                active ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-secondary/70"
+              }`}
+            >
+              {mainGroup}
+            </button>
+          );
+        })}
       </div>
 
       {/* Equipment Filter */}
-      <div className="relative flex-1">
+      <div className="relative">
         <button
-          onClick={() => { setShowEquipment(!showEquipment); setShowBodyParts(false); }}
+          onClick={() => { setShowEquipment(!showEquipment); }}
           className={`flex items-center gap-1 w-full px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
             eqCount > 0 ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
           }`}
@@ -115,10 +96,11 @@ export default function ExerciseFilters({ filters, onFiltersChange }) {
       {/* Sort */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium border transition-all flex-shrink-0 ${
+          <button className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
             filters.sort && filters.sort !== "name" ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
           }`}>
             <ArrowUpDown className="w-3.5 h-3.5" />
+            <span className="text-xs">Sort</span>
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
