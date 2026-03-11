@@ -41,7 +41,12 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
       <div className="flex items-center px-3 py-3 gap-2">
         <GripVertical className="w-4 h-4 text-muted-foreground/40 flex-shrink-0 cursor-grab" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold truncate">{exercise.exercise_name}</p>
+          <button
+            className="text-sm font-semibold truncate text-left w-full hover:text-primary transition-colors"
+            onClick={() => exercise.exercise_id && navigate(createPageUrl(`ExerciseDetail?id=${exercise.exercise_id}`))}
+          >
+            {exercise.exercise_name}
+          </button>
           {exercise.superset_group > 0 && (
             <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
               Superset {exercise.superset_group}
