@@ -222,39 +222,53 @@ export default function Profile() {
       </div>
 
       <div className="space-y-4">
-        {/* Profile info bar — clickable */}
+        {/* Profile info bar — clickable, smaller */}
         <button onClick={() => setShowProfileInfo(true)}
-          className="w-full flex items-center gap-4 bg-card rounded-2xl border border-border p-4 text-left active:scale-[0.99] transition-transform">
-          <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border shrink-0">
-            <span className="text-xl font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
+          className="w-full flex items-center gap-3 bg-card rounded-2xl border border-border px-3 py-3 text-left active:scale-[0.99] transition-transform">
+          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border shrink-0">
+            <span className="text-base font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-base truncate">{user?.full_name || "Athlete"}</p>
-            <div className="flex gap-4 mt-1">
-              <div className="text-center shrink-0">
-                <p className="text-sm font-bold">{workoutLogs.length}</p>
-                <p className="text-[10px] text-muted-foreground">Workouts</p>
-              </div>
-              <div className="text-center shrink-0">
-                <p className="text-sm font-bold">{latestWeight ? `${latestWeight}kg` : "--"}</p>
-                <p className="text-[10px] text-muted-foreground">Weight</p>
+            <div className="flex items-center gap-3 mb-1.5">
+              <p className="font-bold text-sm truncate">{user?.full_name || "Athlete"}</p>
+              <div className="flex gap-3 shrink-0">
+                <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{workoutLogs.length}</span> workouts</span>
+                <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{latestWeight ? `${latestWeight}kg` : "--"}</span> weight</span>
               </div>
             </div>
             {/* XP Bar */}
-            <div className="mt-2">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-bold text-primary">Lv {xp.level}</span>
-                <span className="text-[10px] text-muted-foreground">Lv {xp.level + 1}</span>
-              </div>
-              <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-primary shrink-0">Lv {xp.level}</span>
+              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div className="h-full bg-primary rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(xp.progress * 100, 100)}%` }} />
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Level</p>
+              <span className="text-[10px] text-muted-foreground shrink-0">{xp.level + 1}</span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
         </button>
+
+        {/* Progress / Habits tab toggle */}
+        <div className="flex bg-secondary rounded-xl p-1 gap-1">
+          {["progress", "habits"].map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${activeTab === tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+        {activeTab === "habits" ? (
+          <motion.div key="habits" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.15 }}>
+            <div className="bg-card rounded-2xl border border-border p-8 flex flex-col items-center justify-center gap-2 min-h-48">
+              <p className="text-muted-foreground text-sm font-medium">Habits coming soon</p>
+              <p className="text-muted-foreground text-xs">Track your daily habits here</p>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div key="progress" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.15 }} className="space-y-4">
 
         {/* Muscle Model Card */}
         <div className="bg-card rounded-2xl border border-border p-4">
