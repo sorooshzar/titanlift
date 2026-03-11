@@ -18,6 +18,7 @@ import ExerciseFilters from "../components/exercises/ExerciseFilters";
 import CreateExerciseModal from "../components/exercises/CreateExerciseModal";
 import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } from "../components/hooks/useWorkoutData";
 import { TABS, SPECIAL_FOLDERS } from "../components/utils/constants";
+import { MUSCLE_HIERARCHY } from "../components/utils/muscleHierarchy";
 
 function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }) {
   const [createType, setCreateType] = useState(null);
