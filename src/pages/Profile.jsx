@@ -302,11 +302,35 @@ export default function Profile() {
         <div className="bg-card rounded-2xl border border-border p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-bold">Weight Progress</h2>
-            <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs rounded-lg px-2.5" onClick={() => setShowLogWeight(true)}>
-              <Scale className="w-3 h-3" /> Log
-            </Button>
+            <div className="flex gap-1.5">
+              <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs rounded-lg px-2.5" onClick={() => setShowGoalInput(v => !v)}>
+                <Target className="w-3 h-3" /> Goal
+              </Button>
+              <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs rounded-lg px-2.5" onClick={() => setShowLogWeight(true)}>
+                <Scale className="w-3 h-3" /> Log
+              </Button>
+            </div>
           </div>
-          <WeightChart data={bodyWeights} />
+          <AnimatePresence>
+            {showGoalInput && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-3">
+                <div className="flex gap-2 items-center">
+                  <Input type="number" step="0.1" placeholder={goalWeight ? `Current: ${goalWeight}kg` : "Goal weight (kg)"}
+                    value={goalWeightInput} onChange={e => setGoalWeightInput(e.target.value)}
+                    className="h-8 text-sm bg-secondary border-0 flex-1" />
+                  <Button size="sm" className="h-8 px-3 text-xs" onClick={() => {
+                    const val = parseFloat(goalWeightInput);
+                    if (val) { setGoalWeight(val); localStorage.setItem("gym-goal-weight", String(val)); }
+                    setShowGoalInput(false); setGoalWeightInput("");
+                  }}>Set</Button>
+                  {goalWeight && <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-destructive" onClick={() => {
+                    setGoalWeight(null); localStorage.removeItem("gym-goal-weight"); setShowGoalInput(false);
+                  }}>Clear</Button>}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <WeightChart data={bodyWeights} goalWeight={goalWeight} />
         </div>
 
         {/* Quick links */}
