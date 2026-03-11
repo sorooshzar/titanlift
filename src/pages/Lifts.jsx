@@ -278,21 +278,21 @@ export default function Lifts() {
   };
 
   return (
-    <div className="max-w-lg mx-auto pb-4" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-background px-4 pt-5 pb-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Lifts</h1>
-          <div className="flex bg-secondary rounded-xl p-1">
-            <button onClick={() => setTab("workouts")}
-              className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === "workouts" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-              Workouts
-            </button>
-            <button onClick={() => setTab("exercises")}
-              className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === "exercises" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-              Exercises
-            </button>
-          </div>
+     <div className="max-w-lg mx-auto pb-4" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+       {/* Sticky Header */}
+       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm px-4 pt-5 pb-3 border-b border-border/30">
+         <div className="flex items-center justify-between">
+           <h1 className="text-2xl font-bold">Lifts</h1>
+           <div className="flex bg-secondary rounded-xl p-1">
+             <button onClick={() => setTab("workouts")}
+               className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === "workouts" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+               Workouts
+             </button>
+             <button onClick={() => setTab("exercises")}
+               className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === "exercises" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+               Exercises
+             </button>
+           </div>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" className="h-10 w-10">
               <Calculator className="w-6 h-6" />
