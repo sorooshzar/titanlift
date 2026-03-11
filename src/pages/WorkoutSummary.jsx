@@ -19,6 +19,7 @@ function formatDuration(minutes) {
 export default function WorkoutSummary() {
   const navigate = useNavigate();
   const { completedLog, clearCompletedLog } = useActiveWorkout();
+  const weightUnit = localStorage.getItem("gym-weight-unit") || "kg";
 
   useEffect(() => {
     if (!completedLog) navigate(createPageUrl("Lifts"), { replace: true });
