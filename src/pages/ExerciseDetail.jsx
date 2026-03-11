@@ -14,6 +14,7 @@ export default function ExerciseDetail() {
   const id = urlParams.get("id");
   const [tab, setTab] = useState("learn");
   const [graphMode, setGraphMode] = useState("volume"); // volume | reps | maxWeight | e1rm
+  const { unit: weightUnit, toDisplay } = useWeightUnit();
 
   const { data: exercises = [] } = useQuery({
     queryKey: ["exercises"],
