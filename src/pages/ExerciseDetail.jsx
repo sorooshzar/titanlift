@@ -12,6 +12,8 @@ import { TABS } from "@/components/utils/constants";
 
 export default function ExerciseDetail() {
   const id = getUrlParam("id");
+  const navigate = useNavigate();
+  const location = useLocation();
   const [tab, setTab] = useState("learn");
   const [graphMode, setGraphMode] = useState("volume");
   const { unit: weightUnit, toDisplay } = useWeightUnit();
