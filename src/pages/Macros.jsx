@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search, Trash2, Apple, X, Check } from "lucide-react";
 import { format } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import WaterTracker from "../components/macros/WaterTracker";
 
 const MACRO_GOALS = { calories: 2000, protein: 150, carbs: 200, fat: 65 };
 const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
@@ -141,12 +142,15 @@ function DashboardTab({ entries, date }) {
         </div>
       </div>
 
-      {/* Macro bars */}
-      <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
-        <MacroBar label="Protein" value={totals.protein} goal={MACRO_GOALS.protein} color="#3b82f6" />
-        <MacroBar label="Carbs" value={totals.carbs} goal={MACRO_GOALS.carbs} color="#f59e0b" />
-        <MacroBar label="Fat" value={totals.fat} goal={MACRO_GOALS.fat} color="#ef4444" />
-      </div>
+      {/* Water Tracker */}
+       <WaterTracker date={date} />
+
+       {/* Macro bars */}
+       <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
+         <MacroBar label="Protein" value={totals.protein} goal={MACRO_GOALS.protein} color="#3b82f6" />
+         <MacroBar label="Carbs" value={totals.carbs} goal={MACRO_GOALS.carbs} color="#f59e0b" />
+         <MacroBar label="Fat" value={totals.fat} goal={MACRO_GOALS.fat} color="#ef4444" />
+       </div>
 
       {/* Macro summary */}
       <div className="grid grid-cols-3 gap-2">
