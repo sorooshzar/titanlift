@@ -160,7 +160,9 @@ export default function Profile() {
     queryFn: () => base44.entities.BodyWeight.list("-date", 50),
   });
 
-  const { data: userTrackers = [], refetch: refetchTrackers } = useQuery({
+  const queryClient2 = useQueryClient();
+  const refetchTrackers = () => queryClient2.invalidateQueries({ queryKey: ["userTrackers"] });
+  const { data: userTrackers = [] } = useQuery({
     queryKey: ["userTrackers"],
     queryFn: () => base44.entities.UserTracker.list("order", 50),
   });
