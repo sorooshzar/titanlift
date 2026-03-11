@@ -41,34 +41,34 @@ export default function ExerciseFilters({ filters, onFiltersChange }) {
         <DropdownMenuTrigger asChild>
           <button
             className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium border transition-all flex-1 min-w-0 ${
-              bpCount > 0 ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
+              muscleCount > 0 ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
             }`}
           >
             <span className="flex-1 text-left truncate">
-              {bpCount > 0 ? `Muscle (${bpCount})` : "Muscle Group"}
+              {muscleCount > 0 ? `Muscle (${muscleCount})` : "Muscle Group"}
             </span>
             <ChevronDown className="w-3 h-3 flex-shrink-0" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-44">
-          {Object.keys(MUSCLE_HIERARCHY).map((mainGroup) => {
-            const active = (filters.mainGroups || []).includes(mainGroup);
+          {Object.keys(MUSCLE_HIERARCHY).map((muscleGroup) => {
+            const active = (filters.muscleGroups || []).includes(muscleGroup);
             return (
               <DropdownMenuItem
-                key={mainGroup}
-                onClick={() => toggleMainGroup(mainGroup)}
+                key={muscleGroup}
+                onClick={() => toggleMuscleGroup(muscleGroup)}
                 className="text-xs"
               >
-                <span className={active ? "text-primary font-semibold" : "text-foreground"}>{mainGroup}</span>
+                <span className={active ? "text-primary font-semibold" : "text-foreground"}>{muscleGroup}</span>
                 {active && <Check className="w-3 h-3 ml-auto text-primary" />}
               </DropdownMenuItem>
             );
           })}
-          {bpCount > 0 && (
+          {muscleCount > 0 && (
             <>
               <div className="my-1 h-px bg-border" />
               <DropdownMenuItem
-                onClick={() => onFiltersChange({ ...filters, mainGroups: [] })}
+                onClick={() => onFiltersChange({ ...filters, muscleGroups: [] })}
                 className="text-xs text-destructive"
               >
                 Clear Filter
