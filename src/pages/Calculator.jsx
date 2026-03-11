@@ -25,6 +25,7 @@ const BAR_TYPES = {
 };
 
 const REP_MAXES = [
+  { pct: 115, reps: "--" },
   { pct: 100, reps: 1 },
   { pct: 95, reps: 2 },
   { pct: 90, reps: "3-4" },
@@ -397,7 +398,7 @@ function UnitConverter() {
             </select>
           </div>
 
-          <div className="text-center text-muted-foreground">→</div>
+          <div className="text-center text-muted-foreground pb-2.5">→</div>
 
           <div className="flex flex-col items-center gap-1">
             <label className="text-xs font-semibold text-muted-foreground">To</label>
