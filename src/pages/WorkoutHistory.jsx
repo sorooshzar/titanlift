@@ -71,7 +71,7 @@ function CalendarView({ logs, onSelectDay }) {
 }
 
 function WorkoutDetailModal({ log, onClose }) {
-  const weightUnit = localStorage.getItem("gym-weight-unit") || "kg";
+  const { unit: weightUnit, toDisplay } = useWeightUnit();
   if (!log) return null;
   return (
     <motion.div
