@@ -222,7 +222,8 @@ export default function ActiveWorkoutSheet() {
           </div>
 
           {/* Exercises - scrollable */}
-          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-8 space-y-3">
+          <div className="flex-1 overflow-y-auto pt-4 pb-8">
+          <div className="max-w-lg mx-auto px-4 space-y-3">
             {workout.exercises.map((exercise, index) => (
               <ExerciseBlock
                 key={index}
