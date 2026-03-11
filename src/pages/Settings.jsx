@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { ChevronLeft, ChevronRight, Moon, Sun, Palette, Ruler, Sliders, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight, Moon, Sun, Palette, Ruler, Sliders, Zap, Timer, Apple } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Switch } from "@/components/ui/switch";
@@ -83,6 +83,9 @@ export default function Settings() {
   const [disableSleep, setDisableSleep] = useState(false);
   const [soundEffects, setSoundEffects] = useState(false);
   const [includeBodyweight, setIncludeBodyweight] = useState(false);
+  const [warmupRestTime, setWarmupRestTime] = useState(60);
+  const [compoundRestTime, setCompoundRestTime] = useState(180);
+  const [isolationRestTime, setIsolationRestTime] = useState(90);
 
   useEffect(() => {
     const saved = localStorage.getItem("gym-dark-mode");
@@ -95,6 +98,9 @@ export default function Settings() {
     setDisableSleep(localStorage.getItem("gym-disable-sleep") === "true");
     setSoundEffects(localStorage.getItem("gym-sound-effects") === "true");
     setIncludeBodyweight(localStorage.getItem("gym-include-bodyweight") === "true");
+    setWarmupRestTime(parseInt(localStorage.getItem("gym-warmup-rest") || "60"));
+    setCompoundRestTime(parseInt(localStorage.getItem("gym-compound-rest") || "180"));
+    setIsolationRestTime(parseInt(localStorage.getItem("gym-isolation-rest") || "90"));
   }, []);
 
   const toggleDark = (v) => {
@@ -169,21 +175,41 @@ export default function Settings() {
         </SettingRow>
       </Section>
 
-      {/* Preferences */}
-      <Section icon={Sliders} title="Preferences" color="#f59e0b">
-        <SettingRow label="Warm-up rest time" description="Rest between warm-up sets">
-          <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">60s</span>
-        </SettingRow>
-        <SettingRow label="Compound rest time" description="Rest for compound movements">
-          <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">3 min</span>
-        </SettingRow>
-        <SettingRow label="Isolation rest time" description="Rest for isolation movements">
-          <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">90s</span>
-        </SettingRow>
-        <SettingRow label="Previous set display" description="How previous set data appears">
-          <span className="text-xs text-muted-foreground">Weight × Reps</span>
-        </SettingRow>
-      </Section>
+      {/* Timers */}
+       <Section icon={Timer} title="Timers" color="#ec4899">
+         <SettingRow label="Warm-up rest time" description="Rest between warm-up sets">
+           <input type="number" value={warmupRestTime} onChange={e => { setWarmupRestTime(parseInt(e.target.value)); localStorage.setItem("gym-warmup-rest", String(e.target.value)); }}
+             className="w-20 text-xs text-center bg-secondary border-0 rounded-lg px-2 py-1" />
+           <span className="text-xs text-muted-foreground ml-1">s</span>
+         </SettingRow>
+         <SettingRow label="Compound rest time" description="Rest for compound movements">
+           <input type="number" value={compoundRestTime} onChange={e => { setCompoundRestTime(parseInt(e.target.value)); localStorage.setItem("gym-compound-rest", String(e.target.value)); }}
+             className="w-20 text-xs text-center bg-secondary border-0 rounded-lg px-2 py-1" />
+           <span className="text-xs text-muted-foreground ml-1">s</span>
+         </SettingRow>
+         <SettingRow label="Isolation rest time" description="Rest for isolation movements">
+           <input type="number" value={isolationRestTime} onChange={e => { setIsolationRestTime(parseInt(e.target.value)); localStorage.setItem("gym-isolation-rest", String(e.target.value)); }}
+             className="w-20 text-xs text-center bg-secondary border-0 rounded-lg px-2 py-1" />
+           <span className="text-xs text-muted-foreground ml-1">s</span>
+         </SettingRow>
+       </Section>
+
+       {/* Macros */}
+       <Section icon={Apple} title="Macros" color="#f59e0b">
+         <SettingRow label="Calorie Goal" description="Your daily target">
+           <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">2000 kcal</span>
+         </SettingRow>
+         <SettingRow label="Protein Goal" description="Daily protein target">
+           <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">150 g</span>
+         </SettingRow>
+       </Section>
+
+       {/* Preferences */}
+       <Section icon={Sliders} title="Preferences" color="#06b6d4">
+         <SettingRow label="Previous set display" description="How previous set data appears">
+           <span className="text-xs text-muted-foreground">Weight × Reps</span>
+         </SettingRow>
+       </Section>
 
       {/* Advanced */}
       <Section icon={Zap} title="Advanced" color="#ef4444">
