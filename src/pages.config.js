@@ -61,6 +61,7 @@ import Settings from './pages/Settings';
 import WorkoutHistory from './pages/WorkoutHistory';
 import WorkoutSummary from './pages/WorkoutSummary';
 import Workouts from './pages/Workouts';
+import Calculator from './pages/Calculator';
 import __Layout from './Layout.jsx';
 
 
@@ -79,6 +80,7 @@ export const PAGES = {
     "WorkoutHistory": WorkoutHistory,
     "WorkoutSummary": WorkoutSummary,
     "Workouts": Workouts,
+    "Calculator": Calculator,
 }
 
 export const pagesConfig = {

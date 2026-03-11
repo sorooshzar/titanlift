@@ -294,9 +294,11 @@ export default function Lifts() {
              </button>
            </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-10 w-10">
-              <Calculator className="w-6 h-6" />
-            </Button>
+            <Link to={createPageUrl("Calculator")}>
+              <Button variant="ghost" size="icon" className="h-10 w-10">
+                <Calculator className="w-6 h-6" />
+              </Button>
+            </Link>
             <Link to={createPageUrl("WorkoutHistory")}>
               <Button variant="ghost" size="icon" className="h-10 w-10">
                 <History className="w-6 h-6" />

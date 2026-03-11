@@ -181,25 +181,23 @@ function JournalTab({ entries, date, onAddToMeal, onDeleteEntry }) {
          const mealFat = mealEntries.reduce((s, e) => s + (e.fat || 0), 0);
          return (
            <div key={meal} className="bg-card rounded-xl border border-border overflow-hidden">
-             <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
-               <div className="flex items-center gap-2 flex-1">
-                 <div>
-                   <p className="text-sm font-bold capitalize">{meal}</p>
-                   <p className="text-xs text-muted-foreground">{Math.round(mealCals)} kcal</p>
-                 </div>
-                 {/* Micro circles for macros */}
-                 <div className="flex items-center gap-1 ml-auto mr-3">
-                   <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center text-[9px] font-bold text-red-600">{Math.round(mealProtein)}</div>
-                   <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-[9px] font-bold text-blue-600">{Math.round(mealCarbs)}</div>
-                   <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-[9px] font-bold text-green-600">{Math.round(mealFat)}</div>
-                 </div>
-                 {/* Calorie progress bar */}
-                 <div className="w-16 h-1 bg-secondary rounded-full overflow-hidden">
-                   <div className="h-full bg-yellow-500 transition-all" style={{ width: `${Math.min((mealCals / mealGoal) * 100, 100)}%` }} />
-                 </div>
+             <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 gap-3">
+               <div className="flex-1">
+                 <p className="text-sm font-bold capitalize">{meal}</p>
+                 <p className="text-xs text-muted-foreground">{Math.round(mealCals)} kcal</p>
+               </div>
+               {/* Macro circles - larger and more visible */}
+               <div className="flex items-center gap-1.5">
+                 <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center text-[10px] font-bold text-red-600">{Math.round(mealProtein)}</div>
+                 <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-600">{Math.round(mealCarbs)}</div>
+                 <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-[10px] font-bold text-green-600">{Math.round(mealFat)}</div>
+               </div>
+               {/* Calorie progress bar - wider */}
+               <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden flex-shrink-0">
+                 <div className="h-full bg-yellow-500 transition-all" style={{ width: `${Math.min((mealCals / mealGoal) * 100, 100)}%` }} />
                </div>
                <button onClick={() => onAddToMeal(meal)}
-                 className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                 className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
                  <Plus className="w-4 h-4" />
                </button>
              </div>
