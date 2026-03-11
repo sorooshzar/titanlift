@@ -20,13 +20,12 @@ export default function FolderCard({ folder, templates, folders = [], onRenameFo
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden">
       {/* Folder Header */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center w-full p-4 gap-3"
-      >
-        <FolderOpen className="w-5 h-5 text-primary flex-shrink-0" />
-        <span className="flex-1 text-left font-semibold text-sm">{folder.name}</span>
-        <span className="text-xs text-muted-foreground mr-2">{folderTemplates.length}</span>
+      <div className="flex items-center w-full p-4 gap-3">
+        <button onClick={() => setOpen(!open)} className="flex-1 flex items-center gap-3">
+          <FolderOpen className="w-5 h-5 text-primary flex-shrink-0" />
+          <span className="flex-1 text-left font-semibold text-sm">{folder.name}</span>
+          <span className="text-xs text-muted-foreground mr-2">{folderTemplates.length}</span>
+        </button>
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -52,7 +51,7 @@ export default function FolderCard({ folder, templates, folders = [], onRenameFo
         ) : (
           <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         )}
-      </button>
+      </div>
 
       {/* Workout Templates */}
       <AnimatePresence>
