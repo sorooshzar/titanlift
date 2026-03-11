@@ -35,11 +35,14 @@ export default function WorkoutSummary() {
   let workingSetCounter = {};
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-5 pb-24">
-      {/* Back */}
-      <button onClick={handleDone} className="flex items-center gap-1 text-muted-foreground text-sm mb-4">
-        <ChevronLeft className="w-4 h-4" /> Done
-      </button>
+    <div className="max-w-lg mx-auto px-4 pt-5 pb-8">
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-muted-foreground text-sm">
+          <ChevronLeft className="w-4 h-4" /> Back
+        </button>
+        <button onClick={handleDone} className="text-sm font-semibold text-primary">Done</button>
+      </div>
 
       {/* Congrats header */}
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6">
@@ -112,9 +115,7 @@ export default function WorkoutSummary() {
         })}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
-        <Button className="w-full h-12 text-base font-semibold" onClick={handleDone}>Done</Button>
-      </div>
+
     </div>
   );
 }

@@ -117,7 +117,7 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
               )}
 
               {/* Previous */}
-              <span className="text-[11px] text-muted-foreground truncate text-center">{prevLabel}</span>
+              <span className="text-xs text-muted-foreground truncate text-center tracking-wide">{prevLabel}</span>
 
               <Input type="number" value={set.weight || ""}
                 onChange={(e) => updateSet(index, "weight", parseFloat(e.target.value) || 0)}

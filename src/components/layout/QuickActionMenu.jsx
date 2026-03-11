@@ -108,11 +108,12 @@ function WeightLogger({ onClose }) {
   const [weight, setWeight] = useState("");
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [saving, setSaving] = useState(false);
+  const weightUnit = localStorage.getItem("gym-weight-unit") || "kg";
 
   const save = async () => {
     if (!weight) return;
     setSaving(true);
-    await base44.entities.BodyWeight.create({ weight: parseFloat(weight), unit: "kg", date });
+    await base44.entities.BodyWeight.create({ weight: parseFloat(weight), unit: weightUnit, date });
     setSaving(false);
     onClose();
   };
@@ -123,9 +124,12 @@ function WeightLogger({ onClose }) {
         <h2 className="text-lg font-bold">Log Weight</h2>
         <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary"><X className="w-4 h-4" /></button>
       </div>
-      <Input type="number" step="0.1" placeholder="80.0" value={weight}
-        onChange={e => setWeight(e.target.value)}
-        className="text-center text-3xl font-bold h-16 bg-secondary border-0 rounded-2xl" autoFocus />
+      <div className="relative">
+        <Input type="number" step="0.1" placeholder="80.0" value={weight}
+          onChange={e => setWeight(e.target.value)}
+          className="text-center text-3xl font-bold h-16 bg-secondary border-0 rounded-2xl pr-16" autoFocus />
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-bold text-muted-foreground">{weightUnit}</span>
+      </div>
       <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="bg-secondary border-0 rounded-xl" />
       <Button onClick={save} disabled={!weight || saving} className="w-full h-12 rounded-2xl font-bold">
         {saving ? "Saving..." : "Save Weight"}
@@ -144,7 +148,7 @@ export default function QuickActionMenu({ open, onClose }) {
     { id: "workout", icon: Zap, label: "Start Workout", color: "text-primary", bg: "bg-primary/10" },
     { id: "cardio", icon: Activity, label: "Track Cardio", color: "text-green-500", bg: "bg-green-500/10" },
     { id: "weight", icon: Scale, label: "Log Weight", color: "text-amber-500", bg: "bg-amber-500/10" },
-    { id: "macros", icon: Apple, label: "Log Macros", color: "text-rose-500", bg: "bg-rose-500/10" },
+    { id: "macros", icon: Apple, label: "Record Macros", color: "text-rose-500", bg: "bg-rose-500/10" },
   ];
 
   return (
@@ -171,7 +175,7 @@ export default function QuickActionMenu({ open, onClose }) {
                     const Icon = item.icon;
                     return (
                       <button key={item.id} onClick={() => {
-                        if (item.id === "macros") { navigate(createPageUrl("Macros")); handleClose(); }
+                        if (item.id === "macros") { navigate(createPageUrl("Macros?tab=foods")); handleClose(); }
                         else setScreen(item.id);
                       }}
                         className="flex flex-col items-center gap-3 bg-secondary/50 rounded-2xl p-5 active:scale-95 transition-transform">

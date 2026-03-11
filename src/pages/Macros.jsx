@@ -280,7 +280,8 @@ function FoodsTab() {
 }
 
 export default function Macros() {
-  const [tab, setTab] = useState("dashboard");
+  const urlParams = new URLSearchParams(window.location.search);
+  const [tab, setTab] = useState(urlParams.get("tab") || "dashboard");
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [addingMeal, setAddingMeal] = useState(null);
   const queryClient = useQueryClient();
