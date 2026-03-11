@@ -71,11 +71,16 @@ export default function FolderCard({ folder, templates, folders = [], onRenameFo
                 <WorkoutCard
                   key={template.id}
                   template={template}
+                  folders={folders}
                   onEdit={onEditWorkout}
                   onDelete={onDeleteWorkout}
                   onDuplicate={onDuplicateWorkout}
-                  onArchive={onArchiveWorkout}
+                  onArchive={isArchiveFolder ? undefined : onArchiveWorkout}
+                  onUnarchive={isArchiveFolder ? onUnarchiveWorkout : undefined}
+                  onMoveToFolder={onMoveToFolder}
+                  onUpdateNotes={onUpdateNotes}
                   onStart={onStartWorkout}
+                  isArchived={isArchiveFolder}
                 />
               ))}
             </div>
