@@ -144,47 +144,25 @@ export default function WaterTracker({ date }) {
   };
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold flex items-center gap-2">
-          <Droplet className="w-4 h-4 text-blue-400" /> Water Intake
-        </h3>
-        <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={() => setShowAddWater(true)}>
-          <Plus className="w-3 h-3" /> Add
-        </Button>
-      </div>
-
-      {/* Circular progress */}
-      <div className="flex items-center gap-4">
-        <div className="relative w-20 h-20">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 60 60">
-            <circle cx="30" cy="30" r="25" fill="none" stroke="hsl(var(--secondary))" strokeWidth="3" />
-            <circle
-              cx="30"
-              cy="30"
-              r="25"
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="3"
-              strokeDasharray={`${(percentage / 100) * 157} 157`}
-              className="transition-all duration-500"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xs font-bold">{Math.round(percentage)}%</span>
-            <span className="text-[10px] text-muted-foreground">{Math.round(totalMl)}ml</span>
+    <>
+      <div className="flex items-center justify-between px-1 py-2 gap-2">
+        <div className="flex items-center gap-2 flex-1">
+          <Droplet className="w-3.5 h-3.5 text-blue-400" />
+          <span className="text-xs font-medium">Water</span>
+          <span className="text-xs text-muted-foreground">{Math.round(totalMl)}/{DAILY_GOAL_ML}ml</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="h-1.5 w-24 bg-secondary rounded-full overflow-hidden">
+            <div className="h-full bg-blue-400 transition-all duration-500" style={{ width: `${Math.min(percentage, 100)}%` }} />
           </div>
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold">{Math.round(totalMl)} ml</p>
-          <p className="text-xs text-muted-foreground">of {DAILY_GOAL_ML} ml daily goal</p>
-          <p className="text-xs text-muted-foreground mt-1">{logs.length} entries today</p>
+          <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setShowAddWater(true)}>
+            <Plus className="w-3 h-3" />
+          </Button>
         </div>
       </div>
-
       <AnimatePresence>
         {showAddWater && <AddWaterModal date={date} onClose={() => setShowAddWater(false)} onAdd={handleAddWater} />}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
