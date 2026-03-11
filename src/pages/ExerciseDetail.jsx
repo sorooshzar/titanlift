@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
+import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 export default function ExerciseDetail() {
   const urlParams = new URLSearchParams(window.location.search);
