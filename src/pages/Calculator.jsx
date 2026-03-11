@@ -44,57 +44,64 @@ const UNIT_CONVERSIONS = {
 };
 
 function RegularMode() {
-  const [display, setDisplay] = useState("0");
-  const [prevValue, setPrevValue] = useState(null);
-  const [operation, setOperation] = useState(null);
+  const [expression, setExpression] = useState("0");
+  const [result, setResult] = useState(null);
 
   const handleNum = (num) => {
-    setDisplay(display === "0" ? String(num) : display + num);
+    if (expression === "0") {
+      setExpression(String(num));
+    } else {
+      setExpression(expression + num);
+    }
+    setResult(null);
   };
 
   const handleDecimal = () => {
-    if (!display.includes(".")) setDisplay(display + ".");
+    const lastNum = expression.split(/[+\-×÷]/).pop();
+    if (!lastNum.includes(".")) {
+      setExpression(expression + ".");
+    }
   };
 
   const handleOperation = (op) => {
-    setPrevValue(parseFloat(display));
-    setOperation(op);
-    setDisplay("0");
+    if (expression && !expression.endsWith(" ")) {
+      setExpression(expression + " " + op + " ");
+    }
   };
 
   const handleEquals = () => {
-    if (prevValue === null || operation === null) return;
-    const curr = parseFloat(display);
-    let result = 0;
-    switch (operation) {
-      case "+": result = prevValue + curr; break;
-      case "-": result = prevValue - curr; break;
-      case "×": result = prevValue * curr; break;
-      case "÷": result = prevValue / curr; break;
-      default: result = curr;
+    try {
+      const evalStr = expression.replace(/×/g, "*").replace(/÷/g, "/");
+      const res = eval(evalStr);
+      setResult(String(res));
+      setExpression(String(res));
+    } catch (e) {
+      setResult("Error");
     }
-    setDisplay(String(result));
-    setPrevValue(null);
-    setOperation(null);
   };
 
   const handleClear = () => {
-    setDisplay("0");
-    setPrevValue(null);
-    setOperation(null);
+    setExpression("0");
+    setResult(null);
   };
 
   const handlePercent = () => {
-    if (prevValue === null) return;
-    const curr = parseFloat(display);
-    const result = prevValue * (curr / 100);
-    setDisplay(String(result));
+    try {
+      const parts = expression.split(/[+\-×÷]/);
+      if (parts.length >= 2) {
+        const lastPart = parseFloat(parts[parts.length - 1]);
+        const firstPart = parseFloat(parts[0]);
+        const percentage = (firstPart * (lastPart / 100)).toFixed(2);
+        setExpression(expression.slice(0, expression.lastIndexOf(" ") + 1) + percentage);
+      }
+    } catch (e) {}
   };
 
   return (
     <div className="space-y-4">
-      <div className="bg-card rounded-2xl border border-border p-6 text-center">
-        <p className="text-5xl font-bold text-primary break-words">{display}</p>
+      <div className="bg-card rounded-2xl border border-border p-6 space-y-2">
+        <p className="text-sm text-muted-foreground text-right">{expression}</p>
+        <p className="text-4xl font-bold text-primary text-right break-words">{result || expression}</p>
       </div>
       <div className="grid grid-cols-4 gap-2">
         {/* Row 1 */}
@@ -148,7 +155,6 @@ function PlateMode() {
     const breakdown = [];
     let remaining = sideWeight;
 
-    // Greedy algorithm - use largest plates first
     for (const plate of bar.plates) {
       const count = Math.floor(remaining / plate);
       if (count > 0) {
@@ -160,7 +166,10 @@ function PlateMode() {
   };
 
   const plates = calculatePlates();
-  const plateList = plates ? plates.map(p => `${p.count}×${p.plate}`).join(", ") : "";
+
+  // Plate width scaling: 45lb = 100%, 35lb = 85%, 25lb = 70%, etc.
+  const plateWidths = { 45: 100, 35: 85, 25: 70, 10: 50, 5: 35, 2.5: 25 };
+  const plateHeights = { 45: 16, 35: 14, 25: 12, 10: 10, 5: 8, 2.5: 6 };
 
   return (
     <div className="space-y-4">
@@ -171,7 +180,7 @@ function PlateMode() {
             {Object.entries(BAR_TYPES).map(([k, v]) => (
               <button key={k} onClick={() => setBarType(k)}
                 className={`flex-1 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${barType === k ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
-                {v.name}
+                {v.name.split(" ")[0]} ({barWeight}{weightUnit})
               </button>
             ))}
           </div>
@@ -184,39 +193,47 @@ function PlateMode() {
       </div>
 
       {plates && (
-        <div className="bg-card rounded-2xl border border-border p-5">
-          <div className="grid grid-cols-5 gap-4 items-center">
-            {/* Birds-Eye View */}
-            <div className="col-span-2 flex flex-col items-center gap-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase">Side View</p>
-              <div className="w-full flex justify-center">
-                <div className="h-32 flex flex-col items-center justify-center gap-1">
-                  {/* Bar sleeve */}
-                  <div className="w-12 h-3 bg-gradient-to-b from-foreground/30 to-foreground/10 rounded"></div>
-                  {/* Plates stacked */}
-                  {plates.map((p, idx) => {
-                    const widths = { 45: "w-10", 35: "w-9", 25: "w-8", 10: "w-6", 5: "w-5", 2.5: "w-4" };
-                    const color = bar.plate_colors[p.plate];
-                    return (
-                      <div key={idx} className="flex flex-col gap-0.5">
-                        {[...Array(p.count)].map((_, i) => (
-                          <div key={i} className={`h-2 ${widths[p.plate]} ${color} rounded-sm`}></div>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
+        <div className="bg-card rounded-2xl border border-border p-6 space-y-3">
+          <h3 className="font-semibold text-sm">Plate Loader Guide</h3>
+          
+          <div className="grid grid-cols-5 gap-4 items-start min-h-72">
+            {/* Vertical Birds-Eye Visualizer */}
+            <div className="col-span-3 flex flex-col items-center gap-2 justify-end h-72">
+              {/* Bar sleeve - thin vertical rectangle */}
+              <div className="w-8 h-4 bg-foreground/40 rounded-sm mb-1"></div>
+              
+              {/* Plates stacking from bottom to top */}
+              <div className="flex flex-col-reverse gap-1">
+                {plates.map((p, idx) => (
+                  <div key={idx} className="flex flex-col gap-1">
+                    {[...Array(p.count)].map((_, i) => {
+                      const width = `${plateWidths[p.plate]}%`;
+                      const height = `${plateHeights[p.plate]}px`;
+                      const color = bar.plate_colors[p.plate];
+                      return (
+                        <div
+                          key={i}
+                          className={`${color} rounded-[10px] mx-auto`}
+                          style={{ width, height }}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Plate List */}
-            <div className="col-span-3 space-y-2">
+            {/* Plate List on right */}
+            <div className="col-span-2 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase">Per Side</p>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {plates.map(p => (
                   <div key={p.plate} className="flex items-center gap-2">
-                    <span className="font-bold text-sm">{p.count}×</span>
-                    <span className="text-sm text-muted-foreground">{p.plate} lbs</span>
+                    <span className="font-bold text-lg">{p.count}×</span>
+                    <div>
+                      <p className="text-sm font-semibold">{p.plate}</p>
+                      <p className="text-xs text-muted-foreground">lbs</p>
+                    </div>
                   </div>
                 ))}
               </div>

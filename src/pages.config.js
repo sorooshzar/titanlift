@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ActiveWorkout from './pages/ActiveWorkout';
+import Calculator from './pages/Calculator';
 import Cardio from './pages/Cardio';
 import EditWorkout from './pages/EditWorkout';
 import ExerciseDetail from './pages/ExerciseDetail';
@@ -61,12 +62,12 @@ import Settings from './pages/Settings';
 import WorkoutHistory from './pages/WorkoutHistory';
 import WorkoutSummary from './pages/WorkoutSummary';
 import Workouts from './pages/Workouts';
-import Calculator from './pages/Calculator';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ActiveWorkout": ActiveWorkout,
+    "Calculator": Calculator,
     "Cardio": Cardio,
     "EditWorkout": EditWorkout,
     "ExerciseDetail": ExerciseDetail,
@@ -80,7 +81,6 @@ export const PAGES = {
     "WorkoutHistory": WorkoutHistory,
     "WorkoutSummary": WorkoutSummary,
     "Workouts": Workouts,
-    "Calculator": Calculator,
 }
 
 export const pagesConfig = {
