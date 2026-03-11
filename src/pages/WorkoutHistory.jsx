@@ -113,15 +113,22 @@ function WorkoutDetailModal({ log, onClose }) {
                 <p className="text-sm font-semibold flex-1">{ex.exercise_name}</p>
               </div>
               <div className="space-y-1">
-                {ex.sets?.filter(s => s.completed).map((s, j) => (
-                  <div key={j} className="flex gap-4 text-xs text-muted-foreground">
-                    <span className="text-foreground font-medium w-6">{j + 1}</span>
-                    <span>{s.weight || 0} {weightUnit} × {s.reps || 0}</span>
-                    {s.rir != null && <span>RIR {s.rir}</span>}
-                    {s.type === "failure" && <span className="text-destructive font-semibold">F</span>}
-                    {s.type === "dropset" && <span className="text-amber-500 font-semibold">D</span>}
-                  </div>
-                ))}
+                {ex.sets?.filter(s => s.completed).map((s, j) => {
+                  const isEmpty = !s.weight && !s.reps;
+                  return (
+                    <div key={j} className="flex gap-4 text-xs text-muted-foreground">
+                      <span className={`font-medium w-6 ${s.type === "dropset" ? "text-purple-400" : s.type === "failure" ? "text-destructive" : "text-foreground"}`}>{j + 1}</span>
+                      {isEmpty ? (
+                        <span className="text-muted-foreground/50 italic">Incomplete</span>
+                      ) : (
+                        <span className={s.type === "dropset" ? "text-purple-400" : ""}>{s.weight || 0} {weightUnit} × {s.reps || 0}</span>
+                      )}
+                      {!isEmpty && s.rir != null && <span>RIR {s.rir}</span>}
+                      {s.type === "failure" && <span className="text-destructive font-semibold">Failure</span>}
+                      {s.type === "dropset" && <span className="text-purple-400 font-semibold">Drop</span>}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}
