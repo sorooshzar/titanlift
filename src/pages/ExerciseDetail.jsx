@@ -55,10 +55,10 @@ export default function ExerciseDetail() {
     });
   });
   const graphMetrics = {
-    volume: { key: "volume", label: "Volume (kg)", color: "hsl(var(--primary))" },
+    volume: { key: "volume", label: `Volume (${weightUnit})`, color: "hsl(var(--primary))" },
     reps: { key: "reps", label: "Max Reps", color: "#22c55e" },
-    maxWeight: { key: "maxWeight", label: "Max Weight (kg)", color: "#f59e0b" },
-    e1rm: { key: "e1rm", label: "Est. 1RM (kg)", color: "#8b5cf6" },
+    maxWeight: { key: "maxWeight", label: `Max Weight (${weightUnit})`, color: "#f59e0b" },
+    e1rm: { key: "e1rm", label: `Est. 1RM (${weightUnit})`, color: "#8b5cf6" },
   };
 
   if (!exercise) {
