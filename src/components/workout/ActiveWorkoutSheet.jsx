@@ -246,8 +246,6 @@ export default function ActiveWorkoutSheet() {
               Add Exercise
             </Button>
           </div>
-
-          </div>
           </div>
 
           <ExercisePicker
