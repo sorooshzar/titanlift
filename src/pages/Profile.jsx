@@ -176,6 +176,23 @@ export default function Profile() {
   const latestWeight = bodyWeights[0]?.weight;
   const totalVolume = workoutLogs.reduce((s, l) => s + (l.total_volume || 0), 0);
 
+  // XP / Level calculation based on total volume
+  function getLevelData(volume) {
+    // Each level requires more XP: level^1.5 * 500 base
+    let level = 1;
+    let xpUsed = 0;
+    while (true) {
+      const xpNeeded = Math.floor(Math.pow(level, 1.5) * 500);
+      if (xpUsed + xpNeeded > volume) {
+        return { level, xpIntoLevel: volume - xpUsed, xpNeeded, progress: (volume - xpUsed) / xpNeeded };
+      }
+      xpUsed += xpNeeded;
+      level++;
+      if (level > 999) return { level: 999, xpIntoLevel: 0, xpNeeded: 1, progress: 1 };
+    }
+  }
+  const xp = getLevelData(totalVolume);
+
   return (
     <div className="max-w-lg mx-auto px-4 pb-4">
       {/* Sticky header */}
