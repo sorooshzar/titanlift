@@ -246,6 +246,9 @@ export default function ActiveWorkoutSheet() {
             </Button>
           </div>
 
+          </div>
+          </div>
+
           <ExercisePicker
             open={showPicker}
             onClose={() => setShowPicker(false)}
