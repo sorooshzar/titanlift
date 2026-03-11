@@ -202,7 +202,11 @@ export default function Profile() {
   const recoveryData = {};
   Object.keys(muscleLastTrained).forEach(m => { recoveryData[m] = getRecoveryLevel(muscleLastTrained[m]); });
 
-  const latestWeight = bodyWeights[0]?.weight;
+  // latestWeight stored in kg, display converts it
+  const latestWeightKg = bodyWeights[0]?.weight;
+  const latestWeightDisplay = latestWeightKg ? toDisplay(latestWeightKg) : null;
+
+  // totalVolume always in kg for XP — never affected by unit toggle
   const totalVolume = workoutLogs.reduce((s, l) => s + (l.total_volume || 0), 0);
 
   // XP / Level calculation based on total volume
