@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Scale, ChevronRight, Settings, X, Target, Plus, BarChart2, Dumbbell, Weight, Ruler } from "lucide-react";
+import { Scale, ChevronRight, Settings, X, Target, Plus, BarChart2, Dumbbell, Weight, Ruler, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import MuscleModel from "../components/profile/MuscleModel";
