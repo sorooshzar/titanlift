@@ -2,17 +2,17 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Scale, User, Settings, Ruler, X } from "lucide-react";
+import { Scale, ChevronRight, Settings, X, Target, Plus, BarChart2, Dumbbell, Weight, Ruler } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import MuscleModel from "../components/profile/MuscleModel";
 import WeightChart from "../components/profile/WeightChart";
 import RankLegend from "../components/profile/RankLegend";
-import SettingsPanel from "../components/profile/SettingsPanel";
+import SettingsPanel, { applyTheme } from "../components/profile/SettingsPanel";
 import { Switch } from "@/components/ui/switch";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
+import { Input } from "@/components/ui/input";
 
 const RANK_ORDER = ["none", "wood", "bronze", "silver", "gold", "platinum", "diamond", "champion", "titan", "olympian"];
 
@@ -55,21 +55,20 @@ function LogWeightModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center p-4 sm:items-center" onClick={onClose}>
-      <div className="bg-card w-full max-w-sm rounded-2xl border border-border p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+      onClick={onClose}>
+      <div className="bg-card w-full max-w-sm rounded-t-2xl sm:rounded-2xl border-t sm:border border-border p-5 space-y-4"
+        onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold">Log Weight</h2>
           <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="space-y-3">
-          <Input type="number" step="0.1" placeholder="80.0" value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            className="text-center text-2xl font-bold h-14 bg-secondary border-0" autoFocus />
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-            className="bg-secondary border-0" />
-        </div>
+        <Input type="number" step="0.1" placeholder="80.0" value={weight}
+          onChange={e => setWeight(e.target.value)}
+          className="text-center text-2xl font-bold h-14 bg-secondary border-0" autoFocus />
+        <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="bg-secondary border-0" />
         <Button onClick={handleSave} disabled={!weight || saving} className="w-full h-11 rounded-xl font-semibold">
           {saving ? "Saving..." : "Save"}
         </Button>
@@ -78,10 +77,51 @@ function LogWeightModal({ onClose }) {
   );
 }
 
+function ProfileInfoPanel({ user, onClose }) {
+  const handleSignOut = () => {
+    base44.auth.logout();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border p-6 space-y-4"
+        onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-lg">Profile Info</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="space-y-3">
+          <div className="bg-secondary rounded-xl px-4 py-3">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Name</p>
+            <p className="text-sm font-medium">{user?.full_name || "—"}</p>
+          </div>
+          <div className="bg-secondary rounded-xl px-4 py-3">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Email</p>
+            <p className="text-sm font-medium">{user?.email || "—"}</p>
+          </div>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <Link to={createPageUrl("Settings")} onClick={onClose} className="flex-1">
+            <button className="w-full flex items-center justify-center gap-2 bg-secondary rounded-xl py-3 text-sm font-semibold">
+              <Settings className="w-4 h-4" /> Settings
+            </button>
+          </Link>
+          <button onClick={handleSignOut}
+            className="flex-1 bg-destructive/10 text-destructive rounded-xl py-3 text-sm font-semibold">
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Profile() {
   const [showRecovery, setShowRecovery] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [showLogWeight, setShowLogWeight] = useState(false);
+  const [showProfileInfo, setShowProfileInfo] = useState(false);
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
 
@@ -89,6 +129,8 @@ export default function Profile() {
     base44.auth.me().then(setUser).catch(() => {});
     const saved = localStorage.getItem("gym-dark-mode");
     setDarkMode(saved === null ? true : saved === "true");
+    const savedTheme = localStorage.getItem("gym-theme");
+    if (savedTheme) applyTheme(savedTheme);
   }, []);
 
   const toggleDark = (v) => {
@@ -111,12 +153,12 @@ export default function Profile() {
   const muscleRanks = {};
   const muscleLastTrained = {};
 
-  workoutLogs.forEach((log) => {
-    log.exercises?.forEach((ex) => {
+  workoutLogs.forEach(log => {
+    log.exercises?.forEach(ex => {
       const muscle = ex.muscle_group;
       if (!muscle) return;
       let volume = 0;
-      ex.sets?.forEach((s) => { if (s.completed) volume += (s.weight || 0) * (s.reps || 0); });
+      ex.sets?.forEach(s => { if (s.completed) volume += (s.weight || 0) * (s.reps || 0); });
       muscleRanks[muscle] = (muscleRanks[muscle] || 0) + volume;
       const logDate = log.finished_at || log.started_at || log.created_date;
       if (!muscleLastTrained[muscle] || new Date(logDate) > new Date(muscleLastTrained[muscle])) {
@@ -126,105 +168,129 @@ export default function Profile() {
   });
 
   const muscleRankNames = {};
-  Object.keys(muscleRanks).forEach((m) => { muscleRankNames[m] = getRankFromVolume(muscleRanks[m]); });
+  Object.keys(muscleRanks).forEach(m => { muscleRankNames[m] = getRankFromVolume(muscleRanks[m]); });
 
   const recoveryData = {};
-  Object.keys(muscleLastTrained).forEach((m) => { recoveryData[m] = getRecoveryLevel(muscleLastTrained[m]); });
+  Object.keys(muscleLastTrained).forEach(m => { recoveryData[m] = getRecoveryLevel(muscleLastTrained[m]); });
 
   const latestWeight = bodyWeights[0]?.weight;
+  const totalVolume = workoutLogs.reduce((s, l) => s + (l.total_volume || 0), 0);
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-5 pb-4 space-y-5">
-      {/* Top action bar */}
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="rounded-full w-9 h-9"
-          onClick={() => setShowSettings(!showSettings)}>
-          <Settings className="w-4.5 h-4.5" />
-        </Button>
-        <Link to={createPageUrl("Measurements")}>
-          <Button variant="ghost" size="icon" className="rounded-full w-9 h-9">
-            <Ruler className="w-4.5 h-4.5" />
-          </Button>
-        </Link>
-        <div className="flex-1" />
-      </div>
-
-      {/* Settings panel */}
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-            <SettingsPanel darkMode={darkMode} onToggleDark={toggleDark} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Profile header */}
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border">
-          <User className="w-7 h-7 text-muted-foreground" />
-        </div>
-        <div className="flex-1">
-          <h1 className="text-xl font-bold">{user?.full_name || "Athlete"}</h1>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5">
-            <div className="text-center">
-              <p className="text-sm font-bold">{latestWeight ? `${latestWeight}` : "--"}</p>
-              <p className="text-[10px] text-muted-foreground">kg</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-bold">--</p>
-              <p className="text-[10px] text-muted-foreground">Height</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-bold">{workoutLogs.length}</p>
-              <p className="text-[10px] text-muted-foreground">Workouts</p>
+    <div className="max-w-lg mx-auto px-4 pb-4">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-lg pt-4 pb-2 border-b border-border/30 mb-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Profile</h1>
+          <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground">{darkMode ? "Dark" : "Light"}</span>
+              <Switch checked={darkMode} onCheckedChange={toggleDark} className="scale-75" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Muscle Model Card */}
-      <div className="bg-card rounded-xl border border-border p-4">
-        <div className="flex items-center justify-end gap-2 mb-2">
-          <span className="text-[11px] text-muted-foreground">Recently Trained</span>
-          <Switch checked={showRecovery} onCheckedChange={setShowRecovery} className="scale-90" />
-        </div>
-        <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} />
-        <div className="mt-4">
-          {!showRecovery ? (
-            <RankLegend />
-          ) : (
-            <div className="flex flex-wrap gap-2 justify-center">
-              {[
-                { name: "Fresh", color: "#444" },
-                { name: "Light", color: "#2d5a1b" },
-                { name: "Moderate", color: "#7a5c00" },
-                { name: "Heavy", color: "#7a3000" },
-                { name: "Sore", color: "#7a0000" },
-              ].map((r) => (
-                <div key={r.name} className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ backgroundColor: r.color + "33" }}>
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
-                  <span className="text-[10px] font-semibold text-foreground">{r.name}</span>
-                </div>
-              ))}
+      <div className="space-y-4">
+        {/* Profile info bar — clickable */}
+        <button onClick={() => setShowProfileInfo(true)}
+          className="w-full flex items-center gap-4 bg-card rounded-2xl border border-border p-4 text-left active:scale-[0.99] transition-transform">
+          <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border shrink-0">
+            <span className="text-xl font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-base truncate">{user?.full_name || "Athlete"}</p>
+            <div className="flex gap-4 mt-1.5">
+              <div className="text-center">
+                <p className="text-sm font-bold">{workoutLogs.length}</p>
+                <p className="text-[10px] text-muted-foreground">Workouts</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-bold">{latestWeight ? `${latestWeight}kg` : "--"}</p>
+                <p className="text-[10px] text-muted-foreground">Weight</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-bold">{Math.round(totalVolume / 1000)}k</p>
+                <p className="text-[10px] text-muted-foreground">Volume (kg)</p>
+              </div>
             </div>
-          )}
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+        </button>
+
+        {/* Muscle Model Card */}
+        <div className="bg-card rounded-2xl border border-border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold">Muscle Map</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-muted-foreground">Recovery</span>
+              <Switch checked={showRecovery} onCheckedChange={setShowRecovery} className="scale-75" />
+            </div>
+          </div>
+          <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} />
+          <div className="mt-4">
+            {!showRecovery ? <RankLegend /> : (
+              <div className="flex flex-wrap gap-2 justify-center">
+                {[
+                  { name: "Fresh", color: "#444" }, { name: "Light", color: "#2d5a1b" },
+                  { name: "Moderate", color: "#7a5c00" }, { name: "Heavy", color: "#7a3000" },
+                  { name: "Sore", color: "#7a0000" },
+                ].map(r => (
+                  <div key={r.name} className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ backgroundColor: r.color + "33" }}>
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
+                    <span className="text-[10px] font-semibold">{r.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Weight Progress */}
+        <div className="bg-card rounded-2xl border border-border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold">Weight Progress</h2>
+            <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs rounded-lg px-2.5" onClick={() => setShowLogWeight(true)}>
+              <Scale className="w-3 h-3" /> Log
+            </Button>
+          </div>
+          <WeightChart data={bodyWeights} />
+        </div>
+
+        {/* Quick links */}
+        <div className="grid grid-cols-2 gap-3">
+          <Link to={createPageUrl("Measurements")}>
+            <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3 active:scale-95 transition-transform">
+              <Ruler className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-semibold">Measurements</p>
+                <p className="text-xs text-muted-foreground">Body stats</p>
+              </div>
+            </div>
+          </Link>
+          <Link to={createPageUrl("WorkoutHistory")}>
+            <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3 active:scale-95 transition-transform">
+              <BarChart2 className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-semibold">History</p>
+                <p className="text-xs text-muted-foreground">All workouts</p>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        {/* Settings */}
+        <Link to={createPageUrl("Settings")}>
+          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3 active:scale-95 transition-transform">
+            <Settings className="w-5 h-5 text-muted-foreground" />
+            <span className="text-sm font-medium flex-1">Settings</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </div>
+        </Link>
       </div>
 
-      {/* Weight Progress */}
-      <div className="bg-card rounded-xl p-4 border border-border">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-bold">Weight Progress</h2>
-          <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={() => setShowLogWeight(true)}>
-            <Scale className="w-3.5 h-3.5" /> Log
-          </Button>
-        </div>
-        <WeightChart data={bodyWeights} />
-      </div>
-
-      {/* Log Weight Modal */}
       {showLogWeight && <LogWeightModal onClose={() => setShowLogWeight(false)} />}
+      {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} />}
     </div>
   );
 }

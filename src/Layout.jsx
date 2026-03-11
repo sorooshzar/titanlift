@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BottomNav from "./components/layout/BottomNav";
 
-const HIDDEN_NAV_PAGES = ["ActiveWorkout", "EditWorkout", "WorkoutHistory", "Measurements"];
+const HIDDEN_NAV_PAGES = ["ActiveWorkout", "EditWorkout", "WorkoutHistory", "Measurements", "Settings"];
 
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(true);
