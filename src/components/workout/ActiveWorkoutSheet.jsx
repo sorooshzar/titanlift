@@ -85,6 +85,7 @@ export default function ActiveWorkoutSheet() {
         muscle_group: exercise.muscle_group,
         color: null,
         superset_group: null,
+        notes: exercise.notes || null,
         order: prev.exercises.length,
         sets: [{ type: "working", weight: 0, reps: 0, rir: 2, completed: false }],
       }],
