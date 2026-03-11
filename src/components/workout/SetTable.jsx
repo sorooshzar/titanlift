@@ -36,7 +36,8 @@ const GRID = "grid-cols-[28px_1fr_56px_56px_44px_36px_24px]";
 const GRID_ACTIVE = "grid-cols-[24px_28px_1fr_52px_52px_44px_36px_24px]";
 
 export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [] }) {
-  const weightUnit = localStorage.getItem("gym-weight-unit") || "kg";
+  const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
+
   const updateSet = (index, field, value) => {
     const updated = [...sets];
     updated[index] = { ...updated[index], [field]: value };
