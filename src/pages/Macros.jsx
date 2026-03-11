@@ -300,11 +300,12 @@ function FoodsTab() {
 }
 
 export default function Macros() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const [tab, setTab] = useState(urlParams.get("tab") || "dashboard");
-  const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [addingMeal, setAddingMeal] = useState(null);
-  const queryClient = useQueryClient();
+   const urlParams = new URLSearchParams(window.location.search);
+   const [tab, setTab] = useState(urlParams.get("tab") || "dashboard");
+   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
+   const [addingMeal, setAddingMeal] = useState(null);
+   const queryClient = useQueryClient();
+   const touchStartX = useRef(null);
 
   const { data: entries = [] } = useQuery({
     queryKey: ["macroEntries", date],
@@ -323,28 +324,54 @@ export default function Macros() {
   };
 
   const tabs = [
-    { id: "dashboard", label: "Dashboard" },
-    { id: "journal", label: "Journal" },
-    { id: "foods", label: "Foods" },
-  ];
+     { id: "dashboard", label: "Dashboard" },
+     { id: "journal", label: "Journal" },
+     { id: "foods", label: "Foods" },
+   ];
 
-  return (
-    <div className="max-w-lg mx-auto px-4 pt-5 pb-4">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Macros</h1>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)}
-          className="text-xs bg-secondary border-0 rounded-lg px-2 py-1.5 text-foreground" />
-      </div>
+   const handleDateSwipe = (e) => {
+     if (!touchStartX.current) return;
+     const diff = (e.changedTouches?.[0]?.clientX || 0) - touchStartX.current;
+     if (Math.abs(diff) > 60) {
+       if (diff > 0) setDate(format(subDays(new Date(date), 1), "yyyy-MM-dd"));
+       else setDate(format(addDays(new Date(date), 1), "yyyy-MM-dd"));
+     }
+     touchStartX.current = null;
+   };
 
-      {/* Tab bar */}
-      <div className="flex bg-secondary rounded-xl p-1 mb-5">
-        {tabs.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${tab === t.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+   return (
+     <div className="max-w-lg mx-auto px-4 pt-5 pb-4">
+       <div className="flex items-center justify-between mb-4">
+         <h1 className="text-2xl font-bold">Macros</h1>
+         <input type="date" value={date} onChange={e => setDate(e.target.value)}
+           className="text-xs bg-secondary border-0 rounded-lg px-2 py-1.5 text-foreground" />
+       </div>
+
+       {/* Tab bar */}
+       <div className="flex bg-secondary rounded-xl p-1 mb-5">
+         {tabs.map(t => (
+           <button key={t.id} onClick={() => setTab(t.id)}
+             className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${tab === t.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+             {t.label}
+           </button>
+         ))}
+       </div>
+
+       {/* Swipeable date nav for Journal */}
+       {tab === "journal" && (
+         <div className="flex items-center justify-center gap-3 mb-5" onTouchStart={(e) => touchStartX.current = e.touches[0].clientX} onTouchEnd={handleDateSwipe}>
+           <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => setDate(format(subDays(new Date(date), 1), "yyyy-MM-dd"))}>
+             <ChevronLeft className="w-4 h-4" />
+           </Button>
+           <div className="text-center">
+             <p className="text-sm font-bold">{format(new Date(date), "MMM d")}</p>
+             <p className="text-xs text-muted-foreground">{format(new Date(date), "EEEE")}</p>
+           </div>
+           <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => setDate(format(addDays(new Date(date), 1), "yyyy-MM-dd"))}>
+             <ChevronRight className="w-4 h-4" />
+           </Button>
+         </div>
+       )}
 
       {tab === "dashboard" && <DashboardTab entries={entries} date={date} />}
       {tab === "journal" && (
