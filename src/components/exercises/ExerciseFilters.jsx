@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { ArrowUpDown, Check, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -16,12 +16,10 @@ const SORT_OPTIONS = [
 ];
 
 export default function ExerciseFilters({ filters, onFiltersChange }) {
-  const [showEquipment, setShowEquipment] = useState(false);
-
-  const toggleMainGroup = (mainGroup) => {
-    const current = filters.mainGroups || [];
-    const next = current.includes(mainGroup) ? current.filter((x) => x !== mainGroup) : [...current, mainGroup];
-    onFiltersChange({ ...filters, mainGroups: next });
+  const toggleMuscleGroup = (muscleGroup) => {
+    const current = filters.muscleGroups || [];
+    const next = current.includes(muscleGroup) ? current.filter((x) => x !== muscleGroup) : [...current, muscleGroup];
+    onFiltersChange({ ...filters, muscleGroups: next });
   };
 
   const toggleEquipment = (eq) => {
