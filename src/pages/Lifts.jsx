@@ -176,7 +176,14 @@ function ExercisesTab() {
 
   let filtered = exercises.filter(ex => {
     if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filters.bodyParts.length > 0 && !filters.bodyParts.includes(ex.muscle_group)) return false;
+    if (filters.bodyParts.length > 0) {
+      const allMuscles = [ex.primary_muscle, ...(ex.secondary_muscles || [])]
+        .map(m => m.toLowerCase().replace(/_/g, " "));
+      const hasMatch = filters.bodyParts.some(bp => 
+        allMuscles.includes(bp.toLowerCase().replace(/_/g, " "))
+      );
+      if (!hasMatch) return false;
+    }
     if (filters.equipment.length > 0) {
       const eqKey = ex.category?.toLowerCase().replace(" ", "_");
       if (!filters.equipment.includes(eqKey)) return false;
