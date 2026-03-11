@@ -24,9 +24,9 @@ function getRowBg(set) {
   return "";
 }
 
-// Grid: [prev-col] [set] [weight] [reps] [rir] [del]
-const GRID = "grid-cols-[1fr_28px_56px_56px_44px_24px]";
-const GRID_ACTIVE = "grid-cols-[24px_1fr_28px_52px_52px_44px_24px]";
+// Grid active: [check] [set] [prev] [weight] [reps] [rir] [del]
+const GRID = "grid-cols-[28px_1fr_56px_56px_44px_24px]";
+const GRID_ACTIVE = "grid-cols-[24px_28px_1fr_52px_52px_44px_24px]";
 
 export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [] }) {
   const updateSet = (index, field, value) => {
