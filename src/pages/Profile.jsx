@@ -47,11 +47,14 @@ function LogWeightModal({ onClose }) {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
+  const { unit, toKg } = useWeightUnit();
 
   const handleSave = async () => {
     if (!weight) return;
     setSaving(true);
-    await base44.entities.BodyWeight.create({ weight: parseFloat(weight), unit: "kg", date });
+    // Always store in kg (base unit)
+    const kgWeight = toKg(parseFloat(weight));
+    await base44.entities.BodyWeight.create({ weight: kgWeight, unit: "kg", date });
     queryClient.invalidateQueries({ queryKey: ["bodyWeights"] });
     setSaving(false);
     onClose();
@@ -63,12 +66,12 @@ function LogWeightModal({ onClose }) {
       <div className="bg-card w-full max-w-sm rounded-t-2xl sm:rounded-2xl border-t sm:border border-border p-5 space-y-4"
         onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold">Log Weight</h2>
+          <h2 className="text-base font-bold">Log Weight ({unit})</h2>
           <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <Input type="number" step="0.1" placeholder="80.0" value={weight}
+        <Input type="number" step="0.1" placeholder={unit === "lbs" ? "176.0" : "80.0"} value={weight}
           onChange={e => setWeight(e.target.value)}
           className="text-center text-2xl font-bold h-14 bg-secondary border-0" autoFocus />
         <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="bg-secondary border-0" />
