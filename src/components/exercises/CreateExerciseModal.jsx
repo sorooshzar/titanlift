@@ -90,24 +90,20 @@ export default function CreateExerciseModal({ open, onClose }) {
                   <button
                     key={sub}
                     onClick={() => {
-                      setPrimaryMuscle((prev) => {
-                        if (Array.isArray(prev)) {
-                          return prev.includes(sub)
-                            ? prev.filter((m) => m !== sub)
-                            : [...prev, sub];
-                        } else {
-                          return [sub];
-                        }
-                      });
+                      setPrimaryMuscles((prev) =>
+                        prev.includes(sub)
+                          ? prev.filter((m) => m !== sub)
+                          : [...prev, sub]
+                      );
                     }}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
-                      (Array.isArray(primaryMuscle) ? primaryMuscle : []).includes(sub)
+                      primaryMuscles.includes(sub)
                         ? "bg-primary text-primary-foreground"
                         : "bg-secondary text-muted-foreground hover:bg-secondary/70"
                     }`}
                   >
                     {sub}
-                    {(Array.isArray(primaryMuscle) ? primaryMuscle : []).includes(sub) && (
+                    {primaryMuscles.includes(sub) && (
                       <Check className="w-3 h-3" />
                     )}
                   </button>
