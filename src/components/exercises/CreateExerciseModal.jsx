@@ -10,34 +10,29 @@ const CATEGORIES = ["barbell", "dumbbell", "machine", "cable", "bodyweight", "ba
 
 export default function CreateExerciseModal({ open, onClose }) {
   const [name, setName] = useState("");
-  const [primaryMuscle, setPrimaryMuscle] = useState("");
+  const [primaryMuscles, setPrimaryMuscles] = useState([]);
   const [secondaryMuscles, setSecondaryMuscles] = useState([]);
   const [category, setCategory] = useState("");
   const [saving, setSaving] = useState(false);
-  const [selectedMainGroup, setSelectedMainGroup] = useState("");
   const queryClient = useQueryClient();
 
   if (!open) return null;
 
-  // Get available subsections for the selected main group
-  const availableSubsections = selectedMainGroup ? getSubsectionsForMain(selectedMainGroup) : [];
-
   const handleSave = async () => {
-    if (!name.trim() || !primaryMuscle) return;
+    if (!name.trim() || primaryMuscles.length === 0) return;
     setSaving(true);
     await base44.entities.Exercise.create({
       name: name.trim(),
-      primary_muscle: primaryMuscle,
+      primary_muscle: primaryMuscles,
       secondary_muscles: secondaryMuscles,
       category: category || "other",
     });
     queryClient.invalidateQueries({ queryKey: ["exercises"] });
     setSaving(false);
     setName("");
-    setPrimaryMuscle("");
+    setPrimaryMuscles([]);
     setSecondaryMuscles([]);
     setCategory("");
-    setSelectedMainGroup("");
     onClose();
   };
 
@@ -47,7 +42,7 @@ export default function CreateExerciseModal({ open, onClose }) {
     );
   };
 
-  const canSave = name.trim() && primaryMuscle;
+  const canSave = name.trim() && primaryMuscles.length > 0;
 
   return (
     <div
@@ -82,74 +77,55 @@ export default function CreateExerciseModal({ open, onClose }) {
             />
           </div>
 
-          {/* Primary Muscle Selection */}
+          {/* Primary Muscles Selection (Multi-select) */}
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-2 block">
-              Primary Muscle *
+              Primary Muscles * (select one or more)
             </label>
-            <div className="space-y-3">
-              {/* Main Group Selection */}
-              <div>
-                <label className="text-xs text-muted-foreground mb-1.5 block font-medium">
-                  Select Muscle Group
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.keys(MUSCLE_HIERARCHY).map((mainGroup) => (
-                    <button
-                      key={mainGroup}
-                      onClick={() => {
-                        setSelectedMainGroup(mainGroup);
-                        setPrimaryMuscle("");
-                      }}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                        selectedMainGroup === mainGroup
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-muted-foreground hover:bg-secondary/70"
-                      }`}
-                    >
-                      {mainGroup}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Subsection Selection */}
-              {availableSubsections.length > 0 && (
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1.5 block font-medium">
-                    Select Sub-section
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {availableSubsections.map((sub) => (
-                      <button
-                        key={sub}
-                        onClick={() => setPrimaryMuscle(sub)}
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                          primaryMuscle === sub
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-secondary text-muted-foreground hover:bg-secondary/70"
-                        }`}
-                      >
-                        {sub}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="flex flex-wrap gap-1.5">
+              {Object.values(MUSCLE_HIERARCHY)
+                .flatMap((subs) => subs)
+                .filter((sub, idx, arr) => arr.indexOf(sub) === idx)
+                .map((sub) => (
+                  <button
+                    key={sub}
+                    onClick={() => {
+                      setPrimaryMuscle((prev) => {
+                        if (Array.isArray(prev)) {
+                          return prev.includes(sub)
+                            ? prev.filter((m) => m !== sub)
+                            : [...prev, sub];
+                        } else {
+                          return [sub];
+                        }
+                      });
+                    }}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
+                      (Array.isArray(primaryMuscle) ? primaryMuscle : []).includes(sub)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-muted-foreground hover:bg-secondary/70"
+                    }`}
+                  >
+                    {sub}
+                    {(Array.isArray(primaryMuscle) ? primaryMuscle : []).includes(sub) && (
+                      <Check className="w-3 h-3" />
+                    )}
+                  </button>
+                ))}
             </div>
           </div>
 
           {/* Secondary Muscles */}
-          {primaryMuscle && (
+          {primaryMuscles.length > 0 && (
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                Secondary Muscles (Optional)
+                Secondary Muscles (Optional, multi-select)
               </label>
               <div className="flex flex-wrap gap-1.5">
-                {Object.entries(MUSCLE_HIERARCHY)
-                  .flatMap(([_, subs]) => subs)
-                  .filter((sub) => sub !== primaryMuscle)
-                  .filter((sub, idx, arr) => arr.indexOf(sub) === idx) // Remove duplicates
+                {Object.values(MUSCLE_HIERARCHY)
+                  .flatMap((subs) => subs)
+                  .filter((sub, idx, arr) => arr.indexOf(sub) === idx)
+                  .filter((sub) => !primaryMuscles.includes(sub))
                   .map((sub) => (
                     <button
                       key={sub}

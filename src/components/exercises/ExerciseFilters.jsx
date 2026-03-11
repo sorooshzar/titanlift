@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MUSCLE_HIERARCHY, getSubsectionsForMain, normalizeSubsection } from "@/components/utils/muscleHierarchy";
+import { MUSCLE_HIERARCHY } from "@/components/utils/muscleHierarchy";
 
 const EQUIPMENT = ["Barbell", "Dumbbell", "Machine", "Smith Machine", "Bodyweight", "Cable", "Band", "Other"];
 const SORT_OPTIONS = [
@@ -16,7 +16,6 @@ const SORT_OPTIONS = [
 ];
 
 export default function ExerciseFilters({ filters, onFiltersChange }) {
-  const [showBodyParts, setShowBodyParts] = useState(false);
   const [showEquipment, setShowEquipment] = useState(false);
 
   const toggleMainGroup = (mainGroup) => {
@@ -38,72 +37,102 @@ export default function ExerciseFilters({ filters, onFiltersChange }) {
   const eqCount = (filters.equipment || []).length;
 
   return (
-    <div className="space-y-2">
-      {/* Main Group Chips */}
-      <div className="flex flex-wrap gap-2">
-        {Object.keys(MUSCLE_HIERARCHY).map((mainGroup) => {
-          const active = (filters.mainGroups || []).includes(mainGroup);
-          return (
-            <button
-              key={mainGroup}
-              onClick={() => toggleMainGroup(mainGroup)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                active ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-secondary/70"
-              }`}
-            >
-              {mainGroup}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Equipment Filter */}
-      <div className="relative">
-        <button
-          onClick={() => { setShowEquipment(!showEquipment); }}
-          className={`flex items-center gap-1 w-full px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
-            eqCount > 0 ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
-          }`}
-        >
-          <span className="flex-1 text-left truncate">
-            {eqCount > 0 ? `Equipment (${eqCount})` : "Equipment"}
-          </span>
-          <ChevronDown className="w-3 h-3 flex-shrink-0" />
-        </button>
-        {showEquipment && (
-          <div className="absolute top-full left-0 mt-1 w-44 bg-popover border border-border rounded-xl shadow-xl z-20 p-2 max-h-56 overflow-y-auto">
-            {EQUIPMENT.map((eq) => {
-              const key = eq.toLowerCase().replace(" ", "_");
-              const active = (filters.equipment || []).includes(key);
-              return (
-                <button key={eq} onClick={() => toggleEquipment(eq)}
-                  className="flex items-center justify-between w-full px-2 py-1.5 rounded-lg text-xs hover:bg-secondary transition-colors">
-                  <span className={active ? "text-primary font-semibold" : "text-foreground"}>{eq}</span>
-                  {active && <Check className="w-3 h-3 text-primary" />}
-                </button>
-              );
-            })}
-            {eqCount > 0 && (
-              <button onClick={() => onFiltersChange({ ...filters, equipment: [] })}
-                className="w-full mt-1 py-1.5 text-xs text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
-                Clear
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Sort */}
+    <div className="flex gap-2 items-center">
+      {/* Muscle Group Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
+          <button
+            className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium border transition-all flex-1 min-w-0 ${
+              bpCount > 0 ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
+            }`}
+          >
+            <span className="flex-1 text-left truncate">
+              {bpCount > 0 ? `Muscle (${bpCount})` : "Muscle Group"}
+            </span>
+            <ChevronDown className="w-3 h-3 flex-shrink-0" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-44">
+          {Object.keys(MUSCLE_HIERARCHY).map((mainGroup) => {
+            const active = (filters.mainGroups || []).includes(mainGroup);
+            return (
+              <DropdownMenuItem
+                key={mainGroup}
+                onClick={() => toggleMainGroup(mainGroup)}
+                className="text-xs"
+              >
+                <span className={active ? "text-primary font-semibold" : "text-foreground"}>{mainGroup}</span>
+                {active && <Check className="w-3 h-3 ml-auto text-primary" />}
+              </DropdownMenuItem>
+            );
+          })}
+          {bpCount > 0 && (
+            <>
+              <div className="my-1 h-px bg-border" />
+              <DropdownMenuItem
+                onClick={() => onFiltersChange({ ...filters, mainGroups: [] })}
+                className="text-xs text-destructive"
+              >
+                Clear Filter
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Equipment Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium border transition-all flex-1 min-w-0 ${
+              eqCount > 0 ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
+            }`}
+          >
+            <span className="flex-1 text-left truncate">
+              {eqCount > 0 ? `Equipment (${eqCount})` : "Equipment"}
+            </span>
+            <ChevronDown className="w-3 h-3 flex-shrink-0" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-44">
+          {EQUIPMENT.map((eq) => {
+            const key = eq.toLowerCase().replace(" ", "_");
+            const active = (filters.equipment || []).includes(key);
+            return (
+              <DropdownMenuItem
+                key={eq}
+                onClick={() => toggleEquipment(eq)}
+                className="text-xs"
+              >
+                <span className={active ? "text-primary font-semibold" : "text-foreground"}>{eq}</span>
+                {active && <Check className="w-3 h-3 ml-auto text-primary" />}
+              </DropdownMenuItem>
+            );
+          })}
+          {eqCount > 0 && (
+            <>
+              <div className="my-1 h-px bg-border" />
+              <DropdownMenuItem
+                onClick={() => onFiltersChange({ ...filters, equipment: [] })}
+                className="text-xs text-destructive"
+              >
+                Clear Filter
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Sort Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-medium border transition-all flex-shrink-0 ${
             filters.sort && filters.sort !== "name" ? "border-primary/40 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground"
           }`}>
             <ArrowUpDown className="w-3.5 h-3.5" />
-            <span className="text-xs">Sort</span>
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="w-40">
           {SORT_OPTIONS.map((o) => (
             <DropdownMenuItem key={o.id} onClick={() => setSort(o.id)}
               className={`text-xs ${filters.sort === o.id ? "text-primary font-semibold" : ""}`}>

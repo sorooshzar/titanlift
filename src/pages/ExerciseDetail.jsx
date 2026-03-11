@@ -28,12 +28,29 @@ export default function ExerciseDetail() {
     queryFn: () => base44.entities.WorkoutLog.list("-created_date", 200),
   });
 
-  // Calculate all graph data for this exercise
+  // Calculate session-based 1RM peaks
+  const calculateSessionPeak1RM = (sets) => {
+    let peak1rm = 0;
+    sets?.forEach((s) => {
+      if (s.completed && s.weight && s.reps) {
+        // Epley formula: 1RM = weight * (1 + reps/30)
+        const epley = s.weight * (1 + s.reps / 30);
+        // Brzycki formula: 1RM = weight * 36 / (37 - reps)
+        const brzycki = s.reps < 37 ? s.weight * 36 / (37 - s.reps) : s.weight;
+        const avg1rm = (epley + brzycki) / 2;
+        if (avg1rm > peak1rm) peak1rm = avg1rm;
+      }
+    });
+    return peak1rm;
+  };
+
   const allChartData = [];
   workoutLogs.forEach((log) => {
     log.exercises?.forEach((ex) => {
       if (ex.exercise_id === id) {
         let volumeKg = 0, maxReps = 0, maxWeightKg = 0;
+        const peak1rmKg = calculateSessionPeak1RM(ex.sets);
+        
         ex.sets?.forEach((s) => {
           if (s.completed) {
             volumeKg += (s.weight || 0) * (s.reps || 0);
@@ -41,14 +58,14 @@ export default function ExerciseDetail() {
             if ((s.weight || 0) > maxWeightKg) maxWeightKg = s.weight || 0;
           }
         });
-        const e1rmKg = maxWeightKg > 0 && maxReps > 0 ? maxWeightKg * (1 + maxReps / 30) : 0;
-        if (volumeKg > 0 || maxReps > 0) {
+        
+        if (volumeKg > 0 || maxReps > 0 || peak1rmKg > 0) {
           allChartData.push({
             date: format(new Date(log.started_at || log.created_date), "MMM d"),
             volume: Math.round(toDisplay(volumeKg) || 0),
             reps: maxReps,
             maxWeight: Math.round(toDisplay(maxWeightKg) || 0),
-            e1rm: Math.round(toDisplay(e1rmKg) || 0),
+            e1rm: Math.round(toDisplay(peak1rmKg) || 0),
           });
         }
       }
@@ -104,7 +121,7 @@ export default function ExerciseDetail() {
           <div>
             <h1 className="text-xl font-bold">{exercise.name}</h1>
             <p className="text-sm text-muted-foreground capitalize">
-              {exercise.muscle_group?.replace(/_/g, " ")} • {exercise.category}
+              {exercise.primary_muscle?.replace(/_/g, " ")} • {exercise.category}
             </p>
           </div>
         </div>
