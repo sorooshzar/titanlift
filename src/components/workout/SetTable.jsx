@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 function getSetLabel(set, workingIndex) {
   if (set.type === "warmup") return { label: "W", color: "text-amber-500" };
