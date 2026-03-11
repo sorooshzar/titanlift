@@ -1,8 +1,8 @@
 import React from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { format } from "date-fns";
 
-export default function WeightChart({ data = [] }) {
+export default function WeightChart({ data = [], goalWeight = null }) {
   // Deduplicate: keep only the latest entry per day
   const byDay = {};
   data.forEach(d => {
@@ -15,7 +15,6 @@ export default function WeightChart({ data = [] }) {
     .map(d => ({
       date: format(new Date(d.date), "MMM d"),
       weight: d.weight,
-      rawDate: d.date,
     }));
 
   if (chartData.length === 0) {
@@ -25,6 +24,11 @@ export default function WeightChart({ data = [] }) {
       </div>
     );
   }
+
+  const weights = chartData.map(d => d.weight);
+  const allValues = goalWeight ? [...weights, goalWeight] : weights;
+  const domainMin = Math.min(...allValues) - 2;
+  const domainMax = Math.max(...allValues) + 2;
 
   return (
     <div className="h-48 w-full">
@@ -41,7 +45,7 @@ export default function WeightChart({ data = [] }) {
             tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
             axisLine={false}
             tickLine={false}
-            domain={['dataMin - 2', 'dataMax + 2']}
+            domain={[domainMin, domainMax]}
           />
           <Tooltip
             contentStyle={{
@@ -53,6 +57,15 @@ export default function WeightChart({ data = [] }) {
             }}
             formatter={(value) => [`${value} kg`, "Weight"]}
           />
+          {goalWeight && (
+            <ReferenceLine
+              y={goalWeight}
+              stroke="hsl(var(--primary))"
+              strokeDasharray="5 4"
+              strokeOpacity={0.6}
+              label={{ value: `Goal: ${goalWeight}kg`, position: "insideTopRight", fontSize: 9, fill: "hsl(var(--primary))" }}
+            />
+          )}
           <Line
             type="monotone"
             dataKey="weight"

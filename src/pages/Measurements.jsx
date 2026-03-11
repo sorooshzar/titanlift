@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 
 const BODY_PARTS = [
-  "Neck", "Shoulders", "Chest", "Upper Arm", "Forearm",
+  "Height", "Neck", "Shoulders", "Chest", "Upper Arm", "Forearm",
   "Waist", "Hips", "Thigh", "Calf",
 ];
 
@@ -74,10 +74,10 @@ export default function Measurements() {
         </Button>
         <h1 className="text-xl font-bold flex-1">Measurements</h1>
         <div className="flex gap-1 bg-secondary rounded-lg p-1">
-          {["cm", "in"].map((u) => (
-            <button key={u} onClick={() => setUnit(u)}
-              className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${unit === u ? "bg-primary text-white" : "text-muted-foreground"}`}>
-              {u}
+          {[{ id: "cm", label: "Metric" }, { id: "in", label: "Imperial" }].map((u) => (
+            <button key={u.id} onClick={() => setUnit(u.id)}
+              className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${unit === u.id ? "bg-primary text-white" : "text-muted-foreground"}`}>
+              {u.label}
             </button>
           ))}
         </div>
