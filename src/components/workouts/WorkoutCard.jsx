@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MoreVertical, Play, Pencil, Copy, Trash2, Dumbbell, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X } from "lucide-react";
+import { MoreVertical, Play, Pencil, Copy, Trash2, Dumbbell, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"];
+
 export default function WorkoutCard({ template, folders = [], onEdit, onDelete, onDuplicate, onArchive, onUnarchive, onMoveToFolder, onUpdateNotes, onStart, isArchived }) {
+  const { base44 } = require("@/api/base44Client");
+  const { useQueryClient } = require("@tanstack/react-query");
+  const queryClient = useQueryClient?.();
+  
   const setCount = template.exercises?.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0) || 0;
   const accentColor = template.color || null;
   const [editingNote, setEditingNote] = useState(false);
@@ -28,6 +34,13 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
   const handleCancelNote = () => {
     setNoteValue(template.notes || "");
     setEditingNote(false);
+  };
+
+  const handleSelectColor = async (color) => {
+    try {
+      await base44.entities.WorkoutTemplate.update(template.id, { color });
+      queryClient?.invalidateQueries({ queryKey: ["templates"] });
+    } catch (e) {}
   };
 
   return (
@@ -70,6 +83,23 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
             <DropdownMenuItem onClick={() => { setNoteValue(template.notes || ""); setEditingNote(true); }}>
               <NotebookPen className="w-4 h-4 mr-2" /> {template.notes ? "Edit Note" : "Add Note"}
             </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <Palette className="w-4 h-4 mr-2" /> Select Color
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <div className="grid grid-cols-4 gap-2 p-2">
+                  {COLORS.map(color => (
+                    <button key={color} onClick={() => handleSelectColor(color)} 
+                      className="w-8 h-8 rounded-lg border-2 transition-all" 
+                      style={{ backgroundColor: color, borderColor: accentColor === color ? "#000" : "transparent" }} />
+                  ))}
+                  <button onClick={() => handleSelectColor(null)} 
+                    className="w-8 h-8 rounded-lg border-2 border-dashed bg-secondary flex items-center justify-center text-xs font-bold"
+                    style={{ borderColor: accentColor === null ? "#000" : "#999" }}>None</button>
+                </div>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             <DropdownMenuItem onClick={() => onDuplicate(template)}>
               <Copy className="w-4 h-4 mr-2" /> Duplicate
             </DropdownMenuItem>

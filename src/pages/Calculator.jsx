@@ -13,13 +13,20 @@ const BAR_TYPES = {
 };
 
 const REP_MAXES = [
-  { pct: 115, reps: "0 Reps (Static Hold)" },
+  { pct: 115, reps: "--" },
+  { pct: 110, reps: "1-2" },
+  { pct: 105, reps: 1 },
   { pct: 100, reps: 1 },
   { pct: 95, reps: 2 },
   { pct: 90, reps: "3-4" },
   { pct: 85, reps: 6 },
   { pct: 80, reps: 8 },
   { pct: 75, reps: 10 },
+  { pct: 70, reps: "12-13" },
+  { pct: 65, reps: "14-15" },
+  { pct: 60, reps: "16-20" },
+  { pct: 55, reps: "20-25" },
+  { pct: 50, reps: "25-30" },
 ];
 
 const UNIT_CONVERSIONS = {
@@ -196,34 +203,8 @@ function PlateMode() {
         <div className="bg-card rounded-2xl border border-border p-6 space-y-3">
           <h3 className="font-semibold text-sm">Plate Loader Guide</h3>
           
-          <div className="grid grid-cols-5 gap-4 items-start min-h-72">
-            {/* Vertical Birds-Eye Visualizer */}
-            <div className="col-span-3 flex flex-col items-center gap-2 justify-end h-72">
-              {/* Bar sleeve - thin vertical rectangle */}
-              <div className="w-8 h-4 bg-foreground/40 rounded-sm mb-1"></div>
-              
-              {/* Plates stacking from bottom to top */}
-              <div className="flex flex-col-reverse gap-1">
-                {plates.map((p, idx) => (
-                  <div key={idx} className="flex flex-col gap-1">
-                    {[...Array(p.count)].map((_, i) => {
-                      const width = `${plateWidths[p.plate]}%`;
-                      const height = `${plateHeights[p.plate]}px`;
-                      const color = bar.plate_colors[p.plate];
-                      return (
-                        <div
-                          key={i}
-                          className={`${color} rounded-[10px] mx-auto`}
-                          style={{ width, height }}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Plate List on right */}
+          <div className="grid grid-cols-5 gap-6 items-end min-h-80">
+            {/* Plate List on left */}
             <div className="col-span-2 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase">Per Side</p>
               <div className="space-y-2">
@@ -234,6 +215,32 @@ function PlateMode() {
                       <p className="text-sm font-semibold">{p.plate}</p>
                       <p className="text-xs text-muted-foreground">lbs</p>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Thick Vertical Plate Diagram on right */}
+            <div className="col-span-3 flex flex-col items-center justify-end h-80">
+              {/* Bar sleeve - thin vertical rectangle */}
+              <div className="w-10 h-6 bg-foreground/40 rounded-sm mb-2"></div>
+              
+              {/* Plates stacking from bottom to top - THICK */}
+              <div className="flex flex-col-reverse gap-2">
+                {plates.map((p, idx) => (
+                  <div key={idx} className="flex flex-col gap-2">
+                    {[...Array(p.count)].map((_, i) => {
+                      const width = `${plateWidths[p.plate] * 1.6}%`;
+                      const height = `${plateHeights[p.plate] * 1.8}px`;
+                      const color = bar.plate_colors[p.plate];
+                      return (
+                        <div
+                          key={i}
+                          className={`${color} rounded-[14px] mx-auto`}
+                          style={{ width: `min(${width}, 85%)`, height }}
+                        />
+                      );
+                    })}
                   </div>
                 ))}
               </div>
@@ -344,7 +351,7 @@ function UnitConverter() {
       <div className="bg-card rounded-2xl border border-border p-5">
         <div className="flex gap-2">
           {["weight", "volume", "length"].map(cat => (
-            <button key={cat} onClick={() => { setCategory(cat); setValue(""); }}
+            <button key={cat} onClick={() => { setCategory(cat); setValue(""); setFromUnit(Object.keys(UNIT_CONVERSIONS[cat])[0]); setToUnit(Object.keys(UNIT_CONVERSIONS[cat])[1]); }}
               className={`flex-1 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${category === cat ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
@@ -352,24 +359,28 @@ function UnitConverter() {
         </div>
       </div>
 
-      {/* Conversion block */}
+      {/* Single row conversion */}
       <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
-        <div className="grid grid-cols-3 gap-3 items-end">
-          <div className="flex flex-col items-center gap-2">
-            <label className="text-xs font-semibold">From</label>
+        <div className="grid grid-cols-5 gap-2 items-center">
+          <input type="number" value={value} onChange={e => setValue(e.target.value)}
+            placeholder="0" className="col-span-1 bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm text-center font-semibold" />
+          
+          <div className="flex flex-col items-center gap-1">
+            <label className="text-xs font-semibold text-muted-foreground">From</label>
             <select value={fromUnit} onChange={e => setFromUnit(e.target.value)}
-              className="w-full bg-secondary border-0 rounded-lg px-2 py-2 text-xs text-center">
+              className="w-full bg-secondary border-0 rounded-lg px-2 py-1.5 text-xs text-center">
               {unitKeys.map(u => (
                 <option key={u} value={u}>{units[u].label}</option>
               ))}
             </select>
           </div>
-          <input type="number" value={value} onChange={e => setValue(e.target.value)}
-            placeholder="0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm text-center font-semibold" />
-          <div className="flex flex-col items-center gap-2">
-            <label className="text-xs font-semibold">To</label>
+
+          <div className="text-center text-muted-foreground text-sm">→</div>
+
+          <div className="flex flex-col items-center gap-1">
+            <label className="text-xs font-semibold text-muted-foreground">To</label>
             <select value={toUnit} onChange={e => setToUnit(e.target.value)}
-              className="w-full bg-secondary border-0 rounded-lg px-2 py-2 text-xs text-center">
+              className="w-full bg-secondary border-0 rounded-lg px-2 py-1.5 text-xs text-center">
               {unitKeys.map(u => (
                 <option key={u} value={u}>{units[u].label}</option>
               ))}
@@ -379,9 +390,8 @@ function UnitConverter() {
 
         {value && (
           <div className="bg-primary/10 rounded-xl border border-primary/20 p-4 text-center">
-            <p className="text-xs text-muted-foreground mb-2">{value} {units[fromUnit].label}</p>
             <p className="text-3xl font-bold text-primary">{parseFloat(result).toFixed(2)}</p>
-            <p className="text-xs text-muted-foreground mt-2">{units[toUnit].label}</p>
+            <p className="text-xs text-muted-foreground mt-1">{units[toUnit].label}</p>
           </div>
         )}
       </div>
