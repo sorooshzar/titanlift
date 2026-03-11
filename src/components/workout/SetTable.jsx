@@ -53,9 +53,9 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
       {/* Header */}
       <div className={`grid gap-1 px-1 items-center mb-1 ${isActive ? GRID_ACTIVE : GRID}`}>
         {isActive && <div />}
-        <span className="text-[10px] font-semibold text-muted-foreground">PREVIOUS</span>
         <span className="text-[10px] font-semibold text-muted-foreground text-center">SET</span>
-        <span className="text-[10px] font-semibold text-muted-foreground text-center">KG</span>
+        <span className="text-[10px] font-semibold text-muted-foreground">PREVIOUS</span>
+        <span className="text-[10px] font-semibold text-muted-foreground text-center">{weightUnit.toUpperCase()}</span>
         <span className="text-[10px] font-semibold text-muted-foreground text-center">REPS</span>
         <span className="text-[10px] font-semibold text-muted-foreground text-center">RIR</span>
         <div />
