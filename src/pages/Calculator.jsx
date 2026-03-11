@@ -7,10 +7,9 @@ import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 const MODES = ["Regular", "Plate", "1RM", "Unit"];
 const BAR_TYPES = {
-  standard_kg: { name: "Standard (20kg)", weight: 20, plates: [20, 15, 10, 5, 2.5, 2, 1.25, 1, 0.5, 0.25], unit: "kg" },
-  standard_lbs: { name: "Standard (45lb)", weight: 45, plates: [45, 35, 25, 10, 5, 2.5], unit: "lbs" },
-  womens_kg: { name: "Women's (15kg)", weight: 15, plates: [15, 10, 5, 2.5, 2, 1.25, 1, 0.5, 0.25], unit: "kg" },
-  womens_lbs: { name: "Women's (35lb)", weight: 35, plates: [35, 25, 10, 5, 2.5], unit: "lbs" },
+  standard: { name: "Standard Barbell", weight_kg: 20, weight_lbs: 45, plates: [45, 35, 25, 10, 5, 2.5], plate_colors: { 45: "bg-red-500", 35: "bg-blue-500", 25: "bg-yellow-500", 10: "bg-green-500", 5: "bg-white border border-foreground", 2.5: "bg-red-200" } },
+  womens: { name: "Women's Barbell", weight_kg: 15, weight_lbs: 35, plates: [35, 25, 10, 5, 2.5], plate_colors: { 35: "bg-blue-500", 25: "bg-yellow-500", 10: "bg-green-500", 5: "bg-white border border-foreground", 2.5: "bg-red-200" } },
+  ezbar: { name: "EZ Bar", weight_kg: 10, weight_lbs: 25, plates: [25, 10, 5, 2.5], plate_colors: { 25: "bg-yellow-500", 10: "bg-green-500", 5: "bg-white border border-foreground", 2.5: "bg-red-200" } },
 };
 
 const REP_MAXES = [
@@ -98,30 +97,37 @@ function RegularMode() {
         <p className="text-5xl font-bold text-primary break-words">{display}</p>
       </div>
       <div className="grid grid-cols-4 gap-2">
+        {/* Row 1 */}
         {[7, 8, 9, "/"].map(v => (
           <button key={v} onClick={() => v === "/" ? handleOperation("÷") : handleNum(v)}
-            className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">
+            className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">
             {v === "/" ? "÷" : v}
           </button>
         ))}
+        {/* Row 2 */}
         {[4, 5, 6, "*"].map(v => (
           <button key={v} onClick={() => v === "*" ? handleOperation("×") : handleNum(v)}
-            className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">
+            className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">
             {v === "*" ? "×" : v}
           </button>
         ))}
+        {/* Row 3 */}
         {[1, 2, 3, "-"].map(v => (
           <button key={v} onClick={() => v === "-" ? handleOperation("-") : handleNum(v)}
-            className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">
+            className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">
             {v}
           </button>
         ))}
-        <button onClick={() => handleNum(0)} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">0</button>
-        <button onClick={handleDecimal} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">.</button>
-        <button onClick={handlePercent} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">%</button>
-        <button onClick={handleEquals} className="col-span-2 h-16 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:bg-primary/90 active:scale-95">=</button>
-        <button onClick={() => handleOperation("+")} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">+</button>
-        <button onClick={handleClear} className="col-span-2 h-16 bg-destructive/20 text-destructive rounded-xl font-bold text-lg hover:bg-destructive/30 active:scale-95">Clear</button>
+        {/* Row 4 */}
+        <button onClick={() => handleNum(0)} className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">0</button>
+        <button onClick={handleDecimal} className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">.</button>
+        <button onClick={handlePercent} className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">%</button>
+        <button onClick={() => handleOperation("+")} className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">+</button>
+        {/* Row 5 */}
+        <button onClick={handleClear} className="h-14 bg-destructive/20 text-destructive rounded-xl font-bold text-lg hover:bg-destructive/30 active:scale-95">C</button>
+        <button onClick={() => {}} className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95 opacity-0 pointer-events-none"></button>
+        <button onClick={() => {}} className="h-14 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95 opacity-0 pointer-events-none"></button>
+        <button onClick={handleEquals} className="h-14 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:bg-primary/90 active:scale-95">=</button>
       </div>
     </div>
   );
@@ -129,23 +135,24 @@ function RegularMode() {
 
 function PlateMode() {
   const { unit: weightUnit } = useWeightUnit();
-  const [barType, setBarType] = useState(weightUnit === "lbs" ? "standard_lbs" : "standard_kg");
+  const [barType, setBarType] = useState("standard");
   const [target, setTarget] = useState("");
 
   const bar = BAR_TYPES[barType];
+  const barWeight = weightUnit === "lbs" ? bar.weight_lbs : bar.weight_kg;
 
   const calculatePlates = () => {
     if (!target) return null;
     const targetVal = parseFloat(target);
-    const sideWeight = (targetVal - bar.weight) / 2;
-    const breakdown = {};
+    const sideWeight = (targetVal - barWeight) / 2;
+    const breakdown = [];
     let remaining = sideWeight;
 
     // Greedy algorithm - use largest plates first
     for (const plate of bar.plates) {
       const count = Math.floor(remaining / plate);
       if (count > 0) {
-        breakdown[plate] = count;
+        breakdown.push({ plate, count });
         remaining -= plate * count;
       }
     }
@@ -153,43 +160,67 @@ function PlateMode() {
   };
 
   const plates = calculatePlates();
+  const plateList = plates ? plates.map(p => `${p.count}×${p.plate}`).join(", ") : "";
 
   return (
     <div className="space-y-4">
       <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
         <div>
           <label className="text-sm font-semibold mb-2 block">Bar Type</label>
-          <select value={barType} onChange={e => setBarType(e.target.value)}
-            className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm">
+          <div className="flex gap-2">
             {Object.entries(BAR_TYPES).map(([k, v]) => (
-              <option key={k} value={k}>{v.name}</option>
+              <button key={k} onClick={() => setBarType(k)}
+                className={`flex-1 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${barType === k ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
+                {v.name}
+              </button>
             ))}
-          </select>
+          </div>
         </div>
         <div>
-          <label className="text-sm font-semibold mb-2 block">Target Total ({bar.unit})</label>
+          <label className="text-sm font-semibold mb-2 block">Target Total ({weightUnit})</label>
           <input type="number" value={target} onChange={e => setTarget(e.target.value)}
-            placeholder={`e.g. ${bar.unit === "kg" ? "100" : "220"}`} className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
+            placeholder={`e.g. ${weightUnit === "kg" ? "100" : "220"}`} className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
         </div>
       </div>
 
       {plates && (
-        <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
-          <h3 className="font-semibold text-sm">Per Side:</h3>
-          <div className="space-y-2">
-            {Object.entries(plates).map(([plate, count]) => {
-              const plateLbs = (plate * 2.20462).toFixed(1);
-              return (
-                <div key={plate} className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{plate}kg / {plateLbs}lbs</span>
-                  <span className="font-bold">×{count}</span>
+        <div className="bg-card rounded-2xl border border-border p-5">
+          <div className="grid grid-cols-5 gap-4 items-center">
+            {/* Birds-Eye View */}
+            <div className="col-span-2 flex flex-col items-center gap-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase">Side View</p>
+              <div className="w-full flex justify-center">
+                <div className="h-32 flex flex-col items-center justify-center gap-1">
+                  {/* Bar sleeve */}
+                  <div className="w-12 h-3 bg-gradient-to-b from-foreground/30 to-foreground/10 rounded"></div>
+                  {/* Plates stacked */}
+                  {plates.map((p, idx) => {
+                    const widths = { 45: "w-10", 35: "w-9", 25: "w-8", 10: "w-6", 5: "w-5", 2.5: "w-4" };
+                    const color = bar.plate_colors[p.plate];
+                    return (
+                      <div key={idx} className="flex flex-col gap-0.5">
+                        {[...Array(p.count)].map((_, i) => (
+                          <div key={i} className={`h-2 ${widths[p.plate]} ${color} rounded-sm`}></div>
+                        ))}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
-          <div className="pt-3 border-t border-border text-center">
-            <p className="text-xs text-muted-foreground">× 2 sides</p>
-            <p className="text-lg font-bold">{(parseFloat(target) - bar.weight).toFixed(1)} {bar.unit} total load</p>
+              </div>
+            </div>
+
+            {/* Plate List */}
+            <div className="col-span-3 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase">Per Side</p>
+              <div className="space-y-1">
+                {plates.map(p => (
+                  <div key={p.plate} className="flex items-center gap-2">
+                    <span className="font-bold text-sm">{p.count}×</span>
+                    <span className="text-sm text-muted-foreground">{p.plate} lbs</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -260,11 +291,12 @@ function OneRMMode() {
               <tbody>
                 {REP_MAXES.map(({ pct, reps }) => {
                   const weight = (oneRMVal * (pct / 100)).toFixed(1);
+                  const displayReps = pct === 115 ? "--" : reps;
                   return (
                     <tr key={pct} className="border-b border-border/30 hover:bg-secondary/30">
                       <td className="py-2 font-semibold">{pct}%</td>
                       <td className="py-2">{weight} {weightUnit}</td>
-                      <td className="py-2 text-muted-foreground">{reps}</td>
+                      <td className="py-2 text-muted-foreground">{displayReps}</td>
                     </tr>
                   );
                 })}
@@ -277,7 +309,7 @@ function OneRMMode() {
   );
 }
 
-function ScrollWheelUnitConverter() {
+function UnitConverter() {
   const [category, setCategory] = useState("weight");
   const [fromUnit, setFromUnit] = useState("kg");
   const [toUnit, setToUnit] = useState("lbs");
@@ -291,50 +323,51 @@ function ScrollWheelUnitConverter() {
 
   return (
     <div className="space-y-4">
-      {["weight", "volume", "length"].map(cat => (
-        <div key={cat} className="bg-card rounded-2xl border border-border p-5">
-          <h3 className="font-semibold text-sm mb-4 capitalize">{cat}</h3>
-          
-          {cat === category ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4 items-end">
-                <div className="flex flex-col items-center">
-                  <label className="text-xs font-semibold mb-2">From</label>
-                  <select value={fromUnit} onChange={e => setFromUnit(e.target.value)}
-                    className="w-full bg-secondary border-0 rounded-lg px-2 py-2 text-xs text-center">
-                    {unitKeys.map(u => (
-                      <option key={u} value={u}>{UNIT_CONVERSIONS[cat][u].label}</option>
-                    ))}
-                  </select>
-                </div>
-                <input type="number" value={value} onChange={e => setValue(e.target.value)}
-                  placeholder="0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm text-center font-semibold" />
-                <div className="flex flex-col items-center">
-                  <label className="text-xs font-semibold mb-2">To</label>
-                  <select value={toUnit} onChange={e => setToUnit(e.target.value)}
-                    className="w-full bg-secondary border-0 rounded-lg px-2 py-2 text-xs text-center">
-                    {unitKeys.map(u => (
-                      <option key={u} value={u}>{UNIT_CONVERSIONS[cat][u].label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {value && (
-                <div className="bg-primary/10 rounded-xl border border-primary/20 p-4 text-center">
-                  <p className="text-xs text-muted-foreground mb-2">{value} {units[fromUnit].label}</p>
-                  <p className="text-3xl font-bold text-primary">{parseFloat(result).toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground mt-2">{units[toUnit].label}</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button onClick={() => setCategory(cat)} className="w-full py-2 px-3 bg-secondary rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary/80">
-              Switch to {cat}
+      {/* Category toggle */}
+      <div className="bg-card rounded-2xl border border-border p-5">
+        <div className="flex gap-2">
+          {["weight", "volume", "length"].map(cat => (
+            <button key={cat} onClick={() => { setCategory(cat); setValue(""); }}
+              className={`flex-1 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${category === cat ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
-          )}
+          ))}
         </div>
-      ))}
+      </div>
+
+      {/* Conversion block */}
+      <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+        <div className="grid grid-cols-3 gap-3 items-end">
+          <div className="flex flex-col items-center gap-2">
+            <label className="text-xs font-semibold">From</label>
+            <select value={fromUnit} onChange={e => setFromUnit(e.target.value)}
+              className="w-full bg-secondary border-0 rounded-lg px-2 py-2 text-xs text-center">
+              {unitKeys.map(u => (
+                <option key={u} value={u}>{units[u].label}</option>
+              ))}
+            </select>
+          </div>
+          <input type="number" value={value} onChange={e => setValue(e.target.value)}
+            placeholder="0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm text-center font-semibold" />
+          <div className="flex flex-col items-center gap-2">
+            <label className="text-xs font-semibold">To</label>
+            <select value={toUnit} onChange={e => setToUnit(e.target.value)}
+              className="w-full bg-secondary border-0 rounded-lg px-2 py-2 text-xs text-center">
+              {unitKeys.map(u => (
+                <option key={u} value={u}>{units[u].label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {value && (
+          <div className="bg-primary/10 rounded-xl border border-primary/20 p-4 text-center">
+            <p className="text-xs text-muted-foreground mb-2">{value} {units[fromUnit].label}</p>
+            <p className="text-3xl font-bold text-primary">{parseFloat(result).toFixed(2)}</p>
+            <p className="text-xs text-muted-foreground mt-2">{units[toUnit].label}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -375,7 +408,7 @@ export default function Calculator() {
         {mode === "Regular" && <RegularMode />}
         {mode === "Plate" && <PlateMode />}
         {mode === "1RM" && <OneRMMode />}
-        {mode === "Unit" && <ScrollWheelUnitConverter />}
+        {mode === "Unit" && <UnitConverter />}
       </div>
     </div>
   );
