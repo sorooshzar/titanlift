@@ -8,12 +8,20 @@ import { useWeightUnit } from "@/components/utils/useWeightUnit";
 const MODES = ["Regular", "Plate", "1RM", "Unit"];
 const BAR_TYPES = {
   standard_kg: { name: "Standard (20kg)", weight: 20, plates: [20, 15, 10, 5, 2.5, 2, 1.25, 1, 0.5, 0.25], unit: "kg" },
-  standard_lbs: { name: "Standard (45lb)", weight: 20.41, plates: [20.41, 9.07, 4.54, 2.27, 1.59, 1.13], unit: "lbs" },
+  standard_lbs: { name: "Standard (45lb)", weight: 45, plates: [45, 35, 25, 10, 5, 2.5], unit: "lbs" },
   womens_kg: { name: "Women's (15kg)", weight: 15, plates: [15, 10, 5, 2.5, 2, 1.25, 1, 0.5, 0.25], unit: "kg" },
-  womens_lbs: { name: "Women's (35lb)", weight: 15.88, plates: [15.88, 4.54, 2.27, 1.59, 1.13], unit: "lbs" },
+  womens_lbs: { name: "Women's (35lb)", weight: 35, plates: [35, 25, 10, 5, 2.5], unit: "lbs" },
 };
 
-const REP_MAXES = { 100: 1, 95: 2, 90: "3-4", 85: 6, 80: 8, 75: 10 };
+const REP_MAXES = [
+  { pct: 115, reps: "0 Reps (Static Hold)" },
+  { pct: 100, reps: 1 },
+  { pct: 95, reps: 2 },
+  { pct: 90, reps: "3-4" },
+  { pct: 85, reps: 6 },
+  { pct: 80, reps: 8 },
+  { pct: 75, reps: 10 },
+];
 
 const UNIT_CONVERSIONS = {
   weight: {
@@ -77,6 +85,13 @@ function RegularMode() {
     setOperation(null);
   };
 
+  const handlePercent = () => {
+    if (prevValue === null) return;
+    const curr = parseFloat(display);
+    const result = prevValue * (curr / 100);
+    setDisplay(String(result));
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-card rounded-2xl border border-border p-6 text-center">
@@ -103,8 +118,9 @@ function RegularMode() {
         ))}
         <button onClick={() => handleNum(0)} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">0</button>
         <button onClick={handleDecimal} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">.</button>
-        <button onClick={() => handleOperation("+")} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">+</button>
+        <button onClick={handlePercent} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">%</button>
         <button onClick={handleEquals} className="col-span-2 h-16 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:bg-primary/90 active:scale-95">=</button>
+        <button onClick={() => handleOperation("+")} className="h-16 bg-secondary rounded-xl font-bold text-lg hover:bg-secondary/80 active:scale-95">+</button>
         <button onClick={handleClear} className="col-span-2 h-16 bg-destructive/20 text-destructive rounded-xl font-bold text-lg hover:bg-destructive/30 active:scale-95">Clear</button>
       </div>
     </div>
@@ -112,7 +128,7 @@ function RegularMode() {
 }
 
 function PlateMode() {
-  const { unit: weightUnit, toBase } = useWeightUnit();
+  const { unit: weightUnit } = useWeightUnit();
   const [barType, setBarType] = useState(weightUnit === "lbs" ? "standard_lbs" : "standard_kg");
   const [target, setTarget] = useState("");
 
@@ -125,6 +141,7 @@ function PlateMode() {
     const breakdown = {};
     let remaining = sideWeight;
 
+    // Greedy algorithm - use largest plates first
     for (const plate of bar.plates) {
       const count = Math.floor(remaining / plate);
       if (count > 0) {
@@ -241,7 +258,7 @@ function OneRMMode() {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(REP_MAXES).map(([pct, reps]) => {
+                {REP_MAXES.map(({ pct, reps }) => {
                   const weight = (oneRMVal * (pct / 100)).toFixed(1);
                   return (
                     <tr key={pct} className="border-b border-border/30 hover:bg-secondary/30">
@@ -260,7 +277,7 @@ function OneRMMode() {
   );
 }
 
-function AdvancedUnitConverter() {
+function ScrollWheelUnitConverter() {
   const [category, setCategory] = useState("weight");
   const [fromUnit, setFromUnit] = useState("kg");
   const [toUnit, setToUnit] = useState("lbs");
@@ -274,57 +291,55 @@ function AdvancedUnitConverter() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
-        <div>
-          <label className="text-sm font-semibold mb-2 block">Category</label>
-          <div className="flex gap-1.5">
-            {["weight", "volume", "length"].map(cat => (
-              <button key={cat} onClick={() => { setCategory(cat); setFromUnit(Object.keys(UNIT_CONVERSIONS[cat])[0]); setToUnit(Object.keys(UNIT_CONVERSIONS[cat])[1]); setValue(""); }}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${category === cat ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
+      {["weight", "volume", "length"].map(cat => (
+        <div key={cat} className="bg-card rounded-2xl border border-border p-5">
+          <h3 className="font-semibold text-sm mb-4 capitalize">{cat}</h3>
+          
+          {cat === category ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4 items-end">
+                <div className="flex flex-col items-center">
+                  <label className="text-xs font-semibold mb-2">From</label>
+                  <select value={fromUnit} onChange={e => setFromUnit(e.target.value)}
+                    className="w-full bg-secondary border-0 rounded-lg px-2 py-2 text-xs text-center">
+                    {unitKeys.map(u => (
+                      <option key={u} value={u}>{UNIT_CONVERSIONS[cat][u].label}</option>
+                    ))}
+                  </select>
+                </div>
+                <input type="number" value={value} onChange={e => setValue(e.target.value)}
+                  placeholder="0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm text-center font-semibold" />
+                <div className="flex flex-col items-center">
+                  <label className="text-xs font-semibold mb-2">To</label>
+                  <select value={toUnit} onChange={e => setToUnit(e.target.value)}
+                    className="w-full bg-secondary border-0 rounded-lg px-2 py-2 text-xs text-center">
+                    {unitKeys.map(u => (
+                      <option key={u} value={u}>{UNIT_CONVERSIONS[cat][u].label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-sm font-semibold mb-2 block">From</label>
-            <select value={fromUnit} onChange={e => setFromUnit(e.target.value)}
-              className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm">
-              {unitKeys.map(u => (
-                <option key={u} value={u}>{units[u].label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-sm font-semibold mb-2 block">To</label>
-            <select value={toUnit} onChange={e => setToUnit(e.target.value)}
-              className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm">
-              {unitKeys.map(u => (
-                <option key={u} value={u}>{units[u].label}</option>
-              ))}
-            </select>
-          </div>
+              {value && (
+                <div className="bg-primary/10 rounded-xl border border-primary/20 p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-2">{value} {units[fromUnit].label}</p>
+                  <p className="text-3xl font-bold text-primary">{parseFloat(result).toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground mt-2">{units[toUnit].label}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button onClick={() => setCategory(cat)} className="w-full py-2 px-3 bg-secondary rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary/80">
+              Switch to {cat}
+            </button>
+          )}
         </div>
-
-        <div>
-          <label className="text-sm font-semibold mb-2 block">Enter Value</label>
-          <input type="number" value={value} onChange={e => setValue(e.target.value)}
-            placeholder="0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
-        </div>
-      </div>
-
-      {value && (
-        <div className="bg-primary/10 rounded-2xl border border-primary/20 p-6 text-center">
-          <p className="text-sm text-muted-foreground mb-2">{value} {units[fromUnit].label}</p>
-          <p className="text-4xl font-bold text-primary">{parseFloat(result).toFixed(2)}</p>
-          <p className="text-sm text-muted-foreground mt-2">{units[toUnit].label}</p>
-        </div>
-      )}
+      ))}
     </div>
   );
 }
+
+
 
 export default function Calculator() {
   const [mode, setMode] = useState("Regular");
@@ -360,7 +375,7 @@ export default function Calculator() {
         {mode === "Regular" && <RegularMode />}
         {mode === "Plate" && <PlateMode />}
         {mode === "1RM" && <OneRMMode />}
-        {mode === "Unit" && <AdvancedUnitConverter />}
+        {mode === "Unit" && <ScrollWheelUnitConverter />}
       </div>
     </div>
   );

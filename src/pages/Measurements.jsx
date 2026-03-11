@@ -62,7 +62,7 @@ function HistoryPanel({ part, measurements, unit, onClose }) {
                 <span className="text-xs font-medium flex-1">{parseFloat(m.value).toFixed(1)} {m.unit}</span>
                 <button onClick={() => { setEditingId(m.id); setEditValue(String(m.value)); }}
                   className="text-[10px] text-primary px-1">Edit</button>
-                <button onClick={() => deleteEntry(m)} className="text-[10px] text-destructive px-1">Del</button>
+                <button onClick={() => { if (window.confirm("Delete this measurement?")) deleteEntry(m); }} className="text-[10px] text-destructive px-1">Del</button>
               </>
             )}
           </div>
@@ -186,7 +186,7 @@ export default function Measurements() {
                     <span className="text-sm font-medium">{part}</span>
                     {latest && (
                       <span className="text-xs text-muted-foreground ml-2">
-                        {latest.value} {latest.unit}
+                        {parseFloat(latest.value).toFixed(1)} {latest.unit}
                       </span>
                     )}
                     {!latest && <span className="text-xs text-muted-foreground ml-2">--</span>}
