@@ -77,10 +77,12 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
         const { label, color } = getSetLabel(set, workingCounter);
         const isDropset = set.type === "dropset";
         const prev = previousSets[index];
+        const prevDisplayWeight = prev?.weight ? toDisplay(prev.weight) : 0;
         const prevLabel = prev && (prev.weight || prev.reps)
-          ? `${prev.weight || 0}×${prev.reps || 0} ${weightUnit}`
+          ? `${prevDisplayWeight}×${prev.reps || 0} ${weightUnit}`
           : "—";
 
+        // 1RM calculated in base unit (kg) for consistency
         const current1RM = calc1RM(set.weight, set.reps);
         const prev1RM = prev ? calc1RM(prev.weight, prev.reps) : null;
         const pctChange = current1RM && prev1RM ? ((current1RM - prev1RM) / prev1RM) * 100 : null;
