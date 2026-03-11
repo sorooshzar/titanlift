@@ -246,10 +246,7 @@ function ExercisesTab() {
                 </div>
               )}
               {grouped[key]?.map(ex => {
-                const allMuscles = [ex.primary_muscle, ...(ex.secondary_muscles || [])]
-                  .filter(Boolean)
-                  .map(m => m.replace(/_/g, " "))
-                  .join(", ");
+                const primaryMuscle = ex.primary_muscle?.replace(/_/g, " ") || "Unknown";
                 const equipmentAbbr = EQUIPMENT_ABBREVIATIONS[ex.category?.toLowerCase()] || "--";
                 return (
                 <button key={ex.id} onClick={() => setSelectedExercise(ex)}
@@ -260,7 +257,7 @@ function ExercisesTab() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{ex.name}</p>
                     <p className="text-xs text-muted-foreground capitalize">
-                      {allMuscles} · {ex.category}
+                      {primaryMuscle}
                       {freqMap[ex.id] ? ` · ${freqMap[ex.id]}×` : ""}
                     </p>
                   </div>
