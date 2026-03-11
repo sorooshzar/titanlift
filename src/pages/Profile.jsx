@@ -131,6 +131,7 @@ export default function Profile() {
     return saved ? parseFloat(saved) : null;
   });
   const [activeTab, setActiveTab] = useState("progress");
+  const [showAddTracker, setShowAddTracker] = useState(false);
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
 
