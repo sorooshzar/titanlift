@@ -62,7 +62,7 @@ export default function WorkoutSummary() {
         </div>
         <div className="bg-card rounded-xl p-3 text-center border border-border">
           <BarChart2 className="w-4 h-4 text-primary mx-auto mb-1" />
-          <p className="text-lg font-bold">{completedLog.total_volume?.toLocaleString() || 0} {weightUnit}</p>
+          <p className="text-lg font-bold">{toDisplay(completedLog.total_volume)?.toLocaleString() || 0} {weightUnit}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Volume</p>
         </div>
         <div className="bg-card rounded-xl p-3 text-center border border-border">
