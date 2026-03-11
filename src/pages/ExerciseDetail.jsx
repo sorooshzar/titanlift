@@ -75,7 +75,11 @@ export default function ExerciseDetail() {
   };
 
   const handleBack = () => {
-    window.history.back();
+    if (location.state?.fromExercisesTab) {
+      navigate(createPageUrl("Lifts"), { state: { activeTab: TABS.EXERCISES } });
+    } else {
+      navigate(-1);
+    }
   };
 
   if (!exercise) {
