@@ -31,7 +31,7 @@ export default function ExerciseFilters({ filters, onFiltersChange }) {
 
   const setSort = (id) => onFiltersChange({ ...filters, sort: id });
 
-  const bpCount = (filters.mainGroups || []).length;
+  const muscleCount = (filters.muscleGroups || []).length;
   const eqCount = (filters.equipment || []).length;
 
   return (
