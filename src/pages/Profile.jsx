@@ -199,11 +199,18 @@ export default function Profile() {
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-lg pt-4 pb-2 border-b border-border/30 mb-4">
         <div className="flex items-center justify-between">
           <h1 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Profile</h1>
-          <Link to={createPageUrl("Settings")}>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
-              <Settings className="w-4 h-4" />
-            </button>
-          </Link>
+          <div className="flex items-center gap-1.5">
+            <Link to={createPageUrl("Measurements")}>
+              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
+                <Ruler className="w-4 h-4" />
+              </button>
+            </Link>
+            <Link to={createPageUrl("Settings")}>
+              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
+                <Settings className="w-4 h-4" />
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
 
