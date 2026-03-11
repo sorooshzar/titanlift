@@ -115,6 +115,9 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
                 </DropdownMenu>
               )}
 
+              {/* Previous */}
+              <span className="text-[11px] text-muted-foreground truncate">{prevLabel}</span>
+
               <Input type="number" value={set.weight || ""}
                 onChange={(e) => updateSet(index, "weight", parseFloat(e.target.value) || 0)}
                 className={`h-8 text-center text-sm bg-secondary border-0 rounded-lg px-1 ${set.type === "failure" ? "text-destructive" : ""}`}
