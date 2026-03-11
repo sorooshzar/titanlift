@@ -190,6 +190,8 @@ function PlateMode() {
 
   // Plate width scaling: 55lb = 110%, 45lb = 100%, 35lb = 85%, etc.
   const plateWidths = { 55: 110, 45: 100, 35: 85, 25: 70, 10: 50, 5: 35, 2.5: 25 };
+  // Plate height (thickness) with reductions
+  const plateHeights = { 55: "28.8px", 45: "28.8px", 35: "25.6px", 25: "22.4px", 10: "19.2px", 5: "16px", 2.5: "16px" };
 
   return (
     <div className="space-y-4">
@@ -226,9 +228,8 @@ function PlateMode() {
               <div key={idx} className="w-full flex flex-col gap-2 items-center">
                 {[...Array(p.count)].map((_, i) => {
                   const width = `${plateWidths[p.plate]}%`;
-                  const height = "32px";
+                  const height = plateHeights[p.plate];
                   const bgColor = PLATE_COLORS[p.plate];
-                  const borderColor = p.plate === 10 ? "#000" : "none";
                   
                   return (
                     <div
