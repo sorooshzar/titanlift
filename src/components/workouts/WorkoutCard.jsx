@@ -87,14 +87,14 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
               <DropdownMenuSubTrigger>
                 <Palette className="w-4 h-4 mr-2" /> Select Color
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="w-56">
+              <DropdownMenuSubContent className="w-56" onCloseAutoFocus={(e) => e.preventDefault()}>
                 <div className="grid grid-cols-3 gap-2 p-3">
                   {COLORS.map(color => (
-                    <button key={color} onClick={() => handleSelectColor(color)} 
+                    <button key={color} onClick={(e) => { e.preventDefault(); handleSelectColor(color); }} 
                       className="w-10 h-10 rounded-lg border-2 transition-all hover:scale-110" 
                       style={{ backgroundColor: color, borderColor: accentColor === color ? "#fff" : "transparent", boxShadow: accentColor === color ? `0 0 0 2px #000` : "none" }} />
                   ))}
-                  <button onClick={() => handleSelectColor(null)} 
+                  <button onClick={(e) => { e.preventDefault(); handleSelectColor(null); }} 
                     className="col-span-3 h-8 rounded-lg border-2 border-dashed bg-secondary flex items-center justify-center text-xs font-semibold transition-all hover:bg-secondary/70"
                     style={{ borderColor: accentColor === null ? "#000" : "hsl(var(--border))" }}>Remove Color</button>
                 </div>
