@@ -75,21 +75,39 @@ export default function ExerciseDetail() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-6 pb-4 space-y-5">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Link to={createPageUrl("Exercises")}>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-xl font-bold">{exercise.name}</h1>
-          <p className="text-sm text-muted-foreground capitalize">
-            {exercise.muscle_group?.replace(/_/g, " ")} • {exercise.category}
-          </p>
+    <div className="max-w-lg mx-auto pb-4">
+      {/* Sticky Header with Workouts/Exercises Toggle */}
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm px-4 pt-5 pb-3 border-b border-border/30">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold">Lifts</h1>
+          <div className="flex bg-secondary rounded-xl p-1">
+            <Link to={createPageUrl("Lifts?tab=workouts")}>
+              <button className="px-6 py-1.5 rounded-lg text-xs font-semibold transition-all text-muted-foreground">
+                Workouts
+              </button>
+            </Link>
+            <button className="px-6 py-1.5 rounded-lg text-xs font-semibold bg-card text-foreground shadow-sm">
+              Exercises
+            </button>
+          </div>
         </div>
       </div>
+
+      <div className="px-4 pt-6 pb-4 space-y-5">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <Link to={createPageUrl("Lifts?tab=exercises")}>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-xl font-bold">{exercise.name}</h1>
+            <p className="text-sm text-muted-foreground capitalize">
+              {exercise.muscle_group?.replace(/_/g, " ")} • {exercise.category}
+            </p>
+          </div>
+        </div>
 
       {/* Tabs */}
       <div className="flex gap-2">
@@ -204,8 +222,9 @@ export default function ExerciseDetail() {
               No workout data yet. Start training!
             </p>
           )}
-        </div>
-      )}
-    </div>
-  );
-}
+          </div>
+          )}
+          </div>
+          </div>
+          );
+          }
