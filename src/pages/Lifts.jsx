@@ -29,12 +29,11 @@ function WorkoutsTab({ folders, templates, queryClient, navigate }) {
   };
 
   const handleCreateWorkout = async ({ name, folder_id }) => {
-    const created = await base44.entities.WorkoutTemplate.create({
+    await base44.entities.WorkoutTemplate.create({
       name, folder_id: folder_id === "none" ? null : folder_id,
       order: templates.length, exercises: [],
     });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
-    navigate(createPageUrl(`EditWorkout?id=${created.id}`));
   };
 
   const handleDeleteFolder = async (folder) => {
@@ -70,13 +69,24 @@ function WorkoutsTab({ folders, templates, queryClient, navigate }) {
     await base44.entities.WorkoutTemplate.update(t.id, { folder_id: archiveFolder.id });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
+  const handleUnarchiveWorkout = async (t) => {
+    await base44.entities.WorkoutTemplate.update(t.id, { folder_id: null });
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+  };
+  const handleMoveToFolder = async (t, targetFolderId) => {
+    await base44.entities.WorkoutTemplate.update(t.id, { folder_id: targetFolderId || null });
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+  };
+  const handleUpdateNotes = async (t, notes) => {
+    await base44.entities.WorkoutTemplate.update(t.id, { notes });
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+  };
   const handleStartWorkout = (t) => navigate(createPageUrl(`ActiveWorkout?templateId=${t.id}`));
   const handleAddWorkoutToFolder = async (folder) => {
     const name = prompt("Workout name:");
     if (!name?.trim()) return;
-    const created = await base44.entities.WorkoutTemplate.create({ name: name.trim(), folder_id: folder.id, order: templates.length, exercises: [] });
+    await base44.entities.WorkoutTemplate.create({ name: name.trim(), folder_id: folder.id, order: templates.length, exercises: [] });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
-    navigate(createPageUrl(`EditWorkout?id=${created.id}`));
   };
 
   return (
