@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function WorkoutCard({ template, folders = [], onEdit, onDelete, onDuplicate, onArchive, onUnarchive, onMoveToFolder, onUpdateNotes, onStart, isArchived }) {
-  const exerciseCount = template.exercises?.length || 0;
+  const setCount = template.exercises?.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0) || 0;
   const accentColor = template.color || null;
   const [editingNote, setEditingNote] = useState(false);
   const [noteValue, setNoteValue] = useState(template.notes || "");
