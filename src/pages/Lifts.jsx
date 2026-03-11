@@ -92,11 +92,9 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
 
   return (
     <div className="space-y-3">
-      <Link to={createPageUrl("ActiveWorkout")}>
-        <Button className="w-full h-14 rounded-xl text-base font-semibold gap-2 shadow-lg shadow-primary/20">
-          <Zap className="w-5 h-5" /> Quick Start
-        </Button>
-      </Link>
+      <Button onClick={() => startWorkout(null)} className="w-full h-14 rounded-xl text-base font-semibold gap-2 shadow-lg shadow-primary/20">
+        <Zap className="w-5 h-5" /> Quick Start
+      </Button>
 
       {/* My Routines header */}
       <div className="flex items-center justify-between pt-1">
