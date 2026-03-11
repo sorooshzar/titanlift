@@ -113,8 +113,8 @@ export default function EditWorkout() {
             key={index}
             exercise={exercise}
             index={index}
-            onChange={(updated) => handleExerciseChange(index, updated)}
-            onRemove={() => handleRemoveExercise(index)}
+            onChange={(updated) => { isDirty.current = true; handleExerciseChange(index, updated); }}
+            onRemove={() => { isDirty.current = true; handleRemoveExercise(index); }}
             isActive={false}
           />
         ))}
