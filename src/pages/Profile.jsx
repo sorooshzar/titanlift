@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import AddTrackerModal from "../components/profile/AddTrackerModal";
 import { MeasurementTracker, ExerciseTracker, HabitsTracker, MacrosTracker } from "../components/profile/TrackerWidgets";
+import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 const RANK_ORDER = ["none", "wood", "bronze", "silver", "gold", "platinum", "diamond", "champion", "titan", "olympian"];
 
