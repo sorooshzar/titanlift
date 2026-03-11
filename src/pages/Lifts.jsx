@@ -16,6 +16,7 @@ import WorkoutCard from "../components/workouts/WorkoutCard";
 import CreateDialog from "../components/workouts/CreateDialog";
 import ExerciseFilters from "../components/exercises/ExerciseFilters";
 import CreateExerciseModal from "../components/exercises/CreateExerciseModal";
+import ExerciseDetailModal from "../components/exercises/ExerciseDetailModal";
 import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } from "../components/hooks/useWorkoutData";
 import { TABS, SPECIAL_FOLDERS } from "../components/utils/constants";
 import { MUSCLE_HIERARCHY } from "../components/utils/muscleHierarchy";
