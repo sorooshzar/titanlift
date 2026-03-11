@@ -136,8 +136,8 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
               {/* Previous */}
               <span className="text-xs text-muted-foreground truncate text-center tracking-wide">{prevLabel}</span>
 
-              <Input type="number" value={set.weight || ""}
-                onChange={(e) => updateSet(index, "weight", parseFloat(e.target.value) || 0)}
+              <Input type="number" value={set.weight ? toDisplay(set.weight) : ""}
+                onChange={(e) => updateSet(index, "weight", toKg(parseFloat(e.target.value) || 0))}
                 className={`h-8 text-center text-sm bg-secondary border-0 rounded-lg px-1 ${set.type === "failure" ? "text-destructive" : ""}`}
                 placeholder="0" />
               <Input type="number" value={set.reps || ""}
