@@ -59,7 +59,7 @@ function HistoryPanel({ part, measurements, unit, onClose }) {
               </>
             ) : (
               <>
-                <span className="text-xs font-medium flex-1">{m.value} {m.unit}</span>
+                <span className="text-xs font-medium flex-1">{parseFloat(m.value).toFixed(1)} {m.unit}</span>
                 <button onClick={() => { setEditingId(m.id); setEditValue(String(m.value)); }}
                   className="text-[10px] text-primary px-1">Edit</button>
                 <button onClick={() => deleteEntry(m)} className="text-[10px] text-destructive px-1">Del</button>
@@ -152,7 +152,7 @@ export default function Measurements() {
         <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Weight</h2>
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <p className="text-2xl font-bold">{latestWeight ? `${latestWeight.weight} ${latestWeight.unit}` : "--"}</p>
+            <p className="text-2xl font-bold">{latestWeight ? `${parseFloat(latestWeight.weight).toFixed(1)} ${latestWeight.unit}` : "--"}</p>
             {latestWeight && <p className="text-xs text-muted-foreground">{format(new Date(latestWeight.date), "MMM d, yyyy")}</p>}
           </div>
           <div className="flex gap-2 items-center">

@@ -1,13 +1,39 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 const MODES = ["Regular", "Plate", "1RM", "Unit"];
 const BAR_TYPES = {
-  standard: { name: "Standard (20kg/45lb)", weight: 20, plates: [20, 15, 10, 5, 2.5, 2, 1.25, 1, 0.5, 0.25] },
-  womens: { name: "Women's (15kg/35lb)", weight: 15, plates: [15, 10, 5, 2.5, 2, 1.25, 1, 0.5, 0.25] },
+  standard_kg: { name: "Standard (20kg)", weight: 20, plates: [20, 15, 10, 5, 2.5, 2, 1.25, 1, 0.5, 0.25], unit: "kg" },
+  standard_lbs: { name: "Standard (45lb)", weight: 20.41, plates: [20.41, 9.07, 4.54, 2.27, 1.59, 1.13], unit: "lbs" },
+  womens_kg: { name: "Women's (15kg)", weight: 15, plates: [15, 10, 5, 2.5, 2, 1.25, 1, 0.5, 0.25], unit: "kg" },
+  womens_lbs: { name: "Women's (35lb)", weight: 15.88, plates: [15.88, 4.54, 2.27, 1.59, 1.13], unit: "lbs" },
+};
+
+const REP_MAXES = { 100: 1, 95: 2, 90: "3-4", 85: 6, 80: 8, 75: 10 };
+
+const UNIT_CONVERSIONS = {
+  weight: {
+    kg: { label: "kg", factor: 1 },
+    lbs: { label: "lbs", factor: 2.20462 },
+    g: { label: "g", factor: 1000 },
+    oz: { label: "oz", factor: 35.274 },
+  },
+  volume: {
+    ml: { label: "ml", factor: 1 },
+    l: { label: "L", factor: 0.001 },
+    oz: { label: "fl oz", factor: 0.033814 },
+    cup: { label: "cup", factor: 0.004167 },
+  },
+  length: {
+    cm: { label: "cm", factor: 1 },
+    m: { label: "m", factor: 0.01 },
+    in: { label: "in", factor: 0.393701 },
+    ft: { label: "ft", factor: 0.0328084 },
+  },
 };
 
 function RegularMode() {
@@ -86,14 +112,16 @@ function RegularMode() {
 }
 
 function PlateMode() {
-  const [barType, setBarType] = useState("standard");
+  const { unit: weightUnit, toBase } = useWeightUnit();
+  const [barType, setBarType] = useState(weightUnit === "lbs" ? "standard_lbs" : "standard_kg");
   const [target, setTarget] = useState("");
+
   const bar = BAR_TYPES[barType];
 
   const calculatePlates = () => {
     if (!target) return null;
-    const targetKg = parseFloat(target);
-    const sideWeight = (targetKg - bar.weight) / 2;
+    const targetVal = parseFloat(target);
+    const sideWeight = (targetVal - bar.weight) / 2;
     const breakdown = {};
     let remaining = sideWeight;
 
@@ -122,9 +150,9 @@ function PlateMode() {
           </select>
         </div>
         <div>
-          <label className="text-sm font-semibold mb-2 block">Target Total (kg)</label>
+          <label className="text-sm font-semibold mb-2 block">Target Total ({bar.unit})</label>
           <input type="number" value={target} onChange={e => setTarget(e.target.value)}
-            placeholder="e.g. 100" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
+            placeholder={`e.g. ${bar.unit === "kg" ? "100" : "220"}`} className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
         </div>
       </div>
 
@@ -132,16 +160,19 @@ function PlateMode() {
         <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
           <h3 className="font-semibold text-sm">Per Side:</h3>
           <div className="space-y-2">
-            {Object.entries(plates).map(([plate, count]) => (
-              <div key={plate} className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{plate}kg</span>
-                <span className="font-bold">{count}x</span>
-              </div>
-            ))}
+            {Object.entries(plates).map(([plate, count]) => {
+              const plateLbs = (plate * 2.20462).toFixed(1);
+              return (
+                <div key={plate} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{plate}kg / {plateLbs}lbs</span>
+                  <span className="font-bold">×{count}</span>
+                </div>
+              );
+            })}
           </div>
           <div className="pt-3 border-t border-border text-center">
             <p className="text-xs text-muted-foreground">× 2 sides</p>
-            <p className="text-lg font-bold">{(parseFloat(target) - bar.weight).toFixed(1)}kg total load</p>
+            <p className="text-lg font-bold">{(parseFloat(target) - bar.weight).toFixed(1)} {bar.unit} total load</p>
           </div>
         </div>
       )}
@@ -150,6 +181,7 @@ function PlateMode() {
 }
 
 function OneRMMode() {
+  const { unit: weightUnit } = useWeightUnit();
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [rir, setRir] = useState("0");
@@ -159,81 +191,137 @@ function OneRMMode() {
     const w = parseFloat(weight);
     const r = parseInt(reps) + parseInt(rir);
 
-    // Brzycki: 1RM = weight × (36 / (37 - reps))
     const brzycki = w * (36 / (37 - r));
-
-    // Epley: 1RM = weight × (1 + reps / 30)
     const epley = w * (1 + r / 30);
-
-    // Lander: 1RM = (100 × weight) / (101.3 - 2.67123 × reps)
     const lander = (100 * w) / (101.3 - 2.67123 * r);
 
-    const avg = (brzycki + epley + lander) / 3;
-    return avg.toFixed(1);
+    return (brzycki + epley + lander) / 3;
   };
 
-  const oneRM = calculate1RM();
+  const oneRMVal = calculate1RM();
+  const oneRM = oneRMVal ? oneRMVal.toFixed(1) : null;
 
   return (
     <div className="space-y-4">
-      <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+      <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
         <div>
-          <label className="text-sm font-semibold mb-2 block">Weight (kg)</label>
+          <label className="text-sm font-semibold mb-2 block">Weight ({weightUnit})</label>
           <input type="number" value={weight} onChange={e => setWeight(e.target.value)}
-            placeholder="e.g. 80" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
+            placeholder={weightUnit === "lbs" ? "e.g. 175" : "e.g. 80"} className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
         </div>
-        <div>
-          <label className="text-sm font-semibold mb-2 block">Reps Performed</label>
-          <input type="number" value={reps} onChange={e => setReps(e.target.value)}
-            placeholder="e.g. 5" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
-        </div>
-        <div>
-          <label className="text-sm font-semibold mb-2 block">Reps In Reserve (RIR)</label>
-          <input type="number" value={rir} onChange={e => setRir(e.target.value)}
-            placeholder="e.g. 0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-sm font-semibold mb-2 block">Reps</label>
+            <input type="number" value={reps} onChange={e => setReps(e.target.value)}
+              placeholder="e.g. 5" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label className="text-sm font-semibold mb-2 block">RIR</label>
+            <input type="number" value={rir} onChange={e => setRir(e.target.value)}
+              placeholder="e.g. 0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
+          </div>
         </div>
       </div>
 
       {oneRM && (
-        <div className="bg-card rounded-2xl border border-border p-6 text-center space-y-2">
-          <p className="text-sm text-muted-foreground">Estimated 1RM</p>
-          <p className="text-5xl font-bold text-primary">{oneRM}</p>
-          <p className="text-xs text-muted-foreground">kg (average of 3 formulas)</p>
-        </div>
+        <>
+          <div className="bg-card rounded-2xl border border-border p-6 text-center space-y-2">
+            <p className="text-sm text-muted-foreground">Estimated 1RM</p>
+            <p className="text-5xl font-bold text-primary">{oneRM}</p>
+            <p className="text-xs text-muted-foreground">{weightUnit} (avg of 3 formulas)</p>
+          </div>
+
+          <div className="bg-card rounded-2xl border border-border p-4 overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border/50">
+                  <th className="text-left py-2 text-muted-foreground font-semibold">%</th>
+                  <th className="text-left py-2 text-muted-foreground font-semibold">Weight</th>
+                  <th className="text-left py-2 text-muted-foreground font-semibold">Reps</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(REP_MAXES).map(([pct, reps]) => {
+                  const weight = (oneRMVal * (pct / 100)).toFixed(1);
+                  return (
+                    <tr key={pct} className="border-b border-border/30 hover:bg-secondary/30">
+                      <td className="py-2 font-semibold">{pct}%</td>
+                      <td className="py-2">{weight} {weightUnit}</td>
+                      <td className="py-2 text-muted-foreground">{reps}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-function UnitMode() {
-  const [kgValue, setKgValue] = useState("");
-  const [cmValue, setCmValue] = useState("");
+function AdvancedUnitConverter() {
+  const [category, setCategory] = useState("weight");
+  const [fromUnit, setFromUnit] = useState("kg");
+  const [toUnit, setToUnit] = useState("lbs");
+  const [value, setValue] = useState("");
 
-  const lbs = kgValue ? (parseFloat(kgValue) * 2.20462).toFixed(1) : "";
-  const inches = cmValue ? (parseFloat(cmValue) / 2.54).toFixed(1) : "";
+  const units = UNIT_CONVERSIONS[category];
+  const unitKeys = Object.keys(units);
+  const result = value
+    ? ((parseFloat(value) / units[fromUnit].factor) * units[toUnit].factor).toFixed(4)
+    : "";
 
   return (
     <div className="space-y-4">
       <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
         <div>
-          <label className="text-sm font-semibold mb-2 block">Kg ↔ Lbs</label>
-          <div className="flex gap-2">
-            <input type="number" value={kgValue} onChange={e => setKgValue(e.target.value)}
-              placeholder="kg" className="flex-1 bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
-            <input type="text" value={lbs} readOnly placeholder="lbs"
-              className="flex-1 bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm opacity-50" />
+          <label className="text-sm font-semibold mb-2 block">Category</label>
+          <div className="flex gap-1.5">
+            {["weight", "volume", "length"].map(cat => (
+              <button key={cat} onClick={() => { setCategory(cat); setFromUnit(Object.keys(UNIT_CONVERSIONS[cat])[0]); setToUnit(Object.keys(UNIT_CONVERSIONS[cat])[1]); setValue(""); }}
+                className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${category === cat ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
-        <div>
-          <label className="text-sm font-semibold mb-2 block">Cm ↔ Inches</label>
-          <div className="flex gap-2">
-            <input type="number" value={cmValue} onChange={e => setCmValue(e.target.value)}
-              placeholder="cm" className="flex-1 bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
-            <input type="text" value={inches} readOnly placeholder="in"
-              className="flex-1 bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm opacity-50" />
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-sm font-semibold mb-2 block">From</label>
+            <select value={fromUnit} onChange={e => setFromUnit(e.target.value)}
+              className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm">
+              {unitKeys.map(u => (
+                <option key={u} value={u}>{units[u].label}</option>
+              ))}
+            </select>
           </div>
+          <div>
+            <label className="text-sm font-semibold mb-2 block">To</label>
+            <select value={toUnit} onChange={e => setToUnit(e.target.value)}
+              className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm">
+              {unitKeys.map(u => (
+                <option key={u} value={u}>{units[u].label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-semibold mb-2 block">Enter Value</label>
+          <input type="number" value={value} onChange={e => setValue(e.target.value)}
+            placeholder="0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
         </div>
       </div>
+
+      {value && (
+        <div className="bg-primary/10 rounded-2xl border border-primary/20 p-6 text-center">
+          <p className="text-sm text-muted-foreground mb-2">{value} {units[fromUnit].label}</p>
+          <p className="text-4xl font-bold text-primary">{parseFloat(result).toFixed(2)}</p>
+          <p className="text-sm text-muted-foreground mt-2">{units[toUnit].label}</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -268,11 +356,11 @@ export default function Calculator() {
       </div>
 
       {/* Content */}
-      <div className="px-4 pt-6">
+      <div className="px-4 pt-6 pb-6">
         {mode === "Regular" && <RegularMode />}
         {mode === "Plate" && <PlateMode />}
         {mode === "1RM" && <OneRMMode />}
-        {mode === "Unit" && <UnitMode />}
+        {mode === "Unit" && <AdvancedUnitConverter />}
       </div>
     </div>
   );
