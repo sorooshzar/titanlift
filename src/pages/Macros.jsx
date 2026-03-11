@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Trash2, Apple, X, Check } from "lucide-react";
-import { format } from "date-fns";
+import { Plus, Search, Trash2, Apple, X, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { format, addDays, subDays } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import WaterTracker from "../components/macros/WaterTracker";
 
@@ -170,23 +170,39 @@ function DashboardTab({ entries, date }) {
 }
 
 function JournalTab({ entries, date, onAddToMeal, onDeleteEntry }) {
-  return (
-    <div className="space-y-4">
-      {MEAL_TYPES.map(meal => {
-        const mealEntries = entries.filter(e => e.meal_type === meal);
-        const mealCals = mealEntries.reduce((s, e) => s + (e.calories || 0), 0);
-        return (
-          <div key={meal} className="bg-card rounded-xl border border-border overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
-              <div>
-                <p className="text-sm font-bold capitalize">{meal}</p>
-                <p className="text-xs text-muted-foreground">{Math.round(mealCals)} kcal</p>
-              </div>
-              <button onClick={() => onAddToMeal(meal)}
-                className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
+   const mealGoal = 500; // kcal per meal
+   return (
+     <div className="space-y-4">
+       {MEAL_TYPES.map(meal => {
+         const mealEntries = entries.filter(e => e.meal_type === meal);
+         const mealCals = mealEntries.reduce((s, e) => s + (e.calories || 0), 0);
+         const mealProtein = mealEntries.reduce((s, e) => s + (e.protein || 0), 0);
+         const mealCarbs = mealEntries.reduce((s, e) => s + (e.carbs || 0), 0);
+         const mealFat = mealEntries.reduce((s, e) => s + (e.fat || 0), 0);
+         return (
+           <div key={meal} className="bg-card rounded-xl border border-border overflow-hidden">
+             <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+               <div className="flex items-center gap-2 flex-1">
+                 <div>
+                   <p className="text-sm font-bold capitalize">{meal}</p>
+                   <p className="text-xs text-muted-foreground">{Math.round(mealCals)} kcal</p>
+                 </div>
+                 {/* Micro circles for macros */}
+                 <div className="flex items-center gap-1 ml-auto mr-3">
+                   <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center text-[9px] font-bold text-red-600">{Math.round(mealProtein)}</div>
+                   <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-[9px] font-bold text-blue-600">{Math.round(mealCarbs)}</div>
+                   <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-[9px] font-bold text-green-600">{Math.round(mealFat)}</div>
+                 </div>
+                 {/* Calorie progress bar */}
+                 <div className="w-16 h-1 bg-secondary rounded-full overflow-hidden">
+                   <div className="h-full bg-yellow-500 transition-all" style={{ width: `${Math.min((mealCals / mealGoal) * 100, 100)}%` }} />
+                 </div>
+               </div>
+               <button onClick={() => onAddToMeal(meal)}
+                 className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                 <Plus className="w-4 h-4" />
+               </button>
+             </div>
             {mealEntries.length > 0 && (
               <div className="divide-y divide-border/30">
                 {mealEntries.map(entry => (
