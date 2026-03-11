@@ -42,11 +42,18 @@ export default function ActiveWorkoutSheet() {
   // Load recent workout logs for previous-set data
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 50),
+    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 100),
     enabled: !!workout,
   });
 
-  // Build a map: exercise_id -> last completed sets array
+  // Load exercises to get saved notes
+  const { data: allExercises = [] } = useQuery({
+    queryKey: ["exercises"],
+    queryFn: () => base44.entities.Exercise.list(),
+    enabled: !!workout,
+  });
+
+  // Build a map: exercise_id -> last completed sets array (across all logs, not just last workout)
   const prevSetsMap = {};
   workoutLogs.forEach(log => {
     log.exercises?.forEach(ex => {
@@ -55,6 +62,24 @@ export default function ActiveWorkoutSheet() {
       }
     });
   });
+
+  // Patch saved notes from Exercise entity into workout exercises once per workout session
+  const notesInitializedFor = useRef(null);
+  useEffect(() => {
+    if (!workout || !allExercises.length) return;
+    const workoutKey = workout.startTime;
+    if (notesInitializedFor.current === workoutKey) return;
+    notesInitializedFor.current = workoutKey;
+    const exerciseMap = {};
+    allExercises.forEach(ex => { exerciseMap[ex.id] = ex; });
+    setWorkout(prev => ({
+      ...prev,
+      exercises: prev.exercises.map(ex => ({
+        ...ex,
+        notes: ex.notes || exerciseMap[ex.exercise_id]?.notes || null,
+      })),
+    }));
+  }, [allExercises, workout?.startTime]);
 
   useEffect(() => {
     if (!workout) return;
