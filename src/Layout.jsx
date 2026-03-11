@@ -33,11 +33,14 @@ export default function Layout({ children, currentPageName }) {
   const hideNav = HIDDEN_NAV_PAGES.includes(currentPageName);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className={hideNav ? "" : "pb-20"}>
-        {children}
+    <ActiveWorkoutProvider>
+      <div className="min-h-screen bg-background">
+        <div className={hideNav ? "" : "pb-20"}>
+          {children}
+        </div>
+        {!hideNav && <BottomNav />}
+        <ActiveWorkoutSheet />
       </div>
-      {!hideNav && <BottomNav />}
-    </div>
+    </ActiveWorkoutProvider>
   );
 }
