@@ -261,12 +261,24 @@ export default function Lifts() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { startWorkout } = useActiveWorkout();
+  const touchStartX = useRef(null);
 
   const { data: folders = [] } = useQuery({ queryKey: ["folders"], queryFn: () => base44.entities.WorkoutFolder.list("order", 100) });
   const { data: templates = [] } = useQuery({ queryKey: ["templates"], queryFn: () => base44.entities.WorkoutTemplate.list("order", 100) });
 
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(diff) > 60) {
+      if (diff < 0) setTab("exercises");
+      else setTab("workouts");
+    }
+    touchStartX.current = null;
+  };
+
   return (
-    <div className="max-w-lg mx-auto pb-4">
+    <div className="max-w-lg mx-auto pb-4" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 bg-background px-4 pt-5 pb-3">
         <div className="flex items-center justify-between">
