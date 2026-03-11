@@ -18,6 +18,8 @@ export default function EditWorkout() {
   const [exercises, setExercises] = useState([]);
   const [showPicker, setShowPicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showUnsavedConfirm, setShowUnsavedConfirm] = useState(false);
+  const isDirty = useRef(false);
 
   const { data: template } = useQuery({
     queryKey: ["template-edit", id],
