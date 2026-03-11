@@ -81,20 +81,6 @@ function WorkoutsTab({ folders, templates, queryClient, navigate }) {
 
   return (
     <div className="space-y-3">
-      {/* History & Quick Start */}
-      <Link to={createPageUrl("WorkoutHistory")}>
-        <button className="w-full flex items-center justify-between bg-secondary/60 rounded-xl px-4 py-3 hover:bg-secondary transition-colors">
-          <div className="flex items-center gap-3">
-            <History className="w-5 h-5 text-primary" />
-            <div className="text-left">
-              <p className="text-sm font-semibold">Workout History</p>
-              <p className="text-xs text-muted-foreground">{templates.length} routines tracked</p>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </button>
-      </Link>
-
       <Link to={createPageUrl("ActiveWorkout")}>
         <Button className="w-full h-14 rounded-xl text-base font-semibold gap-2 shadow-lg shadow-primary/20">
           <Zap className="w-5 h-5" /> Quick Start
