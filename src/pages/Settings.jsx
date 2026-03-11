@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, Moon, Sun, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Moon, Sun, Palette, Ruler, Sliders, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Switch } from "@/components/ui/switch";
 import { applyTheme } from "../components/profile/SettingsPanel";
+import { motion, AnimatePresence } from "framer-motion";
 
 const THEMES = [
   { id: "default", label: "Default", color: "#2563eb" },
@@ -16,13 +17,15 @@ const THEMES = [
   { id: "violet", label: "Violet", color: "#7c3aed" },
 ];
 
-function Section({ title, children }) {
+function SegmentPicker({ options, value, onChange }) {
   return (
-    <div>
-      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1 mb-2">{title}</p>
-      <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border/50">
-        {children}
-      </div>
+    <div className="flex bg-secondary rounded-lg p-0.5 shrink-0">
+      {options.map(o => (
+        <button key={o.id} onClick={() => onChange(o.id)}
+          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${value === o.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+          {o.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -39,15 +42,32 @@ function SettingRow({ label, description, children }) {
   );
 }
 
-function SegmentPicker({ options, value, onChange }) {
+function Section({ icon: Icon, title, color, children }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="flex bg-secondary rounded-lg p-0.5 shrink-0">
-      {options.map(o => (
-        <button key={o.id} onClick={() => onChange(o.id)}
-          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${value === o.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-          {o.label}
-        </button>
-      ))}
+    <div className="bg-card rounded-2xl border border-border overflow-hidden">
+      <button onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-3 px-4 py-4">
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0`} style={{ backgroundColor: color + "22" }}>
+          <Icon className="w-4.5 h-4.5" style={{ color }} />
+        </div>
+        <span className="flex-1 text-left font-semibold text-sm">{title}</span>
+        <motion.div animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </motion.div>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }}
+            transition={{ duration: 0.2 }} className="overflow-hidden">
+            <div className="border-t border-border/50 divide-y divide-border/30">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -91,9 +111,9 @@ export default function Settings() {
   const save = (key, val, setter) => { setter(val); localStorage.setItem(key, String(val)); };
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-5 pb-8 space-y-6">
+    <div className="max-w-lg mx-auto px-4 pt-5 pb-8 space-y-3">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mb-2">
         <Link to={createPageUrl("Profile")}>
           <button className="w-9 h-9 flex items-center justify-center rounded-full bg-secondary">
             <ChevronLeft className="w-5 h-5" />
@@ -103,17 +123,20 @@ export default function Settings() {
       </div>
 
       {/* Appearance */}
-      <Section title="Appearance">
-        <SettingRow label="Dark Mode">
-          <Switch checked={darkMode} onCheckedChange={toggleDark} />
+      <Section icon={Palette} title="Appearance" color="#8b5cf6">
+        <SettingRow label={darkMode ? "Dark Mode" : "Light Mode"} description="Toggle app theme">
+          <div className="flex items-center gap-2">
+            {darkMode ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-amber-500" />}
+            <Switch checked={darkMode} onCheckedChange={toggleDark} />
+          </div>
         </SettingRow>
         <div className="px-4 py-3.5">
-          <p className="text-sm font-medium mb-3">Theme</p>
+          <p className="text-sm font-medium mb-3">Color Theme</p>
           <div className="grid grid-cols-4 gap-2">
             {THEMES.map(t => (
               <button key={t.id} onClick={() => handleTheme(t.id)}
                 className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all ${theme === t.id ? "bg-secondary ring-2 ring-primary" : "bg-secondary/50"}`}>
-                <div className="w-7 h-7 rounded-full" style={{ backgroundColor: t.color }} />
+                <div className="w-7 h-7 rounded-full shadow-sm" style={{ backgroundColor: t.color }} />
                 <span className="text-[10px] font-medium text-muted-foreground">{t.label}</span>
               </button>
             ))}
@@ -121,41 +144,41 @@ export default function Settings() {
         </div>
       </Section>
 
-      {/* Units */}
-      <Section title="Units">
-        <SettingRow label="Weight" description="Used for exercises and body weight">
+      {/* Measurements */}
+      <Section icon={Ruler} title="Measurements" color="#06b6d4">
+        <SettingRow label="Weight Unit">
           <SegmentPicker value={weightUnit} onChange={v => save("gym-weight-unit", v, setWeightUnit)}
             options={[{ id: "kg", label: "kg" }, { id: "lbs", label: "lbs" }]} />
         </SettingRow>
-        <SettingRow label="Distance">
+        <SettingRow label="Distance Unit">
           <SegmentPicker value={distanceUnit} onChange={v => save("gym-distance-unit", v, setDistanceUnit)}
             options={[{ id: "metric", label: "km" }, { id: "imperial", label: "mi" }]} />
         </SettingRow>
-        <SettingRow label="Week starts on">
+        <SettingRow label="Week Starts On">
           <SegmentPicker value={weekStart} onChange={v => save("gym-week-start", v, setWeekStart)}
             options={[{ id: "monday", label: "Mon" }, { id: "sunday", label: "Sun" }]} />
         </SettingRow>
       </Section>
 
-      {/* Workout Settings */}
-      <Section title="Workout">
-        <SettingRow label="Previous set display" description="How previous set data appears">
-          <span className="text-xs text-muted-foreground">Weight × Reps</span>
-        </SettingRow>
+      {/* Preferences */}
+      <Section icon={Sliders} title="Preferences" color="#f59e0b">
         <SettingRow label="Warm-up rest time" description="Rest between warm-up sets">
-          <span className="text-xs text-muted-foreground font-medium">60s</span>
+          <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">60s</span>
         </SettingRow>
         <SettingRow label="Compound rest time" description="Rest for compound movements">
-          <span className="text-xs text-muted-foreground font-medium">3 min</span>
+          <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">3 min</span>
         </SettingRow>
         <SettingRow label="Isolation rest time" description="Rest for isolation movements">
-          <span className="text-xs text-muted-foreground font-medium">90s</span>
+          <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">90s</span>
+        </SettingRow>
+        <SettingRow label="Previous set display" description="How previous set data appears">
+          <span className="text-xs text-muted-foreground">Weight × Reps</span>
         </SettingRow>
       </Section>
 
       {/* Advanced */}
-      <Section title="Advanced">
-        <SettingRow label="Count dumbbells twice" description="Multiply dumbbell weight ×2">
+      <Section icon={Zap} title="Advanced" color="#ef4444">
+        <SettingRow label="Count dumbbells twice" description="Multiply dumbbell weight ×2 for total volume">
           <Switch checked={countDumbbellTwice} onCheckedChange={v => save("gym-dumbbell-twice", v, setCountDumbbellTwice)} />
         </SettingRow>
         <SettingRow label="Disable screen sleep" description="Keep screen on during workouts">
