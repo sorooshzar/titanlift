@@ -363,6 +363,10 @@ export default function Profile() {
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </div>
         </Link>
+
+          </motion.div>
+        )}
+        </AnimatePresence>
       </div>
 
       {showLogWeight && <LogWeightModal onClose={() => setShowLogWeight(false)} />}
