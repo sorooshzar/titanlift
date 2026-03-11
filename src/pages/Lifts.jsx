@@ -254,10 +254,17 @@ function ExercisesTab() {
 
 export default function Lifts() {
   const [tab, setTab] = useState(TABS.WORKOUTS);
+  const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { startWorkout } = useActiveWorkout();
   const touchStartX = useRef(null);
+
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setTab(location.state.activeTab);
+    }
+  }, [location.state]);
 
   const { data: folders = [] } = useWorkoutFolders();
   const { data: templates = [] } = useWorkoutTemplates();
