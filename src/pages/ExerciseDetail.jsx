@@ -33,19 +33,22 @@ export default function ExerciseDetail() {
   workoutLogs.forEach((log) => {
     log.exercises?.forEach((ex) => {
       if (ex.exercise_id === id) {
-        let volume = 0, maxReps = 0, maxWeight = 0;
+        let volumeKg = 0, maxReps = 0, maxWeightKg = 0;
         ex.sets?.forEach((s) => {
           if (s.completed) {
-            volume += (s.weight || 0) * (s.reps || 0);
+            volumeKg += (s.weight || 0) * (s.reps || 0);
             if ((s.reps || 0) > maxReps) maxReps = s.reps || 0;
-            if ((s.weight || 0) > maxWeight) maxWeight = s.weight || 0;
+            if ((s.weight || 0) > maxWeightKg) maxWeightKg = s.weight || 0;
           }
         });
-        const e1rm = maxWeight > 0 && maxReps > 0 ? Math.round(maxWeight * (1 + maxReps / 30)) : 0;
-        if (volume > 0 || maxReps > 0) {
+        const e1rmKg = maxWeightKg > 0 && maxReps > 0 ? maxWeightKg * (1 + maxReps / 30) : 0;
+        if (volumeKg > 0 || maxReps > 0) {
           allChartData.push({
             date: format(new Date(log.started_at || log.created_date), "MMM d"),
-            volume, reps: maxReps, maxWeight, e1rm,
+            volume: Math.round(toDisplay(volumeKg) || 0),
+            reps: maxReps,
+            maxWeight: Math.round(toDisplay(maxWeightKg) || 0),
+            e1rm: Math.round(toDisplay(e1rmKg) || 0),
           });
         }
       }
