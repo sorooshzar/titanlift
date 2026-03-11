@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ExerciseFilters from "../components/exercises/ExerciseFilters";
 import CreateExerciseModal from "../components/exercises/CreateExerciseModal";
-import { getMainGroupsForSubsection } from "@/components/utils/muscleHierarchy";
+import { MUSCLE_HIERARCHY } from "@/components/utils/muscleHierarchy";
 
 export default function Exercises() {
   const [search, setSearch] = useState("");
