@@ -41,7 +41,3 @@ export function ActiveWorkoutProvider({ children }) {
 export function useActiveWorkout() {
   return useContext(ActiveWorkoutContext);
 }
-
-export function useActiveWorkout() {
-  return useContext(ActiveWorkoutContext);
-}
