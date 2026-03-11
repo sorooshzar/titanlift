@@ -3,7 +3,14 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format } from "date-fns";
 
 export default function WeightChart({ data = [] }) {
-  const chartData = data
+  // Deduplicate: keep only the latest entry per day
+  const byDay = {};
+  data.forEach(d => {
+    if (!byDay[d.date] || new Date(d.created_date) > new Date(byDay[d.date].created_date)) {
+      byDay[d.date] = d;
+    }
+  });
+  const chartData = Object.values(byDay)
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .map(d => ({
       date: format(new Date(d.date), "MMM d"),
