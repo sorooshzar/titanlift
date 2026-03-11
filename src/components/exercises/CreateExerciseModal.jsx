@@ -23,8 +23,8 @@ export default function CreateExerciseModal({ open, onClose }) {
     setSaving(true);
     await base44.entities.Exercise.create({
       name: name.trim(),
-      primary_muscle: primaryMuscles,
-      secondary_muscles: secondaryMuscles,
+      primary_muscle: primaryMuscles[0],
+      secondary_muscles: primaryMuscles.length > 1 ? primaryMuscles.slice(1).concat(secondaryMuscles) : secondaryMuscles,
       category: category || "other",
     });
     queryClient.invalidateQueries({ queryKey: ["exercises"] });
