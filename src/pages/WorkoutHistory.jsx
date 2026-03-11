@@ -122,7 +122,7 @@ function WorkoutDetailModal({ log, onClose }) {
                       {isEmpty ? (
                         <span className="text-muted-foreground/50 italic">Incomplete</span>
                       ) : (
-                        <span className={s.type === "dropset" ? "text-purple-400" : ""}>{s.weight || 0} {weightUnit} × {s.reps || 0}</span>
+                        <span className={s.type === "dropset" ? "text-purple-400" : ""}>{toDisplay(s.weight) || 0} {weightUnit} × {s.reps || 0}</span>
                       )}
                       {!isEmpty && s.rir != null && <span>RIR {s.rir}</span>}
                       {s.type === "failure" && <span className="text-destructive font-semibold">Failure</span>}
