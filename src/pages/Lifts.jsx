@@ -82,7 +82,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
     await base44.entities.WorkoutTemplate.update(t.id, { notes });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
-  const handleStartWorkout = (t) => navigate(createPageUrl(`ActiveWorkout?templateId=${t.id}`));
+  const handleStartWorkout = (t) => startWorkout(t);
   const handleAddWorkoutToFolder = async (folder) => {
     const name = prompt("Workout name:");
     if (!name?.trim()) return;
