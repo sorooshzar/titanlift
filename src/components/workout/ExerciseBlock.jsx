@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MoreVertical, Trash2, GripVertical, StickyNote, RefreshCw, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SetTable from "./SetTable";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 const EXERCISE_COLORS = [
   null, "#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4",

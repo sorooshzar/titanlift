@@ -69,7 +69,7 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
         const isDropset = set.type === "dropset";
         const prev = previousSets[index];
         const prevLabel = prev && (prev.weight || prev.reps)
-          ? `${prev.weight || 0}×${prev.reps || 0}`
+          ? `${prev.weight || 0}×${prev.reps || 0} ${weightUnit}`
           : "—";
 
         return (

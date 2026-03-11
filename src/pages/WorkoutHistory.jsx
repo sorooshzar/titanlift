@@ -70,6 +70,7 @@ function CalendarView({ logs, onSelectDay }) {
 }
 
 function WorkoutDetailModal({ log, onClose }) {
+  const weightUnit = localStorage.getItem("gym-weight-unit") || "kg";
   if (!log) return null;
   return (
     <motion.div
@@ -93,7 +94,7 @@ function WorkoutDetailModal({ log, onClose }) {
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
             { label: "Duration", value: formatDuration(log.duration_minutes) },
-            { label: "Volume", value: log.total_volume ? `${log.total_volume.toLocaleString()} kg` : "--" },
+            { label: "Volume", value: log.total_volume ? `${log.total_volume.toLocaleString()} ${weightUnit}` : "--" },
             { label: "Sets", value: log.total_sets || "--" },
           ].map((s) => (
             <div key={s.label} className="bg-card rounded-xl border border-border p-3 text-center">
@@ -104,13 +105,18 @@ function WorkoutDetailModal({ log, onClose }) {
         </div>
         <div className="space-y-3">
           {log.exercises?.map((ex, i) => (
-            <div key={i} className="bg-card rounded-xl border border-border p-4">
-              <p className="text-sm font-semibold mb-2">{ex.exercise_name}</p>
+            <div key={i} className="bg-card rounded-xl border border-border p-4"
+              style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
+              <div className="flex items-center gap-2 mb-2">
+                {/* Reserved rank icon space */}
+                <div className="w-5 h-5 flex-shrink-0" />
+                <p className="text-sm font-semibold flex-1">{ex.exercise_name}</p>
+              </div>
               <div className="space-y-1">
                 {ex.sets?.filter(s => s.completed).map((s, j) => (
                   <div key={j} className="flex gap-4 text-xs text-muted-foreground">
                     <span className="text-foreground font-medium w-6">{j + 1}</span>
-                    <span>{s.weight || 0} kg × {s.reps || 0}</span>
+                    <span>{s.weight || 0} {weightUnit} × {s.reps || 0}</span>
                     {s.rir != null && <span>RIR {s.rir}</span>}
                     {s.type === "failure" && <span className="text-destructive font-semibold">F</span>}
                     {s.type === "dropset" && <span className="text-amber-500 font-semibold">D</span>}
