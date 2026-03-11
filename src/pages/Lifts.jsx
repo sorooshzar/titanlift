@@ -260,6 +260,7 @@ export default function Lifts() {
   const [tab, setTab] = useState("workouts");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { startWorkout } = useActiveWorkout();
 
   const { data: folders = [] } = useQuery({ queryKey: ["folders"], queryFn: () => base44.entities.WorkoutFolder.list("order", 100) });
   const { data: templates = [] } = useQuery({ queryKey: ["templates"], queryFn: () => base44.entities.WorkoutTemplate.list("order", 100) });
