@@ -95,7 +95,7 @@ function WorkoutDetailModal({ log, onClose }) {
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
             { label: "Duration", value: formatDuration(log.duration_minutes) },
-            { label: "Volume", value: log.total_volume ? `${log.total_volume.toLocaleString()} ${weightUnit}` : "--" },
+            { label: "Volume", value: log.total_volume ? `${toDisplay(log.total_volume)?.toLocaleString()} ${weightUnit}` : "--" },
             { label: "Sets", value: log.total_sets || "--" },
           ].map((s) => (
             <div key={s.label} className="bg-card rounded-xl border border-border p-3 text-center">
