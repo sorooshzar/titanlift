@@ -20,37 +20,42 @@ function WorkoutPicker({ onClose }) {
 
   const toggle = (id) => setOpenFolders(p => ({ ...p, [id]: !p[id] }));
 
+  const archivedFolder = folders.find(f => f.name === "Archived");
+  const regularFolders = folders.filter(f => f.name !== "Archived");
+
+  const renderFolder = (folder, defaultOpen = true) => {
+    const ft = templates.filter(t => t.folder_id === folder.id);
+    const isOpen = folder.id in openFolders ? openFolders[folder.id] : defaultOpen;
+    return (
+      <div key={folder.id} className="bg-secondary/50 rounded-xl overflow-hidden">
+        <button onClick={() => toggle(folder.id)} className="flex items-center w-full px-4 py-3 gap-2">
+          <FolderOpen className="w-4 h-4 text-primary flex-shrink-0" />
+          <span className="flex-1 text-left text-sm font-semibold">{folder.name}</span>
+          <span className="text-xs text-muted-foreground">{ft.length}</span>
+          {isOpen ? <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />}
+        </button>
+        {isOpen && ft.map(t => (
+          <button key={t.id} onClick={() => start(t)} className="flex items-center w-full px-4 py-2.5 gap-3 hover:bg-secondary/80 border-t border-border/30">
+            <Dumbbell className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+            <div className="flex-1 text-left">
+              <p className="text-sm font-medium">{t.name}</p>
+              <p className="text-xs text-muted-foreground">{t.exercises?.length || 0} exercises</p>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 pb-2">
+    <div className="flex flex-col" style={{ height: "85vh" }}>
+      <div className="flex items-center justify-between p-4 pb-2 flex-shrink-0">
         <h2 className="text-lg font-bold">Start Workout</h2>
         <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary"><X className="w-4 h-4" /></button>
       </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {folders.map(folder => {
-          const ft = templates.filter(t => t.folder_id === folder.id);
-          const isOpen = openFolders[folder.id] !== false;
-          return (
-            <div key={folder.id} className="bg-secondary/50 rounded-xl overflow-hidden">
-              <button onClick={() => toggle(folder.id)} className="flex items-center w-full px-4 py-3 gap-2">
-                <FolderOpen className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="flex-1 text-left text-sm font-semibold">{folder.name}</span>
-                <span className="text-xs text-muted-foreground">{ft.length}</span>
-                {isOpen ? <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />}
-              </button>
-              {isOpen && ft.map(t => (
-                <button key={t.id} onClick={() => start(t)} className="flex items-center w-full px-4 py-2.5 gap-3 hover:bg-secondary/80 border-t border-border/30">
-                  <Dumbbell className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-medium">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.exercises?.length || 0} exercises</p>
-                  </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
-              ))}
-            </div>
-          );
-        })}
+      <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
+        {regularFolders.map(folder => renderFolder(folder, true))}
         {templates.filter(t => !t.folder_id).map(t => (
           <button key={t.id} onClick={() => start(t)} className="flex items-center w-full bg-secondary/50 rounded-xl px-4 py-3 gap-3">
             <Dumbbell className="w-4 h-4 text-muted-foreground" />
@@ -61,8 +66,11 @@ function WorkoutPicker({ onClose }) {
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
         ))}
+        {archivedFolder && (
+          <div className="opacity-50">{renderFolder(archivedFolder, false)}</div>
+        )}
       </div>
-      <div className="p-4 pt-2">
+      <div className="p-4 pt-2 flex-shrink-0">
         <button onClick={quickStart} className="w-full h-14 bg-primary text-white rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary/30">
           <Zap className="w-5 h-5" /> Quick Start
         </button>
@@ -191,7 +199,7 @@ export default function QuickActionMenu({ open, onClose }) {
             )}
 
             {screen === "workout" && (
-              <div className="flex flex-col overflow-hidden" style={{ maxHeight: "85vh" }}>
+              <div className="overflow-hidden">
                 <WorkoutPicker onClose={handleClose} />
               </div>
             )}
