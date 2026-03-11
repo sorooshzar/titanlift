@@ -6,10 +6,22 @@ import { createPageUrl } from "@/utils";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 const MODES = ["Regular", "Plate", "1RM", "Unit"];
+
+// IPF Standard Plate Colors
+const PLATE_COLORS = {
+  55: "#C41E3A", // Red (55lb)
+  45: "#0047AB", // Blue (45lb)
+  35: "#FFD700", // Yellow (35lb)
+  25: "#228B22", // Green (25lb)
+  10: "#FFFFFF", // White (10lb)
+  5: "#FF0000",  // Red (5lb)
+  2.5: "#0047AB", // Blue (2.5lb)
+};
+
 const BAR_TYPES = {
-  standard: { name: "Standard Barbell", weight_kg: 20, weight_lbs: 45, plates: [45, 35, 25, 10, 5, 2.5], plate_colors: { 45: "bg-red-500", 35: "bg-blue-500", 25: "bg-yellow-500", 10: "bg-green-500", 5: "bg-white border border-foreground", 2.5: "bg-red-200" } },
-  womens: { name: "Women's Barbell", weight_kg: 15, weight_lbs: 35, plates: [35, 25, 10, 5, 2.5], plate_colors: { 35: "bg-blue-500", 25: "bg-yellow-500", 10: "bg-green-500", 5: "bg-white border border-foreground", 2.5: "bg-red-200" } },
-  ezbar: { name: "EZ Bar", weight_kg: 10, weight_lbs: 25, plates: [25, 10, 5, 2.5], plate_colors: { 25: "bg-yellow-500", 10: "bg-green-500", 5: "bg-white border border-foreground", 2.5: "bg-red-200" } },
+  standard: { name: "Standard Barbell", weight_kg: 20, weight_lbs: 45, plates: [45, 35, 25, 10, 5, 2.5] },
+  womens: { name: "Women's Barbell", weight_kg: 15, weight_lbs: 35, plates: [35, 25, 10, 5, 2.5] },
+  ezbar: { name: "EZ Bar", weight_kg: 10, weight_lbs: 25, plates: [25, 10, 5, 2.5] },
 };
 
 const REP_MAXES = [
@@ -151,9 +163,11 @@ function PlateMode() {
   const { unit: weightUnit } = useWeightUnit();
   const [barType, setBarType] = useState("standard");
   const [target, setTarget] = useState("");
+  const [use55lb, setUse55lb] = useState(false);
 
   const bar = BAR_TYPES[barType];
   const barWeight = weightUnit === "lbs" ? bar.weight_lbs : bar.weight_kg;
+  const availablePlates = use55lb ? [55, ...bar.plates] : bar.plates;
 
   const calculatePlates = () => {
     if (!target) return null;
@@ -162,7 +176,7 @@ function PlateMode() {
     const breakdown = [];
     let remaining = sideWeight;
 
-    for (const plate of bar.plates) {
+    for (const plate of availablePlates) {
       const count = Math.floor(remaining / plate);
       if (count > 0) {
         breakdown.push({ plate, count });
@@ -174,9 +188,8 @@ function PlateMode() {
 
   const plates = calculatePlates();
 
-  // Plate width scaling: 45lb = 100%, 35lb = 85%, 25lb = 70%, etc.
-  const plateWidths = { 45: 100, 35: 85, 25: 70, 10: 50, 5: 35, 2.5: 25 };
-  const plateHeights = { 45: 16, 35: 14, 25: 12, 10: 10, 5: 8, 2.5: 6 };
+  // Plate width scaling: 55lb = 110%, 45lb = 100%, 35lb = 85%, etc.
+  const plateWidths = { 55: 110, 45: 100, 35: 85, 25: 70, 10: 50, 5: 35, 2.5: 25 };
 
   return (
     <div className="space-y-4">
@@ -197,53 +210,62 @@ function PlateMode() {
           <input type="number" value={target} onChange={e => setTarget(e.target.value)}
             placeholder={`e.g. ${weightUnit === "kg" ? "100" : "220"}`} className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm" />
         </div>
+        <div className="flex items-center gap-2">
+          <input type="checkbox" id="use55" checked={use55lb} onChange={e => setUse55lb(e.target.checked)} className="w-4 h-4 rounded" />
+          <label htmlFor="use55" className="text-sm font-semibold cursor-pointer">Include 55 lb plates</label>
+        </div>
       </div>
 
       {plates && (
-        <div className="bg-card rounded-2xl border border-border p-6 space-y-3">
+        <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
           <h3 className="font-semibold text-sm">Plate Loader Guide</h3>
           
-          <div className="grid grid-cols-5 gap-6 items-end min-h-80">
-            {/* Plate List on left */}
-            <div className="col-span-2 space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase">Per Side</p>
-              <div className="space-y-2">
-                {plates.map(p => (
-                  <div key={p.plate} className="flex items-center gap-2">
-                    <span className="font-bold text-lg">{p.count}×</span>
-                    <div>
-                      <p className="text-sm font-semibold">{p.plate}</p>
-                      <p className="text-xs text-muted-foreground">lbs</p>
-                    </div>
-                  </div>
-                ))}
+          {/* Horizontal Plate Diagram */}
+          <div className="flex flex-col items-center justify-center gap-4 p-6 bg-secondary/30 rounded-xl">
+            {plates.map((p, idx) => (
+              <div key={idx} className="w-full flex flex-col gap-2 items-center">
+                {[...Array(p.count)].map((_, i) => {
+                  const width = `${plateWidths[p.plate]}%`;
+                  const height = "32px";
+                  const bgColor = PLATE_COLORS[p.plate];
+                  const borderColor = p.plate === 10 ? "#000" : "none";
+                  
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        width,
+                        height,
+                        backgroundColor: bgColor,
+                        border: p.plate === 10 ? "2px solid #000" : "none",
+                        borderRadius: "12px",
+                      }}
+                    />
+                  );
+                })}
               </div>
-            </div>
+            ))}
+          </div>
 
-            {/* Thick Vertical Plate Diagram on right */}
-            <div className="col-span-3 flex flex-col items-center justify-end h-80">
-              {/* Bar sleeve - thin vertical rectangle */}
-              <div className="w-10 h-6 bg-foreground/40 rounded-sm mb-2"></div>
-              
-              {/* Plates stacking from bottom to top - THICK */}
-              <div className="flex flex-col-reverse gap-2">
-                {plates.map((p, idx) => (
-                  <div key={idx} className="flex flex-col gap-2">
-                    {[...Array(p.count)].map((_, i) => {
-                      const width = `${plateWidths[p.plate] * 1.6}%`;
-                      const height = `${plateHeights[p.plate] * 1.8}px`;
-                      const color = bar.plate_colors[p.plate];
-                      return (
-                        <div
-                          key={i}
-                          className={`${color} rounded-[14px] mx-auto`}
-                          style={{ width: `min(${width}, 85%)`, height }}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
+          {/* Plate List */}
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase">Per Side</p>
+            <div className="space-y-1.5">
+              {plates.map(p => (
+                <div key={p.plate} className="flex items-center gap-3">
+                  <span className="font-bold text-lg min-w-12">{p.count}×</span>
+                  <div
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      backgroundColor: PLATE_COLORS[p.plate],
+                      borderRadius: "4px",
+                      border: p.plate === 10 ? "1px solid #000" : "none",
+                    }}
+                  />
+                  <span className="text-sm font-semibold">{p.plate} lbs</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
