@@ -111,35 +111,12 @@ export default function Settings() {
 
   const save = (key, val, setter) => { setter(val); localStorage.setItem(key, String(val)); };
 
-  const handleWeightUnitChange = async (newUnit) => {
-    const oldUnit = weightUnit;
-    if (oldUnit === newUnit) return;
+  const handleWeightUnitChange = (newUnit) => {
+    if (weightUnit === newUnit) return;
+    // We only change the display preference — all weights are stored in kg (base unit).
+    // Converting stored data causes rounding drift and XP fluctuation, so we never touch the DB here.
     save("gym-weight-unit", newUnit, setWeightUnit);
     window.dispatchEvent(new CustomEvent("weightUnitChanged", { detail: { unit: newUnit } }));
-
-    // Convert all stored workout logs
-    const factor = newUnit === "lbs" ? 2.20462 : 1 / 2.20462;
-    const round = (v) => Math.round(v * 4) / 4; // round to nearest 0.25
-
-    const logs = await base44.entities.WorkoutLog.list("-created_date", 500);
-    for (const log of logs) {
-      if (!log.exercises?.length) continue;
-      const updatedExercises = log.exercises.map(ex => ({
-        ...ex,
-        sets: ex.sets?.map(s => ({ ...s, weight: s.weight ? round(s.weight * factor) : s.weight })) || [],
-      }));
-      await base44.entities.WorkoutLog.update(log.id, { exercises: updatedExercises, total_volume: log.total_volume ? round(log.total_volume * factor) : log.total_volume });
-    }
-
-    const templates = await base44.entities.WorkoutTemplate.list("order", 200);
-    for (const t of templates) {
-      if (!t.exercises?.length) continue;
-      const updatedExercises = t.exercises.map(ex => ({
-        ...ex,
-        sets: ex.sets?.map(s => ({ ...s, weight: s.weight ? round(s.weight * factor) : s.weight })) || [],
-      }));
-      await base44.entities.WorkoutTemplate.update(t.id, { exercises: updatedExercises });
-    }
   };
 
   return (

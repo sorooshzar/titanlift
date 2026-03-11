@@ -59,8 +59,8 @@ import Measurements from './pages/Measurements';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import WorkoutHistory from './pages/WorkoutHistory';
-import Workouts from './pages/Workouts';
 import WorkoutSummary from './pages/WorkoutSummary';
+import Workouts from './pages/Workouts';
 import __Layout from './Layout.jsx';
 
 
@@ -77,8 +77,8 @@ export const PAGES = {
     "Profile": Profile,
     "Settings": Settings,
     "WorkoutHistory": WorkoutHistory,
-    "Workouts": Workouts,
     "WorkoutSummary": WorkoutSummary,
+    "Workouts": Workouts,
 }
 
 export const pagesConfig = {
