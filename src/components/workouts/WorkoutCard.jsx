@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"];
+const COLORS = ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#64748B"];
 
 export default function WorkoutCard({ template, folders = [], onEdit, onDelete, onDuplicate, onArchive, onUnarchive, onMoveToFolder, onUpdateNotes, onStart, isArchived }) {
   const queryClient = useQueryClient();
@@ -87,16 +87,16 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
               <DropdownMenuSubTrigger>
                 <Palette className="w-4 h-4 mr-2" /> Select Color
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <div className="grid grid-cols-4 gap-2 p-2">
+              <DropdownMenuSubContent className="w-56">
+                <div className="grid grid-cols-3 gap-2 p-3">
                   {COLORS.map(color => (
                     <button key={color} onClick={() => handleSelectColor(color)} 
-                      className="w-8 h-8 rounded-lg border-2 transition-all" 
-                      style={{ backgroundColor: color, borderColor: accentColor === color ? "#000" : "transparent" }} />
+                      className="w-10 h-10 rounded-lg border-2 transition-all hover:scale-110" 
+                      style={{ backgroundColor: color, borderColor: accentColor === color ? "#fff" : "transparent", boxShadow: accentColor === color ? `0 0 0 2px #000` : "none" }} />
                   ))}
                   <button onClick={() => handleSelectColor(null)} 
-                    className="w-8 h-8 rounded-lg border-2 border-dashed bg-secondary flex items-center justify-center text-xs font-bold"
-                    style={{ borderColor: accentColor === null ? "#000" : "#999" }}>None</button>
+                    className="col-span-3 h-8 rounded-lg border-2 border-dashed bg-secondary flex items-center justify-center text-xs font-semibold transition-all hover:bg-secondary/70"
+                    style={{ borderColor: accentColor === null ? "#000" : "hsl(var(--border))" }}>Remove Color</button>
                 </div>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
