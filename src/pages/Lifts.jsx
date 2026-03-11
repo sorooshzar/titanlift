@@ -15,11 +15,12 @@ import WorkoutCard from "../components/workouts/WorkoutCard";
 import CreateDialog from "../components/workouts/CreateDialog";
 import ExerciseFilters from "../components/exercises/ExerciseFilters";
 import CreateExerciseModal from "../components/exercises/CreateExerciseModal";
-import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } from "@/components/hooks/useWorkoutData";
-import { TABS, SPECIAL_FOLDERS } from "@/components/utils/constants";
+import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } from "../components/hooks/useWorkoutData";
+import { TABS, SPECIAL_FOLDERS } from "../components/utils/constants";
 
 function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }) {
-  const [createType, setCreateType] = useState(null);
+  const [createType, useState_import_alias] = useState_import(null);
+  const setCreateType = useState_import_alias;
 
   const unfolderedTemplates = templates.filter((t) => !t.folder_id || t.folder_id === "none");
   const archivedFolder = folders.find(f => f.name === SPECIAL_FOLDERS.ARCHIVED);
@@ -159,9 +160,9 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
 }
 
 function ExercisesTab() {
-  const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({ bodyParts: [], equipment: [], sort: "name" });
-  const [showCreate, setShowCreate] = useState(false);
+  const [search, setSearch] = useState_import("");
+  const [filters, setFilters] = useState_import({ bodyParts: [], equipment: [], sort: "name" });
+  const [showCreate, setShowCreate] = useState_import(false);
 
   const { data: exercises = [], isLoading } = useExercises();
   const { data: workoutLogs = [] } = useWorkoutLogs();
@@ -252,7 +253,7 @@ function ExercisesTab() {
 }
 
 export default function Lifts() {
-  const [tab, setTab] = useState(TABS.WORKOUTS);
+  const [tab, setTab] = useState_import(TABS.WORKOUTS);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { startWorkout } = useActiveWorkout();
