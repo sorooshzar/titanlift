@@ -27,7 +27,6 @@ export function ActiveWorkoutProvider({ children }) {
   };
 
   const clearCompletedLog = () => setCompletedLog(null);
-
   const minimize = () => setMinimized(true);
   const expand = () => setMinimized(false);
 
