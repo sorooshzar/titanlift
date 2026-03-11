@@ -346,36 +346,21 @@ export default function Profile() {
           <WeightChart data={bodyWeights} goalWeight={goalWeight} />
         </div>
 
-        {/* Quick links */}
-        <div className="grid grid-cols-2 gap-3">
-          <Link to={createPageUrl("Measurements")}>
-            <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3 active:scale-95 transition-transform">
-              <Ruler className="w-5 h-5 text-primary" />
-              <div>
-                <p className="text-sm font-semibold">Measurements</p>
-                <p className="text-xs text-muted-foreground">Body stats</p>
-              </div>
-            </div>
-          </Link>
-          <Link to={createPageUrl("WorkoutHistory")}>
-            <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3 active:scale-95 transition-transform">
-              <BarChart2 className="w-5 h-5 text-primary" />
-              <div>
-                <p className="text-sm font-semibold">History</p>
-                <p className="text-xs text-muted-foreground">All workouts</p>
-              </div>
-            </div>
-          </Link>
-        </div>
+        {/* Tracker widgets */}
+        {userTrackers.map(t => {
+          const props = { key: t.id, tracker: t, onRemove: () => removeTracker(t.id) };
+          if (t.type === "measurement") return <MeasurementTracker {...props} />;
+          if (t.type === "exercise") return <ExerciseTracker {...props} />;
+          if (t.type === "habits") return <HabitsTracker {...props} />;
+          if (t.type === "macros") return <MacrosTracker {...props} />;
+          return null;
+        })}
 
-        {/* Settings */}
-        <Link to={createPageUrl("Settings")}>
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3 active:scale-95 transition-transform">
-            <Settings className="w-5 h-5 text-muted-foreground" />
-            <span className="text-sm font-medium flex-1">Settings</span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </div>
-        </Link>
+        {/* Add Tracker bar */}
+        <button onClick={() => setShowAddTracker(true)}
+          className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-blue-400 text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-primary/20">
+          <Plus className="w-4 h-4" /> Add Tracker
+        </button>
           </motion.div>
         )}
         </AnimatePresence>
