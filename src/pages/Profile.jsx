@@ -130,6 +130,7 @@ export default function Profile() {
   const [showProfileInfo, setShowProfileInfo] = useState(false);
   const [showGoalInput, setShowGoalInput] = useState(false);
   const [goalWeightInput, setGoalWeightInput] = useState("");
+  // goalWeight is stored in kg (base unit)
   const [goalWeight, setGoalWeight] = useState(() => {
     const saved = localStorage.getItem("gym-goal-weight");
     return saved ? parseFloat(saved) : null;
@@ -139,6 +140,7 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
   const [darkMode, setDarkMode] = useState(true);
+  const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
