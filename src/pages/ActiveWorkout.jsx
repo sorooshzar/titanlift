@@ -110,14 +110,14 @@ export default function ActiveWorkout() {
     });
 
     queryClient.invalidateQueries({ queryKey: ["workoutLogs"] });
-    navigate(createPageUrl("Workouts"));
+    navigate(createPageUrl("Lifts"));
   };
 
   const handleCancel = () => {
     if (exercises.length > 0) {
       if (!confirm("Discard this workout?")) return;
     }
-    navigate(createPageUrl("Workouts"));
+    navigate(createPageUrl("Lifts"));
   };
 
   return (
