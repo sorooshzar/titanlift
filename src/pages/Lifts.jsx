@@ -162,7 +162,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
 
 function ExercisesTab() {
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({ bodyParts: [], equipment: [], sort: "name" });
+  const [filters, setFilters] = useState({ muscleGroups: [], equipment: [], sort: "name" });
   const [showCreate, setShowCreate] = useState(false);
 
   const { data: exercises = [], isLoading } = useExercises();
@@ -177,12 +177,15 @@ function ExercisesTab() {
 
   let filtered = exercises.filter(ex => {
     if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filters.bodyParts.length > 0) {
-      const allMuscles = [ex.primary_muscle, ...(ex.secondary_muscles || [])]
-        .map(m => m.toLowerCase().replace(/_/g, " "));
-      const hasMatch = filters.bodyParts.some(bp => 
-        allMuscles.includes(bp.toLowerCase().replace(/_/g, " "))
-      );
+    if (filters.muscleGroups.length > 0) {
+      // Get all child muscles for selected muscle groups
+      const selectedChildren = [];
+      filters.muscleGroups.forEach(group => {
+        selectedChildren.push(...(MUSCLE_HIERARCHY[group] || []));
+      });
+      // Only check primary muscle
+      const primaryMuscle = ex.primary_muscle;
+      const hasMatch = selectedChildren.includes(primaryMuscle);
       if (!hasMatch) return false;
     }
     if (filters.equipment.length > 0) {
