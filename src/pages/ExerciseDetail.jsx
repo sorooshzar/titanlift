@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen, BarChart3 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -6,6 +6,9 @@ import { format } from "date-fns";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
 import { useExercises, useWorkoutLogs } from "@/components/hooks/useWorkoutData";
 import { getUrlParam } from "@/components/utils/urlParams";
+import { useNavigate, useLocation } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { TABS } from "@/components/utils/constants";
 
 export default function ExerciseDetail() {
   const id = getUrlParam("id");
