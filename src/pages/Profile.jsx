@@ -160,6 +160,16 @@ export default function Profile() {
     queryFn: () => base44.entities.BodyWeight.list("-date", 50),
   });
 
+  const { data: userTrackers = [], refetch: refetchTrackers } = useQuery({
+    queryKey: ["userTrackers"],
+    queryFn: () => base44.entities.UserTracker.list("order", 50),
+  });
+
+  const removeTracker = async (id) => {
+    await base44.entities.UserTracker.delete(id);
+    refetchTrackers();
+  };
+
   const muscleRanks = {};
   const muscleLastTrained = {};
 
