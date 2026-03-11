@@ -195,6 +195,16 @@ function ExercisesTab() {
     filtered = [...filtered].sort((a, b) => (freqMap[b.id] || 0) - (freqMap[a.id] || 0));
   }
 
+  const EQUIPMENT_ABBREVIATIONS = {
+    "barbell": "BB",
+    "dumbbell": "DB",
+    "machine": "MC",
+    "cable": "CA",
+    "bodyweight": "BW",
+    "band": "BD",
+    "other": "--",
+  };
+
   const useGroups = !filters.sort || filters.sort === "name";
   const grouped = {};
   filtered.forEach(ex => {
