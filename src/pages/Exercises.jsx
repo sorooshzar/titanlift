@@ -8,10 +8,11 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ExerciseFilters from "../components/exercises/ExerciseFilters";
 import CreateExerciseModal from "../components/exercises/CreateExerciseModal";
+import { getMainGroupsForSubsection } from "@/components/utils/muscleHierarchy";
 
 export default function Exercises() {
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({ bodyParts: [], equipment: [], sort: "name" });
+  const [filters, setFilters] = useState({ mainGroups: [], equipment: [], sort: "name" });
   const [showCreate, setShowCreate] = useState(false);
 
   const { data: exercises = [], isLoading } = useQuery({
@@ -38,7 +39,11 @@ export default function Exercises() {
 
   let filtered = exercises.filter((ex) => {
     if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filters.bodyParts.length > 0 && !filters.bodyParts.includes(ex.muscle_group)) return false;
+    if (filters.mainGroups.length > 0) {
+      const mainGroupsForEx = getMainGroupsForSubsection(ex.primary_muscle);
+      const matchesFilter = filters.mainGroups.some(mg => mainGroupsForEx.includes(mg));
+      if (!matchesFilter) return false;
+    }
     if (filters.equipment.length > 0) {
       const eqKey = ex.category?.toLowerCase().replace(" ", "_");
       if (!filters.equipment.includes(eqKey)) return false;
@@ -114,7 +119,7 @@ export default function Exercises() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{ex.name}</p>
                     <p className="text-xs text-muted-foreground capitalize">
-                      {ex.muscle_group?.replace(/_/g, " ")} • {ex.category}
+                      {ex.primary_muscle?.replace(/_/g, " ")} • {ex.category}
                       {freqMap[ex.id] ? ` · ${freqMap[ex.id]}×` : ""}
                     </p>
                   </div>
