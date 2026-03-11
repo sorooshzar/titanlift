@@ -85,12 +85,12 @@ export default function EditWorkout() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
-          <button onClick={() => navigate(createPageUrl("Workouts"))} className="p-1">
+          <button onClick={handleClose} className="p-1">
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
           <input
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => { isDirty.current = true; setName(e.target.value); }}
             className="bg-transparent text-center text-sm font-bold focus:outline-none flex-1 mx-4"
             placeholder="Workout Name"
           />
