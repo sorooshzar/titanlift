@@ -39,11 +39,22 @@ export default function Exercises() {
 
   let filtered = exercises.filter((ex) => {
     if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
+    
+    // Muscle group filter: check if exercise's primary/secondary muscles match any selected main group's children
     if (filters.mainGroups.length > 0) {
-      const mainGroupsForEx = getMainGroupsForSubsection(ex.primary_muscle);
-      const matchesFilter = filters.mainGroups.some(mg => mainGroupsForEx.includes(mg));
+      const exerciseMuscles = [
+        ...(Array.isArray(ex.primary_muscle) ? ex.primary_muscle : (ex.primary_muscle ? [ex.primary_muscle] : [])),
+        ...(ex.secondary_muscles || [])
+      ];
+      
+      const matchesFilter = filters.mainGroups.some(mainGroup => {
+        const children = MUSCLE_HIERARCHY[mainGroup] || [];
+        return exerciseMuscles.some(muscle => children.includes(muscle));
+      });
+      
       if (!matchesFilter) return false;
     }
+    
     if (filters.equipment.length > 0) {
       const eqKey = ex.category?.toLowerCase().replace(" ", "_");
       if (!filters.equipment.includes(eqKey)) return false;

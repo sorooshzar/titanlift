@@ -113,11 +113,11 @@ export default function ExerciseDetail() {
       <div className="px-4 pt-6 pb-4 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Link to={createPageUrl("Lifts?tab=exercises")}>
+          <button onClick={() => window.history.back()} className="p-0">
             <Button variant="ghost" size="icon" className="rounded-full">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-          </Link>
+          </button>
           <div>
             <h1 className="text-xl font-bold">{exercise.name}</h1>
             <p className="text-sm text-muted-foreground capitalize">

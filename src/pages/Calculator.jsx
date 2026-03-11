@@ -25,20 +25,17 @@ const BAR_TYPES = {
 };
 
 const REP_MAXES = [
-  { pct: 115, reps: "--" },
-  { pct: 110, reps: "1-2" },
-  { pct: 105, reps: 1 },
   { pct: 100, reps: 1 },
   { pct: 95, reps: 2 },
   { pct: 90, reps: "3-4" },
   { pct: 85, reps: 6 },
-  { pct: 80, reps: 8 },
-  { pct: 75, reps: 10 },
-  { pct: 70, reps: "12-13" },
-  { pct: 65, reps: "14-15" },
-  { pct: 60, reps: "16-20" },
-  { pct: 55, reps: "20-25" },
-  { pct: 50, reps: "25-30" },
+  { pct: 80, reps: "8-10" },
+  { pct: 75, reps: 12 },
+  { pct: 70, reps: 15 },
+  { pct: 65, reps: "18-20" },
+  { pct: 60, reps: "20-25" },
+  { pct: 55, reps: "25-30" },
+  { pct: 50, reps: "30-40" },
 ];
 
 const UNIT_CONVERSIONS = {
@@ -337,16 +334,15 @@ function OneRMMode() {
               </thead>
               <tbody>
                 {REP_MAXES.map(({ pct, reps }) => {
-                  const weight = (oneRMVal * (pct / 100)).toFixed(1);
-                  const displayReps = pct === 115 ? "--" : reps;
-                  return (
-                    <tr key={pct} className="border-b border-border/30 hover:bg-secondary/30">
-                      <td className="py-2 font-semibold">{pct}%</td>
-                      <td className="py-2">{weight} {weightUnit}</td>
-                      <td className="py-2 text-muted-foreground">{displayReps}</td>
-                    </tr>
-                  );
-                })}
+                   const weight = (oneRMVal * (pct / 100)).toFixed(1);
+                   return (
+                     <tr key={pct} className="border-b border-border/30 hover:bg-secondary/30">
+                       <td className="py-2 font-semibold">{pct}%</td>
+                       <td className="py-2">{weight} {weightUnit}</td>
+                       <td className="py-2 text-muted-foreground">{reps}</td>
+                     </tr>
+                   );
+                 })}
               </tbody>
             </table>
           </div>

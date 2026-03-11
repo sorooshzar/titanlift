@@ -1,13 +1,13 @@
-// Hierarchical muscle group mapping
+// Hierarchical muscle group mapping - ordered as specified
 export const MUSCLE_HIERARCHY = {
   Chest: ["Upper Chest", "Mid/Low Chest"],
+  Back: ["Lats", "Traps", "Mid Back", "Erectors"],
   Shoulders: ["Front Delt", "Side Delt", "Rear Delt"],
   Arms: ["Biceps", "Triceps"],
+  Legs: ["Quads", "Hamstrings", "Glutes", "Adductors", "Abductors", "Calves"],
+  Core: ["Abs", "Obliques", "Erectors"],
   Forearms: ["Wrist Flexor", "Wrist Extensor", "Brachioradialis"],
   Neck: ["Neck"],
-  Back: ["Lats", "Traps", "Mid Back", "Erectors"],
-  Core: ["Abs", "Obliques", "Erectors"],
-  Legs: ["Quads", "Hamstrings", "Glutes", "Adductors", "Abductors", "Calves"],
 };
 
 // Get all sub-sections for filtering
