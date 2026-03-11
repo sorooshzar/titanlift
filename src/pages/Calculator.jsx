@@ -380,26 +380,29 @@ function UnitConverter() {
 
       {/* Single row conversion */}
       <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
-        <div className="grid grid-cols-5 gap-2 items-center">
-          <input type="number" value={value} onChange={e => setValue(e.target.value)}
-            placeholder="0" className="col-span-1 bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm text-center font-semibold" />
+        <div className="grid grid-cols-5 gap-3 items-end">
+          <div className="flex flex-col items-center col-span-1">
+            <label className="text-xs font-semibold text-muted-foreground mb-1.5">Value</label>
+            <input type="number" value={value} onChange={e => setValue(e.target.value)}
+              placeholder="0" className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm text-center font-semibold" />
+          </div>
           
           <div className="flex flex-col items-center gap-1">
             <label className="text-xs font-semibold text-muted-foreground">From</label>
             <select value={fromUnit} onChange={e => setFromUnit(e.target.value)}
-              className="w-full bg-secondary border-0 rounded-lg px-2 py-1.5 text-xs text-center">
+              className="w-full bg-secondary border-0 rounded-lg px-2 py-2.5 text-xs text-center font-medium">
               {unitKeys.map(u => (
                 <option key={u} value={u}>{units[u].label}</option>
               ))}
             </select>
           </div>
 
-          <div className="text-center text-muted-foreground text-sm">→</div>
+          <div className="text-center text-muted-foreground">→</div>
 
           <div className="flex flex-col items-center gap-1">
             <label className="text-xs font-semibold text-muted-foreground">To</label>
             <select value={toUnit} onChange={e => setToUnit(e.target.value)}
-              className="w-full bg-secondary border-0 rounded-lg px-2 py-1.5 text-xs text-center">
+              className="w-full bg-secondary border-0 rounded-lg px-2 py-2.5 text-xs text-center font-medium">
               {unitKeys.map(u => (
                 <option key={u} value={u}>{units[u].label}</option>
               ))}
