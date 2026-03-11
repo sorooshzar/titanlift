@@ -113,28 +113,32 @@ function WorkoutsTab({ folders, templates, queryClient, navigate }) {
 
       {/* Folders (regular) */}
       {regularFolders.map((folder) => (
-        <FolderCard key={folder.id} folder={folder} templates={templates}
+        <FolderCard key={folder.id} folder={folder} templates={templates} folders={folders}
           onRenameFolder={handleRenameFolder} onDeleteFolder={handleDeleteFolder}
           onEditWorkout={handleEditWorkout} onDeleteWorkout={handleDeleteWorkout}
           onDuplicateWorkout={handleDuplicateWorkout} onArchiveWorkout={handleArchiveWorkout}
+          onMoveToFolder={handleMoveToFolder} onUpdateNotes={handleUpdateNotes}
           onStartWorkout={handleStartWorkout} onAddWorkout={handleAddWorkoutToFolder} />
       ))}
 
       {/* Unfoldered */}
       {unfolderedTemplates.map((template) => (
-        <WorkoutCard key={template.id} template={template}
+        <WorkoutCard key={template.id} template={template} folders={folders}
           onEdit={handleEditWorkout} onDelete={handleDeleteWorkout}
           onDuplicate={handleDuplicateWorkout} onArchive={handleArchiveWorkout}
+          onMoveToFolder={handleMoveToFolder} onUpdateNotes={handleUpdateNotes}
           onStart={handleStartWorkout} />
       ))}
 
       {/* Archived folder (dimmed, collapsed by default) */}
       {archivedFolder && (
         <div className="opacity-50">
-          <FolderCard folder={archivedFolder} templates={templates}
+          <FolderCard folder={archivedFolder} templates={templates} folders={folders} isArchiveFolder
             onRenameFolder={handleRenameFolder} onDeleteFolder={handleDeleteFolder}
             onEditWorkout={handleEditWorkout} onDeleteWorkout={handleDeleteWorkout}
             onDuplicateWorkout={handleDuplicateWorkout} onArchiveWorkout={handleArchiveWorkout}
+            onUnarchiveWorkout={handleUnarchiveWorkout} onMoveToFolder={handleMoveToFolder}
+            onUpdateNotes={handleUpdateNotes}
             onStartWorkout={handleStartWorkout} onAddWorkout={handleAddWorkoutToFolder}
             defaultOpen={false} />
         </div>
