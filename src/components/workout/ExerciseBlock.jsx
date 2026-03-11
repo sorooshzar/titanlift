@@ -17,10 +17,17 @@ const EXERCISE_COLORS = [
 ];
 
 export default function ExerciseBlock({ exercise, index, onChange, onRemove, onReplace, isActive = false, previousSets = [] }) {
-  const [showNotes, setShowNotes] = useState(false);
+  const [showNotes, setShowNotes] = useState(!!exercise.notes);
+  const navigate = useNavigate();
 
   const updateSets = (newSets) => onChange({ ...exercise, sets: newSets });
-  const updateNotes = (notes) => onChange({ ...exercise, notes });
+  const updateNotes = (notes) => {
+    onChange({ ...exercise, notes });
+    // Persist notes to the Exercise entity so it carries forward
+    if (exercise.exercise_id) {
+      base44.entities.Exercise.update(exercise.exercise_id, { notes }).catch(() => {});
+    }
+  };
 
   const borderColor = exercise.color || "transparent";
 
