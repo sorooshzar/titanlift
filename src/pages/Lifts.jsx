@@ -165,6 +165,7 @@ function ExercisesTab() {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ muscleGroups: [], equipment: [], sort: "name" });
   const [showCreate, setShowCreate] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState(null);
 
   const { data: exercises = [], isLoading } = useExercises();
   const { data: workoutLogs = [] } = useWorkoutLogs();
@@ -184,9 +185,9 @@ function ExercisesTab() {
       filters.muscleGroups.forEach(group => {
         selectedChildren.push(...(MUSCLE_HIERARCHY[group] || []));
       });
-      // Only check primary muscle
-      const primaryMuscle = ex.primary_muscle;
-      const hasMatch = selectedChildren.includes(primaryMuscle);
+      // Only check primary muscle, case-insensitive
+      const primaryMuscle = ex.primary_muscle?.toLowerCase().trim() || "";
+      const hasMatch = selectedChildren.some(child => child.toLowerCase().trim() === primaryMuscle);
       if (!hasMatch) return false;
     }
     if (filters.equipment.length > 0) {
