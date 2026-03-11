@@ -44,12 +44,12 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{template.name}</p>
-          <p className="text-xs text-muted-foreground">
-            {exerciseCount} exercise{exerciseCount !== 1 ? "s" : ""}
+          <p className="text-sm font-medium truncate">
+            {template.name}
+            <span className="text-muted-foreground font-normal ml-1.5">— {setCount} {setCount === 1 ? "Set" : "Sets"}</span>
           </p>
           {template.notes && !editingNote && (
-            <p className="text-xs text-muted-foreground/70 italic truncate mt-0.5">{template.notes}</p>
+            <p className="text-xs text-muted-foreground/70 italic truncate mt-0">{template.notes}</p>
           )}
         </div>
 
