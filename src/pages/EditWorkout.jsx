@@ -32,8 +32,11 @@ export default function EditWorkout() {
     if (template) {
       setName(template.name);
       setExercises(template.exercises || []);
+      isDirty.current = false;
     }
   }, [template]);
+
+  const markDirty = (fn) => (...args) => { isDirty.current = true; fn(...args); };
 
   const handleAddExercise = (exercise) => {
     setExercises([
