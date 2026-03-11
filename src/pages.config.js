@@ -52,7 +52,6 @@ import Calculator from './pages/Calculator';
 import Cardio from './pages/Cardio';
 import EditWorkout from './pages/EditWorkout';
 import ExerciseDetail from './pages/ExerciseDetail';
-import Exercises from './pages/Exercises';
 import Lifts from './pages/Lifts';
 import LogWeight from './pages/LogWeight';
 import Macros from './pages/Macros';
@@ -61,7 +60,6 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import WorkoutHistory from './pages/WorkoutHistory';
 import WorkoutSummary from './pages/WorkoutSummary';
-import Workouts from './pages/Workouts';
 import __Layout from './Layout.jsx';
 
 
@@ -71,7 +69,6 @@ export const PAGES = {
     "Cardio": Cardio,
     "EditWorkout": EditWorkout,
     "ExerciseDetail": ExerciseDetail,
-    "Exercises": Exercises,
     "Lifts": Lifts,
     "LogWeight": LogWeight,
     "Macros": Macros,
@@ -80,7 +77,6 @@ export const PAGES = {
     "Settings": Settings,
     "WorkoutHistory": WorkoutHistory,
     "WorkoutSummary": WorkoutSummary,
-    "Workouts": Workouts,
 }
 
 export const pagesConfig = {

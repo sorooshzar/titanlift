@@ -1,32 +1,23 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BookOpen, BarChart3 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
+import { useExercises, useWorkoutLogs } from "@/hooks/useWorkoutData";
+import { getUrlParam } from "@/hooks/useUrlParams";
+import { GRAPH_MODES } from "@/utils/constants";
 
 export default function ExerciseDetail() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get("id");
+  const id = getUrlParam("id");
   const [tab, setTab] = useState("learn");
-  const [graphMode, setGraphMode] = useState("volume"); // volume | reps | maxWeight | e1rm
+  const [graphMode, setGraphMode] = useState(GRAPH_MODES.VOLUME);
   const { unit: weightUnit, toDisplay } = useWeightUnit();
 
-  const { data: exercises = [] } = useQuery({
-    queryKey: ["exercises"],
-    queryFn: () => base44.entities.Exercise.list("name", 500),
-  });
-  
+  const { data: exercises = [] } = useExercises();
   const exercise = exercises.find((e) => e.id === id);
 
-  const { data: workoutLogs = [] } = useQuery({
-    queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 200),
-  });
+  const { data: workoutLogs = [] } = useWorkoutLogs();
 
   // Calculate session-based 1RM peaks
   const calculateSessionPeak1RM = (sets) => {
@@ -98,23 +89,6 @@ export default function ExerciseDetail() {
 
   return (
     <div className="max-w-lg mx-auto pb-4">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm px-4 pt-5 pb-3 border-b border-border/30">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">Lifts</h1>
-          <div className="flex bg-secondary rounded-xl p-1">
-            <Link to={createPageUrl("Lifts?tab=workouts")}>
-              <button className="px-6 py-1.5 rounded-lg text-xs font-semibold transition-all text-muted-foreground">
-                Workouts
-              </button>
-            </Link>
-            <button className="px-6 py-1.5 rounded-lg text-xs font-semibold bg-card text-foreground shadow-sm">
-              Exercises
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="px-4 pt-6 pb-4 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-3">

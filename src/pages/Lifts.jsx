@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight, Archive, Calculator } from "lucide-react";
@@ -15,13 +15,14 @@ import WorkoutCard from "../components/workouts/WorkoutCard";
 import CreateDialog from "../components/workouts/CreateDialog";
 import ExerciseFilters from "../components/exercises/ExerciseFilters";
 import CreateExerciseModal from "../components/exercises/CreateExerciseModal";
-import { format } from "date-fns";
+import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } from "@/hooks/useWorkoutData";
+import { TABS, SPECIAL_FOLDERS, GRAPH_MODES } from "@/utils/constants";
 
 function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }) {
   const [createType, setCreateType] = useState(null);
 
   const unfolderedTemplates = templates.filter((t) => !t.folder_id || t.folder_id === "none");
-  const archivedFolder = folders.find(f => f.name === "Archived");
+  const archivedFolder = folders.find(f => f.name === SPECIAL_FOLDERS.ARCHIVED);
   const regularFolders = folders.filter(f => f.name !== "Archived");
 
   const handleCreateFolder = async ({ name }) => {
@@ -62,9 +63,9 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
   const handleArchiveWorkout = async (t) => {
-    let archiveFolder = folders.find((f) => f.name === "Archived");
+    let archiveFolder = folders.find((f) => f.name === SPECIAL_FOLDERS.ARCHIVED);
     if (!archiveFolder) {
-      archiveFolder = await base44.entities.WorkoutFolder.create({ name: "Archived", order: 999 });
+      archiveFolder = await base44.entities.WorkoutFolder.create({ name: SPECIAL_FOLDERS.ARCHIVED, order: 999 });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
     }
     await base44.entities.WorkoutTemplate.update(t.id, { folder_id: archiveFolder.id });
@@ -162,14 +163,8 @@ function ExercisesTab() {
   const [filters, setFilters] = useState({ bodyParts: [], equipment: [], sort: "name" });
   const [showCreate, setShowCreate] = useState(false);
 
-  const { data: exercises = [], isLoading } = useQuery({
-    queryKey: ["exercises"],
-    queryFn: () => base44.entities.Exercise.list("name", 500),
-  });
-  const { data: workoutLogs = [] } = useQuery({
-    queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 200),
-  });
+  const { data: exercises = [], isLoading } = useExercises();
+  const { data: workoutLogs = [] } = useWorkoutLogs();
 
   const freqMap = {};
   workoutLogs.forEach(log => {
@@ -257,22 +252,22 @@ function ExercisesTab() {
 }
 
 export default function Lifts() {
-  const [tab, setTab] = useState("workouts");
+  const [tab, setTab] = useState(TABS.WORKOUTS);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { startWorkout } = useActiveWorkout();
   const touchStartX = useRef(null);
 
-  const { data: folders = [] } = useQuery({ queryKey: ["folders"], queryFn: () => base44.entities.WorkoutFolder.list("order", 100) });
-  const { data: templates = [] } = useQuery({ queryKey: ["templates"], queryFn: () => base44.entities.WorkoutTemplate.list("order", 100) });
+  const { data: folders = [] } = useWorkoutFolders();
+  const { data: templates = [] } = useWorkoutTemplates();
 
   const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
   const handleTouchEnd = (e) => {
     if (touchStartX.current === null) return;
     const diff = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(diff) > 60) {
-      if (diff < 0) setTab("exercises");
-      else setTab("workouts");
+      if (diff < 0) setTab(TABS.EXERCISES);
+      else setTab(TABS.WORKOUTS);
     }
     touchStartX.current = null;
   };
@@ -284,12 +279,12 @@ export default function Lifts() {
          <div className="flex items-center justify-between">
            <h1 className="text-2xl font-bold">Lifts</h1>
            <div className="flex bg-secondary rounded-xl p-1">
-             <button onClick={() => setTab("workouts")}
-               className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === "workouts" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+             <button onClick={() => setTab(TABS.WORKOUTS)}
+               className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === TABS.WORKOUTS ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
                Workouts
              </button>
-             <button onClick={() => setTab("exercises")}
-               className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === "exercises" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+             <button onClick={() => setTab(TABS.EXERCISES)}
+               className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === TABS.EXERCISES ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
                Exercises
              </button>
            </div>
@@ -309,7 +304,7 @@ export default function Lifts() {
       </div>
 
       <div className="px-4">
-        {tab === "workouts" ? (
+        {tab === TABS.WORKOUTS ? (
           <WorkoutsTab folders={folders} templates={templates} queryClient={queryClient} navigate={navigate} startWorkout={startWorkout} />
         ) : (
           <ExercisesTab />
