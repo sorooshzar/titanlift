@@ -122,6 +122,13 @@ export default function Profile() {
   const [showRecovery, setShowRecovery] = useState(false);
   const [showLogWeight, setShowLogWeight] = useState(false);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
+  const [showGoalInput, setShowGoalInput] = useState(false);
+  const [goalWeightInput, setGoalWeightInput] = useState("");
+  const [goalWeight, setGoalWeight] = useState(() => {
+    const saved = localStorage.getItem("gym-goal-weight");
+    return saved ? parseFloat(saved) : null;
+  });
+  const [activeTab, setActiveTab] = useState("progress");
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
 
