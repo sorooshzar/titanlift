@@ -57,6 +57,9 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import WorkoutHistory from './pages/WorkoutHistory';
 import Workouts from './pages/Workouts';
+import Lifts from './pages/Lifts';
+import Cardio from './pages/Cardio';
+import Macros from './pages/Macros';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +74,9 @@ export const PAGES = {
     "Settings": Settings,
     "WorkoutHistory": WorkoutHistory,
     "Workouts": Workouts,
+    "Lifts": Lifts,
+    "Cardio": Cardio,
+    "Macros": Macros,
 }
 
 export const pagesConfig = {
