@@ -15,8 +15,8 @@ import WorkoutCard from "../components/workouts/WorkoutCard";
 import CreateDialog from "../components/workouts/CreateDialog";
 import ExerciseFilters from "../components/exercises/ExerciseFilters";
 import CreateExerciseModal from "../components/exercises/CreateExerciseModal";
-import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } from "@/hooks/useWorkoutData";
-import { TABS, SPECIAL_FOLDERS, GRAPH_MODES } from "@/utils/constants";
+import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } from "@/components/hooks/useWorkoutData";
+import { TABS, SPECIAL_FOLDERS } from "@/components/utils/constants";
 
 function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }) {
   const [createType, setCreateType] = useState(null);

@@ -4,14 +4,13 @@ import { ArrowLeft, BookOpen, BarChart3 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
-import { useExercises, useWorkoutLogs } from "@/hooks/useWorkoutData";
-import { getUrlParam } from "@/hooks/useUrlParams";
-import { GRAPH_MODES } from "@/utils/constants";
+import { useExercises, useWorkoutLogs } from "@/components/hooks/useWorkoutData";
+import { getUrlParam } from "@/components/utils/urlParams";
 
 export default function ExerciseDetail() {
   const id = getUrlParam("id");
   const [tab, setTab] = useState("learn");
-  const [graphMode, setGraphMode] = useState(GRAPH_MODES.VOLUME);
+  const [graphMode, setGraphMode] = useState("volume");
   const { unit: weightUnit, toDisplay } = useWeightUnit();
 
   const { data: exercises = [] } = useExercises();
