@@ -62,15 +62,15 @@ export default function WeightChart({ data = [], goalWeight = null }) {
               fontSize: "12px",
               color: "hsl(var(--foreground))",
             }}
-            formatter={(value) => [`${value} kg`, "Weight"]}
+            formatter={(value) => [`${value} ${unit}`, "Weight"]}
           />
-          {goalWeight && (
+          {goalWeightDisplay && (
             <ReferenceLine
-              y={goalWeight}
+              y={goalWeightDisplay}
               stroke="hsl(var(--primary))"
               strokeDasharray="5 4"
               strokeOpacity={0.6}
-              label={{ value: `Goal: ${goalWeight}kg`, position: "insideTopRight", fontSize: 9, fill: "hsl(var(--primary))" }}
+              label={{ value: `Goal: ${goalWeightDisplay}${unit}`, position: "insideTopRight", fontSize: 9, fill: "hsl(var(--primary))" }}
             />
           )}
           <Line
