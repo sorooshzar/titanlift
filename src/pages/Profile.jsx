@@ -133,6 +133,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("progress");
   const [showAddTracker, setShowAddTracker] = useState(false);
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
   const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
