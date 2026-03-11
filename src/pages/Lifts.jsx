@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight, Archive } from "lucide-react";
+import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight, Archive, Calculator } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {

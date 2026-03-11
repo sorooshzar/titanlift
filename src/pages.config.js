@@ -48,35 +48,35 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ActiveWorkout from './pages/ActiveWorkout';
+import Cardio from './pages/Cardio';
 import EditWorkout from './pages/EditWorkout';
 import ExerciseDetail from './pages/ExerciseDetail';
 import Exercises from './pages/Exercises';
+import Lifts from './pages/Lifts';
 import LogWeight from './pages/LogWeight';
+import Macros from './pages/Macros';
 import Measurements from './pages/Measurements';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import WorkoutHistory from './pages/WorkoutHistory';
 import Workouts from './pages/Workouts';
-import Lifts from './pages/Lifts';
-import Cardio from './pages/Cardio';
-import Macros from './pages/Macros';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ActiveWorkout": ActiveWorkout,
+    "Cardio": Cardio,
     "EditWorkout": EditWorkout,
     "ExerciseDetail": ExerciseDetail,
     "Exercises": Exercises,
+    "Lifts": Lifts,
     "LogWeight": LogWeight,
+    "Macros": Macros,
     "Measurements": Measurements,
     "Profile": Profile,
     "Settings": Settings,
     "WorkoutHistory": WorkoutHistory,
     "Workouts": Workouts,
-    "Lifts": Lifts,
-    "Cardio": Cardio,
-    "Macros": Macros,
 }
 
 export const pagesConfig = {
