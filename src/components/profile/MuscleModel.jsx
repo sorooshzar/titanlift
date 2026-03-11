@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Body from "react-muscle-highlighter";
+import Body from "@mjcdev/react-body-highlighter";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -10,7 +10,7 @@ const RANK_COLORS = ["#8B5E3C", "#CD7F32", "#9B9BB0", "#FFD700", "#7EC8D4", "#4D
 const RECOVERY_ORDER = ["light", "moderate", "heavy", "sore"];
 const RECOVERY_COLORS = ["#22c55e", "#eab308", "#f97316", "#ef4444"];
 
-// App muscle name → library slug
+// App muscle → library slug
 const APP_TO_SLUG = {
   chest:      "chest",
   shoulders:  "deltoids",
@@ -27,7 +27,6 @@ const APP_TO_SLUG = {
   hamstrings: "hamstring",
 };
 
-// Library slug → app muscle name
 const SLUG_TO_APP = Object.fromEntries(Object.entries(APP_TO_SLUG).map(([k, v]) => [v, k]));
 
 const MUSCLE_LABELS = {
@@ -46,16 +45,18 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
       const rec = recoveryData[appMuscle];
       if (!rec) return null;
       const idx = RECOVERY_ORDER.indexOf(rec);
-      return idx >= 0 ? { slug, color: RECOVERY_COLORS[idx] } : null;
+      return idx >= 0 ? { slug, intensity: idx + 1 } : null;
     } else {
       const rank = muscleRanks[appMuscle];
       if (!rank) return null;
       const idx = RANK_ORDER.indexOf(rank);
-      return idx >= 0 ? { slug, color: RANK_COLORS[idx] } : null;
+      return idx >= 0 ? { slug, intensity: idx + 1 } : null;
     }
   }).filter(Boolean);
 
-  const handlePress = (part) => {
+  const colors = showRecovery ? RECOVERY_COLORS : RANK_COLORS;
+
+  const handleClick = (part) => {
     const appMuscle = SLUG_TO_APP[part.slug];
     if (appMuscle) setClickedMuscle(appMuscle);
   };
@@ -89,12 +90,12 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
             transition={{ duration: 0.15 }}>
             <Body
               data={data}
+              colors={colors}
               side={view}
               gender="male"
               scale={1.4}
-              defaultFill="#3a3a3a"
-              border="none"
-              onBodyPartPress={handlePress}
+              border="#2a2a2a"
+              onBodyPartClick={handleClick}
             />
           </motion.div>
         </AnimatePresence>
