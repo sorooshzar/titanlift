@@ -1,8 +1,11 @@
 import React from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { format } from "date-fns";
+import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 export default function WeightChart({ data = [], goalWeight = null }) {
+  const { unit, toDisplay } = useWeightUnit();
+
   // Deduplicate: keep only the latest entry per day
   const byDay = {};
   data.forEach(d => {
@@ -10,12 +13,16 @@ export default function WeightChart({ data = [], goalWeight = null }) {
       byDay[d.date] = d;
     }
   });
+  // Convert stored kg to display unit
   const chartData = Object.values(byDay)
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .map(d => ({
       date: format(new Date(d.date), "MMM d"),
-      weight: d.weight,
+      weight: toDisplay(d.weight),
     }));
+
+  // goalWeight is stored in kg — convert for display
+  const goalWeightDisplay = goalWeight ? toDisplay(goalWeight) : null;
 
   if (chartData.length === 0) {
     return (
