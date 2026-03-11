@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { MoreVertical, Play, Pencil, Copy, Trash2, Dumbbell, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,9 +17,7 @@ import {
 const COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"];
 
 export default function WorkoutCard({ template, folders = [], onEdit, onDelete, onDuplicate, onArchive, onUnarchive, onMoveToFolder, onUpdateNotes, onStart, isArchived }) {
-  const { base44 } = require("@/api/base44Client");
-  const { useQueryClient } = require("@tanstack/react-query");
-  const queryClient = useQueryClient?.();
+  const queryClient = useQueryClient();
   
   const setCount = template.exercises?.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0) || 0;
   const accentColor = template.color || null;
