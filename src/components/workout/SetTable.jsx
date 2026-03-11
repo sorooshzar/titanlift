@@ -94,9 +94,6 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
                 </button>
               )}
 
-              {/* Previous */}
-              <span className="text-[11px] text-muted-foreground truncate">{prevLabel}</span>
-
               {/* Set label */}
               {isActive ? (
                 <div className="flex items-center justify-center">
