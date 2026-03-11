@@ -65,13 +65,19 @@ export default function EditWorkout() {
 
   const handleSave = async () => {
     setSaving(true);
-    await base44.entities.WorkoutTemplate.update(id, {
-      name,
-      exercises,
-    });
+    await base44.entities.WorkoutTemplate.update(id, { name, exercises });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
+    isDirty.current = false;
     setSaving(false);
     navigate(createPageUrl("Workouts"));
+  };
+
+  const handleClose = () => {
+    if (isDirty.current) {
+      setShowUnsavedConfirm(true);
+    } else {
+      navigate(createPageUrl("Workouts"));
+    }
   };
 
   return (
