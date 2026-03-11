@@ -141,6 +141,7 @@ function WorkoutDetailModal({ log, onClose }) {
 
 export default function WorkoutHistory() {
   const navigate = useNavigate();
+  const { unit: weightUnit, toDisplay } = useWeightUnit();
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
   const [dayLogs, setDayLogs] = useState(null);
