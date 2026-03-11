@@ -24,9 +24,15 @@ function getRowBg(set) {
   return "";
 }
 
-// Grid active: [check] [set] [prev] [weight] [reps] [rir] [del]
-const GRID = "grid-cols-[28px_1fr_56px_56px_44px_24px]";
-const GRID_ACTIVE = "grid-cols-[24px_28px_1fr_52px_52px_44px_24px]";
+// e1RM = weight * (1 + reps/30)
+function calc1RM(weight, reps) {
+  if (!weight || !reps) return null;
+  return weight * (1 + reps / 30);
+}
+
+// Grid: [set] [prev] [weight] [reps] [rir] [%] [del]
+const GRID = "grid-cols-[28px_1fr_56px_56px_44px_36px_24px]";
+const GRID_ACTIVE = "grid-cols-[24px_28px_1fr_52px_52px_44px_36px_24px]";
 
 export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [] }) {
   const weightUnit = localStorage.getItem("gym-weight-unit") || "kg";
@@ -59,6 +65,7 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
         <span className="text-[10px] font-semibold text-muted-foreground text-center">{weightUnit.toUpperCase()}</span>
         <span className="text-[10px] font-semibold text-muted-foreground text-center">REPS</span>
         <span className="text-[10px] font-semibold text-muted-foreground text-center">RIR</span>
+        <span className="text-[10px] font-semibold text-primary/70 text-center">1RM%</span>
         <div />
       </div>
 
@@ -71,6 +78,12 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
         const prevLabel = prev && (prev.weight || prev.reps)
           ? `${prev.weight || 0}×${prev.reps || 0} ${weightUnit}`
           : "—";
+
+        const current1RM = calc1RM(set.weight, set.reps);
+        const prev1RM = prev ? calc1RM(prev.weight, prev.reps) : null;
+        const pctChange = current1RM && prev1RM ? ((current1RM - prev1RM) / prev1RM) * 100 : null;
+        const pctLabel = pctChange !== null ? `${pctChange >= 0 ? "+" : ""}${Math.round(pctChange)}%` : "—";
+        const pctColor = pctChange === null ? "text-muted-foreground/40" : pctChange > 0 ? "text-primary" : pctChange < 0 ? "text-destructive/70" : "text-muted-foreground";
 
         return (
           <div key={index}>
@@ -129,6 +142,8 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
               <Input type="number" value={set.rir ?? ""}
                 onChange={(e) => updateSet(index, "rir", parseInt(e.target.value) || 0)}
                 className="h-8 text-center text-sm bg-secondary border-0 rounded-lg px-1" placeholder="2" />
+
+              <span className={`text-[10px] font-semibold text-center ${pctColor}`}>{pctLabel}</span>
 
               <button onClick={() => removeSet(index)}
                 className="flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors">
