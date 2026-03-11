@@ -199,7 +199,7 @@ export default function ActiveWorkoutSheet() {
 
           {/* Header */}
           <div className="bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-            <div className="flex items-center justify-between">
+            <div className="max-w-lg mx-auto flex items-center justify-between">
               <button onClick={() => setShowCancelConfirm(true)} className="p-1">
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
