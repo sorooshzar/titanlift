@@ -38,6 +38,7 @@ export function MeasurementTracker({ tracker, onRemove }) {
 export function ExerciseTracker({ tracker, onRemove }) {
   const exId = tracker.config?.exercise_id;
   const exName = tracker.config?.exercise_name || tracker.label;
+  const { unit: weightUnit, toDisplay } = useWeightUnit();
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
     queryFn: () => base44.entities.WorkoutLog.list("-created_date", 100),
@@ -47,23 +48,23 @@ export function ExerciseTracker({ tracker, onRemove }) {
   workoutLogs.forEach(log => {
     const ex = log.exercises?.find(e => e.exercise_id === exId);
     if (!ex) return;
-    let best1rm = 0;
+    let best1rmKg = 0;
     ex.sets?.forEach(s => {
       if (s.completed && s.weight && s.reps) {
         const orm = s.weight * (1 + s.reps / 30);
-        if (orm > best1rm) best1rm = orm;
+        if (orm > best1rmKg) best1rmKg = orm;
       }
     });
-    if (best1rm > 0) {
+    if (best1rmKg > 0) {
       const date = log.started_at || log.created_date;
-      points.push({ date: format(new Date(date), "MMM d"), orm: Math.round(best1rm) });
+      points.push({ date: format(new Date(date), "MMM d"), orm: Math.round(toDisplay(best1rmKg) || 0) });
     }
   });
   points.reverse();
   const latest = points[points.length - 1];
 
   return (
-    <TrackerCard title={exName} subtitle={latest ? `est. 1RM: ${latest.orm} kg` : "No data"} onRemove={onRemove}>
+    <TrackerCard title={exName} subtitle={latest ? `est. 1RM: ${latest.orm} ${weightUnit}` : "No data"} onRemove={onRemove}>
       {points.length > 1 ? (
         <ResponsiveContainer width="100%" height={80}>
           <LineChart data={points}>
