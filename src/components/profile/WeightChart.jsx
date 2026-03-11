@@ -33,7 +33,7 @@ export default function WeightChart({ data = [], goalWeight = null }) {
   }
 
   const weights = chartData.map(d => d.weight);
-  const allValues = goalWeight ? [...weights, goalWeight] : weights;
+  const allValues = goalWeightDisplay ? [...weights, goalWeightDisplay] : weights;
   const domainMin = Math.min(...allValues) - 2;
   const domainMax = Math.max(...allValues) + 2;
 
