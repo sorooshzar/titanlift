@@ -132,8 +132,23 @@ export default function EditWorkout() {
       <ExercisePicker
         open={showPicker}
         onClose={() => setShowPicker(false)}
-        onSelect={handleAddExercise}
+        onSelect={(ex) => { isDirty.current = true; handleAddExercise(ex); }}
       />
+
+      {showUnsavedConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowUnsavedConfirm(false)} />
+          <div className="relative bg-card border border-border rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl">
+            <h2 className="text-base font-bold mb-1">Unsaved Changes</h2>
+            <p className="text-sm text-muted-foreground mb-5">You have unsaved changes. Are you sure you want to leave without saving?</p>
+            <div className="flex flex-col gap-2">
+              <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save & Exit"}</Button>
+              <Button variant="destructive" onClick={() => { setShowUnsavedConfirm(false); navigate(createPageUrl("Workouts")); }}>Discard Changes</Button>
+              <Button variant="ghost" onClick={() => setShowUnsavedConfirm(false)}>Keep Editing</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
