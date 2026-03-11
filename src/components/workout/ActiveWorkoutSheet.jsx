@@ -6,7 +6,7 @@ import { X, Plus, Check, Timer, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ExerciseBlock from "./ExerciseBlock";
 import ExercisePicker from "./ExercisePicker";
-import { useActiveWorkout } from "@/lib/ActiveWorkoutContext";
+import { useActiveWorkout } from "@/components/workout/ActiveWorkoutContext";
 
 export default function ActiveWorkoutSheet() {
   const { workout, setWorkout, minimized, minimize, expand, endWorkout } = useActiveWorkout();

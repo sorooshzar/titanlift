@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BottomNav from "./components/layout/BottomNav";
+import { ActiveWorkoutProvider } from "./components/workout/ActiveWorkoutContext";
+import ActiveWorkoutSheet from "./components/workout/ActiveWorkoutSheet";
 
 const HIDDEN_NAV_PAGES = ["ActiveWorkout", "EditWorkout", "WorkoutHistory", "Measurements", "Settings"];
 
