@@ -1,57 +1,34 @@
 import React, { useState } from "react";
-import Model from "@jpedro002/react-body-highlighter";
+import Body from "react-muscle-highlighter";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-// Rank system: index+1 = frequency passed to library
 const RANK_ORDER = ["wood", "bronze", "silver", "gold", "platinum", "diamond", "champion", "titan", "olympian"];
-const RANK_COLORS  = ["#8B5E3C", "#CD7F32", "#9B9BB0", "#FFD700", "#7EC8D4", "#4DD8FF", "#9B59B6", "#E74C3C", "#FF6B35"];
+const RANK_COLORS = ["#8B5E3C", "#CD7F32", "#9B9BB0", "#FFD700", "#7EC8D4", "#4DD8FF", "#9B59B6", "#E74C3C", "#FF6B35"];
 
-// Recovery system: index+1 = frequency
-const RECOVERY_ORDER  = ["light", "moderate", "heavy", "sore"];
+const RECOVERY_ORDER = ["light", "moderate", "heavy", "sore"];
 const RECOVERY_COLORS = ["#22c55e", "#eab308", "#f97316", "#ef4444"];
 
-// Our app muscle name → library muscle slug(s)
-const APP_TO_LIB_FRONT = {
-  chest:      ["chest"],
-  shoulders:  ["front-deltoids"],
-  biceps:     ["biceps"],
-  triceps:    ["triceps"],
-  forearms:   ["forearm"],
-  abs:        ["abs"],
-  quads:      ["quadriceps"],
-  calves:     ["calves"],
-};
-const APP_TO_LIB_BACK = {
-  traps:      ["trapezius"],
-  shoulders:  ["back-deltoids"],
-  lats:       ["upper-back"],
-  back:       ["lower-back"],
-  triceps:    ["triceps"],
-  forearms:   ["forearm"],
-  glutes:     ["gluteal"],
-  hamstrings: ["hamstring"],
-  calves:     ["calves"],
+// App muscle name → library slug
+const APP_TO_SLUG = {
+  chest:      "chest",
+  shoulders:  "deltoids",
+  biceps:     "biceps",
+  triceps:    "triceps",
+  forearms:   "forearm",
+  abs:        "abs",
+  quads:      "quadriceps",
+  calves:     "calves",
+  traps:      "trapezius",
+  lats:       "upper-back",
+  back:       "lower-back",
+  glutes:     "gluteal",
+  hamstrings: "hamstring",
 };
 
-// Library muscle slug → our app muscle name
-const LIB_TO_APP = {
-  "chest":          "chest",
-  "front-deltoids": "shoulders",
-  "back-deltoids":  "shoulders",
-  "biceps":         "biceps",
-  "triceps":        "triceps",
-  "forearm":        "forearms",
-  "abs":            "abs",
-  "quadriceps":     "quads",
-  "calves":         "calves",
-  "trapezius":      "traps",
-  "upper-back":     "lats",
-  "lower-back":     "back",
-  "gluteal":        "glutes",
-  "hamstring":      "hamstrings",
-};
+// Library slug → app muscle name
+const SLUG_TO_APP = Object.fromEntries(Object.entries(APP_TO_SLUG).map(([k, v]) => [v, k]));
 
 const MUSCLE_LABELS = {
   chest: "Chest", shoulders: "Shoulders", biceps: "Biceps", triceps: "Triceps",
@@ -59,37 +36,27 @@ const MUSCLE_LABELS = {
   traps: "Traps", lats: "Lats", back: "Lower Back", glutes: "Glutes", hamstrings: "Hamstrings",
 };
 
-function buildData(muscleRanks, recoveryData, showRecovery, viewMap) {
-  const entries = [];
-  for (const [appMuscle, libMuscles] of Object.entries(viewMap)) {
-    let frequency = 0;
-    if (showRecovery) {
-      const rec = recoveryData[appMuscle];
-      frequency = rec ? RECOVERY_ORDER.indexOf(rec) + 1 : 0;
-    } else {
-      const rank = muscleRanks[appMuscle];
-      frequency = rank ? RANK_ORDER.indexOf(rank) + 1 : 0;
-    }
-    if (frequency > 0) {
-      for (const lib of libMuscles) {
-        entries.push({ name: appMuscle, muscles: [lib], frequency });
-      }
-    }
-  }
-  return entries;
-}
-
 export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showRecovery = false }) {
   const [view, setView] = useState("front");
   const [clickedMuscle, setClickedMuscle] = useState(null);
   const navigate = useNavigate();
 
-  const viewMap = view === "front" ? APP_TO_LIB_FRONT : APP_TO_LIB_BACK;
-  const data = buildData(muscleRanks, recoveryData, showRecovery, viewMap);
-  const highlightedColors = showRecovery ? RECOVERY_COLORS : RANK_COLORS;
+  const data = Object.entries(APP_TO_SLUG).map(([appMuscle, slug]) => {
+    if (showRecovery) {
+      const rec = recoveryData[appMuscle];
+      if (!rec) return null;
+      const idx = RECOVERY_ORDER.indexOf(rec);
+      return idx >= 0 ? { slug, color: RECOVERY_COLORS[idx] } : null;
+    } else {
+      const rank = muscleRanks[appMuscle];
+      if (!rank) return null;
+      const idx = RANK_ORDER.indexOf(rank);
+      return idx >= 0 ? { slug, color: RANK_COLORS[idx] } : null;
+    }
+  }).filter(Boolean);
 
-  const handleClick = ({ muscle }) => {
-    const appMuscle = LIB_TO_APP[muscle];
+  const handlePress = (part) => {
+    const appMuscle = SLUG_TO_APP[part.slug];
     if (appMuscle) setClickedMuscle(appMuscle);
   };
 
@@ -120,13 +87,14 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: view === "front" ? 20 : -20 }}
             transition={{ duration: 0.15 }}>
-            <Model
+            <Body
               data={data}
-              highlightedColors={highlightedColors}
-              bodyColor="#3a3a3a"
-              type={view === "front" ? "anterior" : "posterior"}
-              onClick={handleClick}
-              style={{ width: "11rem" }}
+              side={view}
+              gender="male"
+              scale={1.4}
+              defaultFill="#3a3a3a"
+              border="none"
+              onBodyPartPress={handlePress}
             />
           </motion.div>
         </AnimatePresence>
