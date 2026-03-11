@@ -223,7 +223,7 @@ function ExercisesTab() {
                 </div>
               )}
               {grouped[key]?.map(ex => (
-                <Link key={ex.id} to={createPageUrl(`ExerciseDetail?id=${ex.id}`)}
+                <Link key={ex.id} to={createPageUrl(`ExerciseDetail?id=${ex.id}`)} state={{ fromExercisesTab: true }}
                   className="flex items-center gap-3 py-2.5 px-2 -mx-2 rounded-xl hover:bg-secondary/50 transition-colors">
                   <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
                     <Dumbbell className="w-4 h-4 text-muted-foreground" />
