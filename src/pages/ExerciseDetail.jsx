@@ -71,6 +71,7 @@ export default function ExerciseDetail() {
       }
     });
   });
+
   const graphMetrics = {
     volume: { key: "volume", label: `Volume (${weightUnit})`, color: "hsl(var(--primary))" },
     reps: { key: "reps", label: "Max Reps", color: "#22c55e" },
@@ -78,14 +79,18 @@ export default function ExerciseDetail() {
     e1rm: { key: "e1rm", label: `Est. 1RM (${weightUnit})`, color: "#8b5cf6" },
   };
 
+  const handleBack = () => {
+    window.history.back();
+  };
+
   if (!exercise) {
     return (
       <div className="max-w-lg mx-auto px-4 pt-6">
-        <Link to={createPageUrl("Exercises")}>
+        <button onClick={handleBack} className="p-0">
           <Button variant="ghost" size="icon" className="rounded-full">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-        </Link>
+        </button>
         <p className="text-center text-muted-foreground mt-12">Exercise not found</p>
       </div>
     );
@@ -93,7 +98,7 @@ export default function ExerciseDetail() {
 
   return (
     <div className="max-w-lg mx-auto pb-4">
-      {/* Sticky Header with Workouts/Exercises Toggle */}
+      {/* Sticky Header */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm px-4 pt-5 pb-3 border-b border-border/30">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">Lifts</h1>
@@ -126,122 +131,122 @@ export default function ExerciseDetail() {
           </div>
         </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2">
-        <Button
-          variant={tab === "learn" ? "default" : "secondary"}
-          size="sm"
-          onClick={() => setTab("learn")}
-          className="rounded-full gap-1.5"
-        >
-          <BookOpen className="w-3.5 h-3.5" />
-          Learn
-        </Button>
-        <Button
-          variant={tab === "stats" ? "default" : "secondary"}
-          size="sm"
-          onClick={() => setTab("stats")}
-          className="rounded-full gap-1.5"
-        >
-          <BarChart3 className="w-3.5 h-3.5" />
-          Stats
-        </Button>
-      </div>
-
-      {/* Content */}
-      {tab === "learn" && (
-        <div className="bg-card rounded-xl border border-border p-5 space-y-4">
-          {exercise.description && (
-            <div>
-              <h3 className="text-sm font-semibold mb-2">About</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {exercise.description}
-              </p>
-            </div>
-          )}
-          {exercise.instructions && (
-            <div>
-              <h3 className="text-sm font-semibold mb-2">How to Perform</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                {exercise.instructions}
-              </p>
-            </div>
-          )}
-          {exercise.secondary_muscles?.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Secondary Muscles</h3>
-              <div className="flex flex-wrap gap-2">
-                {exercise.secondary_muscles.map((m) => (
-                  <span key={m} className="text-xs bg-secondary px-2.5 py-1 rounded-full capitalize">
-                    {m.replace(/_/g, " ")}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          {!exercise.description && !exercise.instructions && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No instructions available yet.
-            </p>
-          )}
+        {/* Tabs */}
+        <div className="flex gap-2">
+          <Button
+            variant={tab === "learn" ? "default" : "secondary"}
+            size="sm"
+            onClick={() => setTab("learn")}
+            className="rounded-full gap-1.5"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            Learn
+          </Button>
+          <Button
+            variant={tab === "stats" ? "default" : "secondary"}
+            size="sm"
+            onClick={() => setTab("stats")}
+            className="rounded-full gap-1.5"
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            Stats
+          </Button>
         </div>
-      )}
 
-      {tab === "stats" && (
-        <div className="bg-card rounded-xl border border-border p-5 space-y-4">
-          {/* Graph mode selector */}
-          <div className="flex gap-1.5 flex-wrap">
-            {Object.entries(graphMetrics).map(([k, m]) => (
-              <button
-                key={k}
-                onClick={() => setGraphMode(k)}
-                className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all border ${
-                  graphMode === k
-                    ? "text-white border-transparent"
-                    : "bg-secondary text-muted-foreground border-transparent"
-                }`}
-                style={graphMode === k ? { backgroundColor: m.color } : {}}
-              >
-                {k === "e1rm" ? "Est. 1RM" : k === "maxWeight" ? "Max Weight" : k === "reps" ? "Reps" : "Volume"}
-              </button>
-            ))}
+        {/* Content */}
+        {tab === "learn" && (
+          <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+            {exercise.description && (
+              <div>
+                <h3 className="text-sm font-semibold mb-2">About</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {exercise.description}
+                </p>
+              </div>
+            )}
+            {exercise.instructions && (
+              <div>
+                <h3 className="text-sm font-semibold mb-2">How to Perform</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {exercise.instructions}
+                </p>
+              </div>
+            )}
+            {exercise.secondary_muscles?.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold mb-2">Secondary Muscles</h3>
+                <div className="flex flex-wrap gap-2">
+                  {exercise.secondary_muscles.map((m) => (
+                    <span key={m} className="text-xs bg-secondary px-2.5 py-1 rounded-full capitalize">
+                      {m.replace(/_/g, " ")}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {!exercise.description && !exercise.instructions && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No instructions available yet.
+              </p>
+            )}
           </div>
+        )}
 
-          {allChartData.length > 0 ? (
-            <div className="h-52">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={allChartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: "hsl(var(--popover))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                      fontSize: "12px",
-                      color: "hsl(var(--foreground))",
-                    }}
-                    formatter={(v) => [`${v}`, graphMetrics[graphMode].label]}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey={graphMetrics[graphMode].key}
-                    stroke={graphMetrics[graphMode].color}
-                    strokeWidth={2}
-                    dot={{ fill: graphMetrics[graphMode].color, r: 3 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+        {tab === "stats" && (
+          <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+            {/* Graph mode selector */}
+            <div className="flex gap-1.5 flex-wrap">
+              {Object.entries(graphMetrics).map(([k, m]) => (
+                <button
+                  key={k}
+                  onClick={() => setGraphMode(k)}
+                  className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all border ${
+                    graphMode === k
+                      ? "text-white border-transparent"
+                      : "bg-secondary text-muted-foreground border-transparent"
+                  }`}
+                  style={graphMode === k ? { backgroundColor: m.color } : {}}
+                >
+                  {k === "e1rm" ? "Est. 1RM" : k === "maxWeight" ? "Max Weight" : k === "reps" ? "Reps" : "Volume"}
+                </button>
+              ))}
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              No workout data yet. Start training!
-            </p>
-          )}
+
+            {allChartData.length > 0 ? (
+              <div className="h-52">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={allChartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{
+                        background: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                        color: "hsl(var(--foreground))",
+                      }}
+                      formatter={(v) => [`${v}`, graphMetrics[graphMode].label]}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey={graphMetrics[graphMode].key}
+                      stroke={graphMetrics[graphMode].color}
+                      strokeWidth={2}
+                      dot={{ fill: graphMetrics[graphMode].color, r: 3 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                No workout data yet. Start training!
+              </p>
+            )}
           </div>
-          )}
-          </div>
-          </div>
-          );
-          }
+        )}
+      </div>
+    </div>
+  );
+}
