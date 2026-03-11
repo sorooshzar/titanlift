@@ -216,19 +216,27 @@ export default function Profile() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-base truncate">{user?.full_name || "Athlete"}</p>
-            <div className="flex gap-4 mt-1.5">
-              <div className="text-center">
+            <div className="flex gap-4 mt-1">
+              <div className="text-center shrink-0">
                 <p className="text-sm font-bold">{workoutLogs.length}</p>
                 <p className="text-[10px] text-muted-foreground">Workouts</p>
               </div>
-              <div className="text-center">
+              <div className="text-center shrink-0">
                 <p className="text-sm font-bold">{latestWeight ? `${latestWeight}kg` : "--"}</p>
                 <p className="text-[10px] text-muted-foreground">Weight</p>
               </div>
-              <div className="text-center">
-                <p className="text-sm font-bold">{Math.round(totalVolume / 1000)}k</p>
-                <p className="text-[10px] text-muted-foreground">Volume (kg)</p>
+            </div>
+            {/* XP Bar */}
+            <div className="mt-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] font-bold text-primary">Lv {xp.level}</span>
+                <span className="text-[10px] text-muted-foreground">Lv {xp.level + 1}</span>
               </div>
+              <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(xp.progress * 100, 100)}%` }} />
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Level</p>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
