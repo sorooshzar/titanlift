@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 import { X } from "lucide-react";
+import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 // ─── Measurement Tracker ──────────────────────────────────────────────────────
 export function MeasurementTracker({ tracker, onRemove }) {
