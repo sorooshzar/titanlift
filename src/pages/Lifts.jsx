@@ -283,6 +283,7 @@ function ExercisesTab() {
         </div>
       )}
       <CreateExerciseModal open={showCreate} onClose={() => setShowCreate(false)} />
+      <ExerciseDetailModal exercise={selectedExercise} isOpen={!!selectedExercise} onClose={() => setSelectedExercise(null)} workoutLogs={workoutLogs} />
     </div>
   );
 }
