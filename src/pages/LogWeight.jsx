@@ -10,6 +10,7 @@ import { format } from "date-fns";
 
 export default function LogWeight() {
   const [weight, setWeight] = useState("");
+  const [unit, setUnit] = useState("kg");
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function LogWeight() {
     setSaving(true);
     await base44.entities.BodyWeight.create({
       weight: parseFloat(weight),
-      unit: "kg",
+      unit: unit,
       date: date,
     });
     queryClient.invalidateQueries({ queryKey: ["bodyWeights"] });
@@ -48,26 +49,47 @@ export default function LogWeight() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Weight (kg)</label>
-            <Input
-              type="number"
-              step="0.1"
-              placeholder="80.0"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              className="text-center text-2xl font-bold h-14 bg-secondary border-0"
-            />
-          </div>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-2 block">Unit</label>
+              <div className="flex gap-2">
+                {["kg", "lbs"].map((u) => (
+                  <button
+                    key={u}
+                    onClick={() => setUnit(u)}
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      unit === u
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-muted-foreground hover:bg-secondary/70"
+                    }`}
+                  >
+                    {u}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Date</label>
-            <Input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="bg-secondary border-0"
-            />
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Enter Weight in {unit}</label>
+              <Input
+                type="number"
+                step="0.1"
+                placeholder={unit === "kg" ? "80.0" : "175"}
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="text-center text-2xl font-bold h-14 bg-secondary border-0 mt-2"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Date</label>
+              <Input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="bg-secondary border-0 mt-2"
+              />
+            </div>
           </div>
         </div>
 
