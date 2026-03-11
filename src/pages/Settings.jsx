@@ -179,7 +179,7 @@ export default function Settings() {
       {/* Measurements */}
       <Section icon={Ruler} title="Measurements" color="#06b6d4">
         <SettingRow label="Weight Unit">
-          <SegmentPicker value={weightUnit} onChange={v => save("gym-weight-unit", v, setWeightUnit)}
+          <SegmentPicker value={weightUnit} onChange={handleWeightUnitChange}
             options={[{ id: "kg", label: "kg" }, { id: "lbs", label: "lbs" }]} />
         </SettingRow>
         <SettingRow label="Distance Unit">
