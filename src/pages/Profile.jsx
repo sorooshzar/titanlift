@@ -369,6 +369,7 @@ export default function Profile() {
 
       {showLogWeight && <LogWeightModal onClose={() => setShowLogWeight(false)} />}
       {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} />}
+      {showAddTracker && <AddTrackerModal onClose={() => setShowAddTracker(false)} onAdded={refetchTrackers} />}
     </div>
   );
 }
