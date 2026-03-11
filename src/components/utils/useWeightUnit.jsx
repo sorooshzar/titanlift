@@ -14,7 +14,8 @@ export function useWeightUnit() {
   // kg (stored) → display unit
   const toDisplay = (kg) => {
     if (kg == null || kg === 0) return kg;
-    return unit === "lbs" ? Math.round(kg * 2.20462 * 4) / 4 : kg;
+    const val = unit === "lbs" ? kg * 2.20462 : kg;
+    return Math.round(val * 10) / 10;
   };
 
   // display unit → kg (for storage)

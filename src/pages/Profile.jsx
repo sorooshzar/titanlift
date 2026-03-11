@@ -135,7 +135,7 @@ export default function Profile() {
     const saved = localStorage.getItem("gym-goal-weight");
     return saved ? parseFloat(saved) : null;
   });
-  const [activeTab, setActiveTab] = useState("progress");
+  const [activeTab, setActiveTab] = useState("rank");
   const [showAddTracker, setShowAddTracker] = useState(false);
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
@@ -275,54 +275,19 @@ export default function Profile() {
           <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
         </button>
 
-        {/* Progress / Habits tab toggle */}
-        <div className="flex bg-secondary rounded-xl p-1 gap-1">
-          {["progress", "habits"].map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${activeTab === tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
+        {/* Rank / Stats tab toggle */}
+         <div className="flex bg-secondary rounded-xl p-1 gap-1">
+           {["rank", "stats"].map(tab => (
+             <button key={tab} onClick={() => setActiveTab(tab)}
+               className={`flex-1 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${activeTab === tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+               {tab === "rank" ? "Rank" : "Stats"}
+             </button>
+           ))}
+         </div>
 
         <AnimatePresence mode="wait">
-        {activeTab === "habits" ? (
-          <motion.div key="habits" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.15 }}>
-            <div className="bg-card rounded-2xl border border-border p-8 flex flex-col items-center justify-center gap-2 min-h-48">
-              <p className="text-muted-foreground text-sm font-medium">Habits coming soon</p>
-              <p className="text-muted-foreground text-xs">Track your daily habits here</p>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div key="progress" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.15 }} className="space-y-4">
-
-        {/* Muscle Model Card */}
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold">Muscle Map</h2>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] text-muted-foreground">Recovery</span>
-              <Switch checked={showRecovery} onCheckedChange={setShowRecovery} className="scale-75" />
-            </div>
-          </div>
-          <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} />
-          <div className="mt-4">
-            {!showRecovery ? <RankLegend /> : (
-              <div className="flex flex-wrap gap-2 justify-center">
-                {[
-                  { name: "Fresh", color: "#444" }, { name: "Light", color: "#2d5a1b" },
-                  { name: "Moderate", color: "#7a5c00" }, { name: "Heavy", color: "#7a3000" },
-                  { name: "Sore", color: "#7a0000" },
-                ].map(r => (
-                  <div key={r.name} className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ backgroundColor: r.color + "33" }}>
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
-                    <span className="text-[10px] font-semibold">{r.name}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        {activeTab === "stats" ? (
+          <motion.div key="stats" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.15 }} className="space-y-4">
 
         {/* Weight Progress */}
         <div className="bg-card rounded-2xl border border-border p-4">
@@ -376,6 +341,37 @@ export default function Profile() {
           className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-blue-400 text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-primary/20">
           <Plus className="w-4 h-4" /> Add Tracker
         </button>
+          </motion.div>
+        ) : (
+          <motion.div key="rank" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.15 }} className="space-y-4">
+
+        {/* Muscle Model Card */}
+        <div className="bg-card rounded-2xl border border-border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold">Muscle Map</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-muted-foreground">Recovery</span>
+              <Switch checked={showRecovery} onCheckedChange={setShowRecovery} className="scale-75" />
+            </div>
+          </div>
+          <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} />
+          <div className="mt-4">
+            {!showRecovery ? <RankLegend /> : (
+              <div className="flex flex-wrap gap-2 justify-center">
+                {[
+                  { name: "Fresh", color: "#444" }, { name: "Light", color: "#2d5a1b" },
+                  { name: "Moderate", color: "#7a5c00" }, { name: "Heavy", color: "#7a3000" },
+                  { name: "Sore", color: "#7a0000" },
+                ].map(r => (
+                  <div key={r.name} className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ backgroundColor: r.color + "33" }}>
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
+                    <span className="text-[10px] font-semibold">{r.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
           </motion.div>
         )}
         </AnimatePresence>
