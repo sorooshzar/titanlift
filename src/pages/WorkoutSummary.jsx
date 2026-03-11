@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useActiveWorkout } from "../components/workout/ActiveWorkoutContext";
 import { motion } from "framer-motion";
+import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 const SET_TYPE_LABELS = { warmup: "W", working: null, failure: "F", dropset: "D" };
 const SET_TYPE_COLORS = { warmup: "text-amber-500", working: "text-muted-foreground", failure: "text-destructive", dropset: "text-purple-400" };
