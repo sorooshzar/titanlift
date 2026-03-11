@@ -58,7 +58,7 @@ export default function WorkoutSummary() {
         </div>
         <div className="bg-card rounded-xl p-3 text-center border border-border">
           <BarChart2 className="w-4 h-4 text-primary mx-auto mb-1" />
-          <p className="text-lg font-bold">{completedLog.total_volume?.toLocaleString() || 0}</p>
+          <p className="text-lg font-bold">{completedLog.total_volume?.toLocaleString() || 0} {weightUnit}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Volume</p>
         </div>
         <div className="bg-card rounded-xl p-3 text-center border border-border">
@@ -79,7 +79,9 @@ export default function WorkoutSummary() {
             <motion.div key={exIdx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + exIdx * 0.05 }}
               className="bg-card rounded-xl border border-border overflow-hidden"
               style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
-              <div className="px-4 py-3 border-b border-border">
+              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+                {/* Reserved rank icon space */}
+                <div className="w-5 h-5 flex-shrink-0" />
                 <p className="text-sm font-semibold">{ex.exercise_name}</p>
               </div>
               <div className="px-4 py-2">
@@ -98,7 +100,7 @@ export default function WorkoutSummary() {
                   return (
                     <div key={sIdx} className="grid grid-cols-4 gap-2 py-1.5 border-t border-border/50">
                       <span className={`text-xs font-bold ${color}`}>{label}</span>
-                      <span className="text-xs text-center">{set.weight || "—"}</span>
+                      <span className="text-xs text-center">{set.weight ? `${set.weight} ${weightUnit}` : "—"}</span>
                       <span className="text-xs text-center">{set.reps || "—"}</span>
                       <span className="text-xs text-center text-muted-foreground">{set.rir ?? "—"}</span>
                     </div>
