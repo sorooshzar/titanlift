@@ -222,7 +222,7 @@ export default function WorkoutHistory() {
               </div>
               <div className="text-right flex-shrink-0">
                 {log.total_volume > 0 && (
-                  <p className="text-sm font-bold text-primary">{(log.total_volume).toLocaleString()} {localStorage.getItem("gym-weight-unit") || "kg"}</p>
+                  <p className="text-sm font-bold text-primary">{toDisplay(log.total_volume)?.toLocaleString()} {weightUnit}</p>
                 )}
                 <p className="text-[10px] text-muted-foreground">{log.total_sets || 0} sets</p>
               </div>
