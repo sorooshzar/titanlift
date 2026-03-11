@@ -269,19 +269,7 @@ export default function Lifts() {
     <div className="max-w-lg mx-auto px-4 pt-5 pb-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">Lifts</h1>
-          <Calculator className="w-6 h-6 text-muted-foreground" />
-        </div>
-        <Link to={createPageUrl("WorkoutHistory")}>
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <History className="w-5 h-5" />
-          </Button>
-        </Link>
-      </div>
-
-      {/* Toggle */}
-      <div className="flex justify-center mb-4">
+        <h1 className="text-2xl font-bold">Lifts</h1>
         <div className="flex bg-secondary rounded-xl p-1">
           <button onClick={() => setTab("workouts")}
             className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === "workouts" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
@@ -291,6 +279,16 @@ export default function Lifts() {
             className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === "exercises" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
             Exercises
           </button>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-10 w-10">
+            <Calculator className="w-6 h-6" />
+          </Button>
+          <Link to={createPageUrl("WorkoutHistory")}>
+            <Button variant="ghost" size="icon" className="h-10 w-10">
+              <History className="w-6 h-6" />
+            </Button>
+          </Link>
         </div>
       </div>
 
