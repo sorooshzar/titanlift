@@ -246,32 +246,32 @@ function ExercisesTab() {
                 </div>
               )}
               {grouped[key]?.map(ex => {
-               const allMuscles = [ex.primary_muscle, ...(ex.secondary_muscles || [])]
-                 .filter(Boolean)
-                 .map(m => m.replace(/_/g, " "))
-                 .join(", ");
-               const equipmentAbbr = EQUIPMENT_ABBREVIATIONS[ex.category?.toLowerCase()] || "--";
-               return (
-               <Link key={ex.id} to={createPageUrl(`ExerciseDetail?id=${ex.id}`)} state={{ fromExercisesTab: true }}
-                 className="flex items-center gap-3 py-2.5 px-2 -mx-2 rounded-xl hover:bg-secondary/50 transition-colors">
-                 <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
-                   <Dumbbell className="w-4 h-4 text-muted-foreground" />
-                 </div>
-                 <div className="flex-1 min-w-0">
-                   <p className="text-sm font-medium truncate">{ex.name}</p>
-                   <p className="text-xs text-muted-foreground capitalize">
-                     {allMuscles} · {ex.category}
-                     {freqMap[ex.id] ? ` · ${freqMap[ex.id]}×` : ""}
-                   </p>
-                 </div>
-                 <div className="ml-auto">
-                   <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded-md">
-                     {equipmentAbbr}
-                   </span>
-                 </div>
-               </Link>
-               );
-              })}
+                const allMuscles = [ex.primary_muscle, ...(ex.secondary_muscles || [])]
+                  .filter(Boolean)
+                  .map(m => m.replace(/_/g, " "))
+                  .join(", ");
+                const equipmentAbbr = EQUIPMENT_ABBREVIATIONS[ex.category?.toLowerCase()] || "--";
+                return (
+                <button key={ex.id} onClick={() => setSelectedExercise(ex)}
+                  className="w-full flex items-center gap-3 py-2.5 px-2 -mx-2 rounded-xl hover:bg-secondary/50 transition-colors text-left">
+                  <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                    <Dumbbell className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{ex.name}</p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {allMuscles} · {ex.category}
+                      {freqMap[ex.id] ? ` · ${freqMap[ex.id]}×` : ""}
+                    </p>
+                  </div>
+                  <div className="ml-auto">
+                    <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded-md">
+                      {equipmentAbbr}
+                    </span>
+                  </div>
+                </button>
+                );
+               })}
             </div>
           ))}
           {filtered.length === 0 && (
