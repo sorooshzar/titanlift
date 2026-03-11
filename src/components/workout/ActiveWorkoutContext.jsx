@@ -5,6 +5,7 @@ const ActiveWorkoutContext = createContext(null);
 export function ActiveWorkoutProvider({ children }) {
   const [workout, setWorkout] = useState(null);
   const [minimized, setMinimized] = useState(false);
+  const [completedLog, setCompletedLog] = useState(null);
 
   const startWorkout = (template) => {
     setWorkout({
@@ -19,19 +20,26 @@ export function ActiveWorkoutProvider({ children }) {
     setMinimized(false);
   };
 
-  const endWorkout = () => {
+  const endWorkout = (logData) => {
     setWorkout(null);
     setMinimized(false);
+    if (logData) setCompletedLog(logData);
   };
+
+  const clearCompletedLog = () => setCompletedLog(null);
 
   const minimize = () => setMinimized(true);
   const expand = () => setMinimized(false);
 
   return (
-    <ActiveWorkoutContext.Provider value={{ workout, setWorkout, minimized, startWorkout, endWorkout, minimize, expand }}>
+    <ActiveWorkoutContext.Provider value={{ workout, setWorkout, minimized, startWorkout, endWorkout, minimize, expand, completedLog, clearCompletedLog }}>
       {children}
     </ActiveWorkoutContext.Provider>
   );
+}
+
+export function useActiveWorkout() {
+  return useContext(ActiveWorkoutContext);
 }
 
 export function useActiveWorkout() {
