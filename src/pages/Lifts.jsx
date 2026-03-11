@@ -17,7 +17,7 @@ import ExerciseFilters from "../components/exercises/ExerciseFilters";
 import CreateExerciseModal from "../components/exercises/CreateExerciseModal";
 import { format } from "date-fns";
 
-function WorkoutsTab({ folders, templates, queryClient, navigate }) {
+function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }) {
   const [createType, setCreateType] = useState(null);
 
   const unfolderedTemplates = templates.filter((t) => !t.folder_id || t.folder_id === "none");
