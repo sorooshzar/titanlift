@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, Clock, Dumbbell, ChevronRight, BarChart3 } from "l
 import { useNavigate } from "react-router-dom";
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import { useWeightUnit } from "@/components/utils/useWeightUnit";
 
 function formatDuration(mins) {
   if (!mins) return "--";
