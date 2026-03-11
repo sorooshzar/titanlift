@@ -104,7 +104,7 @@ export default function WorkoutSummary() {
                   return (
                     <div key={sIdx} className="grid grid-cols-4 gap-2 py-1.5 border-t border-border/50">
                       <span className={`text-xs font-bold ${color}`}>{label}</span>
-                      <span className="text-xs text-center">{set.weight ? `${set.weight} ${weightUnit}` : "—"}</span>
+                      <span className="text-xs text-center">{set.weight ? `${toDisplay(set.weight)} ${weightUnit}` : "—"}</span>
                       <span className="text-xs text-center">{set.reps || "—"}</span>
                       <span className="text-xs text-center text-muted-foreground">{set.rir ?? "—"}</span>
                     </div>
