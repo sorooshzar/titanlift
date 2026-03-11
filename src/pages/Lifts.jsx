@@ -19,8 +19,7 @@ import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } 
 import { TABS, SPECIAL_FOLDERS } from "../components/utils/constants";
 
 function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }) {
-  const [createType, useState_import_alias] = useState_import(null);
-  const setCreateType = useState_import_alias;
+  const [createType, setCreateType] = useState(null);
 
   const unfolderedTemplates = templates.filter((t) => !t.folder_id || t.folder_id === "none");
   const archivedFolder = folders.find(f => f.name === SPECIAL_FOLDERS.ARCHIVED);
@@ -160,9 +159,9 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
 }
 
 function ExercisesTab() {
-  const [search, setSearch] = useState_import("");
-  const [filters, setFilters] = useState_import({ bodyParts: [], equipment: [], sort: "name" });
-  const [showCreate, setShowCreate] = useState_import(false);
+  const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({ bodyParts: [], equipment: [], sort: "name" });
+  const [showCreate, setShowCreate] = useState(false);
 
   const { data: exercises = [], isLoading } = useExercises();
   const { data: workoutLogs = [] } = useWorkoutLogs();
@@ -253,7 +252,7 @@ function ExercisesTab() {
 }
 
 export default function Lifts() {
-  const [tab, setTab] = useState_import(TABS.WORKOUTS);
+  const [tab, setTab] = useState(TABS.WORKOUTS);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { startWorkout } = useActiveWorkout();
