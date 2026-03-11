@@ -341,12 +341,14 @@ export default function Profile() {
             {showGoalInput && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-3">
                 <div className="flex gap-2 items-center">
-                  <Input type="number" step="0.1" placeholder={goalWeight ? `Current: ${goalWeight}kg` : "Goal weight (kg)"}
+                   <Input type="number" step="0.1"
+                    placeholder={goalWeight ? `Current: ${toDisplay(goalWeight)}${weightUnit}` : `Goal weight (${weightUnit})`}
                     value={goalWeightInput} onChange={e => setGoalWeightInput(e.target.value)}
                     className="h-8 text-sm bg-secondary border-0 flex-1" />
                   <Button size="sm" className="h-8 px-3 text-xs" onClick={() => {
                     const val = parseFloat(goalWeightInput);
-                    if (val) { setGoalWeight(val); localStorage.setItem("gym-goal-weight", String(val)); }
+                    // Store goal in kg
+                    if (val) { const kgVal = toKg(val); setGoalWeight(kgVal); localStorage.setItem("gym-goal-weight", String(kgVal)); }
                     setShowGoalInput(false); setGoalWeightInput("");
                   }}>Set</Button>
                   {goalWeight && <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-destructive" onClick={() => {
