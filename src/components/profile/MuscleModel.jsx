@@ -174,7 +174,7 @@ const BACK_GROUPS = {
   ],
 };
 
-export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showRecovery = false }) {
+export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showRecovery = false, onMuscleRank }) {
   const [view, setView] = useState("front");
   const [clickedMuscle, setClickedMuscle] = useState(null);
   const navigate = useNavigate();
