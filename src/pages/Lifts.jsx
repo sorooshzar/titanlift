@@ -317,10 +317,13 @@ export default function Lifts() {
   const touchStartX = useRef(null);
 
   useEffect(() => {
-    if (location.state?.activeTab) {
+    const params = new URLSearchParams(location.search);
+    if (params.get("tab") === "exercises") {
+      setTab(TABS.EXERCISES);
+    } else if (location.state?.activeTab) {
       setTab(location.state.activeTab);
     }
-  }, [location.state]);
+  }, [location.search, location.state]);
 
   const { data: folders = [] } = useWorkoutFolders();
   const { data: templates = [] } = useWorkoutTemplates();
