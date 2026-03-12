@@ -34,6 +34,10 @@ const GROUP_TO_MUSCLE = {
   "Triceps": "triceps",
   "Glutes": "glutes",
   "Hamstrings": "hamstrings",
+  "Calves": "calves",
+  "Obliques": "abs",
+  "Abductors": "quads",
+  "Adductors": "quads",
 };
 
 const MUSCLE_LABELS = {
