@@ -20,22 +20,6 @@ import { computeRecovery } from "@/components/utils/recoveryEngine";
 import { computeMuscleRanks } from "@/components/utils/rankEngine";
 import MuscleRankModal from "../components/profile/MuscleRankModal";
 
-const RANK_ORDER = ["none", "wood", "bronze", "silver", "gold", "platinum", "diamond", "champion", "titan", "olympian"];
-
-function getRankFromVolume(totalVolume) {
-  if (totalVolume >= 100000) return "olympian";
-  if (totalVolume >= 70000) return "titan";
-  if (totalVolume >= 50000) return "champion";
-  if (totalVolume >= 35000) return "diamond";
-  if (totalVolume >= 20000) return "platinum";
-  if (totalVolume >= 12000) return "gold";
-  if (totalVolume >= 6000) return "silver";
-  if (totalVolume >= 2000) return "bronze";
-  if (totalVolume >= 500) return "wood";
-  return "none";
-}
-
-
 
 function LogWeightModal({ onClose }) {
   const [weight, setWeight] = useState("");
