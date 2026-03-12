@@ -205,6 +205,7 @@ function ExercisesTab() {
     "barbell": "BB",
     "dumbbell": "DB",
     "machine": "MC",
+    "smith_machine": "SM",
     "cable": "CA",
     "bodyweight": "BW",
     "band": "BD",
