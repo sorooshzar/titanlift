@@ -33,15 +33,7 @@ function getRankFromVolume(totalVolume) {
   return "none";
 }
 
-function getRecoveryLevel(lastTrainedDate) {
-  if (!lastTrainedDate) return "fresh";
-  const hoursAgo = (Date.now() - new Date(lastTrainedDate).getTime()) / (1000 * 60 * 60);
-  if (hoursAgo < 12) return "sore";
-  if (hoursAgo < 24) return "heavy";
-  if (hoursAgo < 48) return "moderate";
-  if (hoursAgo < 72) return "light";
-  return "fresh";
-}
+
 
 function LogWeightModal({ onClose }) {
   const [weight, setWeight] = useState("");
