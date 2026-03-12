@@ -246,7 +246,16 @@ function ExercisesTab() {
           <Plus className="w-3.5 h-3.5" /> New
         </Button>
       </div>
-      <ExerciseFilters filters={filters} onFiltersChange={setFilters} />
+      {filters.subMuscle && (
+        <div className="flex items-center gap-2 py-1">
+          <span className="text-xs bg-primary/15 text-primary rounded-full px-3 py-1 font-semibold flex items-center gap-1.5">
+            {filters.subMuscle}
+            <button onClick={() => setFilters(f => ({ ...f, subMuscle: null }))} className="ml-1 text-primary/70 hover:text-primary font-bold">×</button>
+          </span>
+          <span className="text-xs text-muted-foreground">from Muscle Map</span>
+        </div>
+      )}
+      <ExerciseFilters filters={filters} onFiltersChange={f => setFilters(prev => ({ ...f, subMuscle: prev.subMuscle }))} />
 
       {isLoading ? (
         <div className="space-y-2">{Array(6).fill(0).map((_, i) => <div key={i} className="h-14 bg-secondary/50 rounded-xl animate-pulse" />)}</div>
