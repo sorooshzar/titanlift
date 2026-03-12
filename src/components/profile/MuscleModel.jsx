@@ -156,10 +156,10 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
       return (
         <g
           key={id}
-          fill={color || "transparent"}
-          fillOpacity={color ? 0.65 : 0}
-          stroke={color ? "rgba(255,255,255,0.5)" : "transparent"}
-          strokeWidth="0.8"
+          fill="#ff2222"
+          fillOpacity={0.75}
+          stroke="rgba(0,0,0,0.6)"
+          strokeWidth="1.5"
           onClick={() => handleMuscleClick(id)}
           style={{ cursor: isClickable ? "pointer" : "default" }}
         >
