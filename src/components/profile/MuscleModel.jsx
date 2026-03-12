@@ -232,28 +232,38 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
             }}
             style={{ position: "relative", width: `${containerW}px`, height: `${containerH}px` }}
           >
-            {/* PNG body model base */}
-            <img
-              src={view === "front" ? FRONT_BODY_URL : BACK_BODY_URL}
-              alt="body model"
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
-            />
-
-            {/* SVG muscle map overlay */}
             {view === "front" ? (
-              <svg
-                viewBox="0 0 538 1164"
-                preserveAspectRatio="xMidYMid meet"
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-              >
-                {renderGroups(FRONT_GROUPS)}
-              </svg>
+              <>
+                {/* PNG body model base */}
+                <img
+                  src={FRONT_BODY_URL}
+                  alt="body model"
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+                />
+                {/* SVG muscle map overlay */}
+                <svg
+                  viewBox="0 0 538 1164"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+                >
+                  {renderGroups(FRONT_GROUPS)}
+                </svg>
+              </>
             ) : (
               <svg
-                viewBox="0 0 534 1058"
+                viewBox="0 0 656 1503"
                 preserveAspectRatio="xMidYMid meet"
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
               >
+                {/* Body silhouette */}
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d={BACK_BODY_PATH}
+                  fill="#CFCFCF"
+                  stroke="black"
+                  strokeWidth="1"
+                />
                 {renderGroups(BACK_GROUPS)}
               </svg>
             )}
