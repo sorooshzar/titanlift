@@ -190,13 +190,15 @@ function ExercisesTab() {
 
   let filtered = exercises.filter(ex => {
     if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filters.muscleGroups.length > 0) {
-      // Get all child muscles for selected muscle groups
+    // Direct sub-muscle filter from muscle map click — exact match only
+    if (filters.subMuscle) {
+      const primary = ex.primary_muscle?.toLowerCase().trim() || "";
+      if (primary !== filters.subMuscle.toLowerCase().trim()) return false;
+    } else if (filters.muscleGroups.length > 0) {
       const selectedChildren = [];
       filters.muscleGroups.forEach(group => {
         selectedChildren.push(...(MUSCLE_HIERARCHY[group] || []));
       });
-      // Only check primary muscle, case-insensitive
       const primaryMuscle = ex.primary_muscle?.toLowerCase().trim() || "";
       const hasMatch = selectedChildren.some(child => child.toLowerCase().trim() === primaryMuscle);
       if (!hasMatch) return false;
