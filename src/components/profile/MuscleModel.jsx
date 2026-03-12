@@ -11,33 +11,32 @@ const RANK_COLORS = ["#8B5E3C", "#CD7F32", "#9B9BB0", "#FFD700", "#E5E4E2", "#4D
 const RECOVERY_ORDER = ["light", "moderate", "heavy", "sore"];
 const RECOVERY_COLORS = ["#22c55e", "#eab308", "#f97316", "#ef4444"];
 
+// Maps SVG group name → exact primary_muscle string used in Exercise entity
 const GROUP_TO_MUSCLE = {
-  "Upper Chest": "chest",
-  "Mid/Low Chest": "chest",
-  "Abs": "abs",
-  "Obliques": "abs",
-  "Front Delts": "shoulders",
-  "Side Delts": "shoulders",
-  "Biceps": "biceps",
-  "Wrist Flexors": "forearms",
-  "Brachioradialis": "forearms",
-  "Quads": "quads",
-  "Adductors": "quads",
-  "Abductors": "quads",
-  "Calves": "calves",
-  "Neck": null,
-  "Traps": "traps",
-  "Mid Back": "back",
-  "Lats": "lats",
-  "Rear Delts": "shoulders",
-  "Erectors": "back",
-  "Triceps": "triceps",
-  "Glutes": "glutes",
-  "Hamstrings": "hamstrings",
-  "Calves": "calves",
-  "Obliques": "abs",
-  "Abductors": "quads",
-  "Adductors": "quads",
+  // Front
+  "Upper Chest":       "Upper Chest",
+  "Mid/Low Chest":     "Mid/Low Chest",
+  "Abs":               "Abs",
+  "Obliques":          "Obliques",
+  "Front Delts":       "Front Delt",
+  "Side Delts":        "Side Delt",
+  "Biceps":            "Biceps",
+  "Wrist Flexors":     "Wrist Flexor",
+  "Brachioradialis":   "Brachioradialis",
+  "Quads":             "Quads",
+  "Adductors":         "Adductors",
+  "Abductors":         "Abductors",
+  "Calves":            "Calves",
+  // Back
+  "Neck":              null,
+  "Traps":             "Traps",
+  "Mid Back":          "Mid Back",
+  "Lats":              "Lats",
+  "Rear Delts":        "Rear Delt",
+  "Erectors":          "Erectors",
+  "Triceps":           "Triceps",
+  "Glutes":            "Glutes",
+  "Hamstrings":        "Hamstrings",
 };
 
 const MUSCLE_LABELS = {
