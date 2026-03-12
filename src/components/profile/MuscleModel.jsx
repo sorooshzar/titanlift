@@ -305,12 +305,16 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
               className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-card border border-border rounded-2xl p-5 shadow-2xl w-64 text-center"
             >
               <p className="text-xs text-muted-foreground mb-1">Muscle selected</p>
-              <p className="text-lg font-bold mb-4">{MUSCLE_LABELS[clickedMuscle]}</p>
+              <p className="text-lg font-bold mb-4">{MUSCLE_LABELS[clickedMuscle] || clickedMuscle}</p>
               <button
-                onClick={() => { navigate(createPageUrl(`Lifts?tab=exercises&muscle=${clickedMuscle}`)); setClickedMuscle(null); }}
+                onClick={() => {
+                  const encoded = encodeURIComponent(clickedMuscle);
+                  navigate(createPageUrl(`Lifts?tab=exercises&submuscle=${encoded}`));
+                  setClickedMuscle(null);
+                }}
                 className="w-full bg-primary text-white rounded-xl py-2.5 text-sm font-semibold"
               >
-                Find exercises for {MUSCLE_LABELS[clickedMuscle]}
+                Find exercises → {MUSCLE_LABELS[clickedMuscle] || clickedMuscle}
               </button>
               <button onClick={() => setClickedMuscle(null)}
                 className="w-full mt-2 text-xs text-muted-foreground py-1.5">Cancel</button>
