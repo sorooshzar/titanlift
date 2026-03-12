@@ -332,7 +332,7 @@ export default function Profile() {
               <Switch checked={showRecovery} onCheckedChange={setShowRecovery} className="scale-75" />
             </div>
           </div>
-          <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} />
+          <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} />
           <div className="mt-4">
             {!showRecovery ? <RankLegend /> : (
               <div className="space-y-2">
