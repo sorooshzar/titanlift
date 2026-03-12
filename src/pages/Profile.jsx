@@ -192,8 +192,7 @@ export default function Profile() {
   const muscleRankNames = {};
   Object.keys(muscleRanks).forEach(m => { muscleRankNames[m] = getRankFromVolume(muscleRanks[m]); });
 
-  const recoveryData = {};
-  Object.keys(muscleLastTrained).forEach(m => { recoveryData[m] = getRecoveryLevel(muscleLastTrained[m]); });
+  const recoveryData = computeRecovery(workoutLogs);
 
   // latestWeight stored in kg, display converts it
   const latestWeightKg = bodyWeights[0]?.weight;
