@@ -349,17 +349,23 @@ export default function Profile() {
           <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} />
           <div className="mt-4">
             {!showRecovery ? <RankLegend /> : (
-              <div className="flex flex-wrap gap-2 justify-center">
-                {[
-                  { name: "Fresh", color: "#444" }, { name: "Light", color: "#2d5a1b" },
-                  { name: "Moderate", color: "#7a5c00" }, { name: "Heavy", color: "#7a3000" },
-                  { name: "Sore", color: "#7a0000" },
-                ].map(r => (
-                  <div key={r.name} className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ backgroundColor: r.color + "33" }}>
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
-                    <span className="text-[10px] font-semibold">{r.name}</span>
-                  </div>
-                ))}
+              <div className="space-y-2">
+                <p className="text-[10px] text-muted-foreground text-center mb-1">Based on sets, reps & intensity over last 7 days</p>
+                <div className="flex flex-wrap gap-1.5 justify-center">
+                  {[
+                    { name: "Ready", label: "Fully recovered", color: "#22c55e" },
+                    { name: "Light", label: "Low fatigue",     color: "#84cc16" },
+                    { name: "Moderate", label: "Some fatigue", color: "#eab308" },
+                    { name: "Heavy", label: "High fatigue",    color: "#f97316" },
+                    { name: "Sore", label: "Rest needed",      color: "#ef4444" },
+                  ].map(r => (
+                    <div key={r.name} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ backgroundColor: r.color + "22", border: `1px solid ${r.color}44` }}>
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
+                      <span className="text-[10px] font-semibold">{r.name}</span>
+                      <span className="text-[9px] text-muted-foreground hidden sm:inline">— {r.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
