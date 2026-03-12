@@ -3,8 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-const FRONT_BODY_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69af97ab684417936d1f4020/6af09a181_FrontBodyModel.png";
-const BACK_BODY_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69af97ab684417936d1f4020/7bb9c1029_BackBodyModel.png";
+const FRONT_BODY_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69af97ab684417936d1f4020/d377f2eb0_FrontBodyModel.png";
+const BACK_BODY_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69af97ab684417936d1f4020/7f0c21cbf_BackBodyModel.png";
 
 const RANK_ORDER = ["wood", "bronze", "silver", "gold", "platinum", "diamond", "champion", "titan", "olympian"];
 const RANK_COLORS = ["#8B5E3C", "#CD7F32", "#9B9BB0", "#FFD700", "#E5E4E2", "#4DD8FF", "#9B59B6", "#E74C3C", "#FF6B35"];
