@@ -174,15 +174,15 @@ export default function Profile() {
     refetchTrackers();
   };
 
-  const muscleRankDetails = computeMuscleRanks(workoutLogs, latestWeightKg);
-  const muscleRankNames = {};
-  Object.keys(muscleRankDetails).forEach(m => { muscleRankNames[m] = muscleRankDetails[m].rank.name; });
-
   const recoveryData = computeRecovery(workoutLogs);
 
   // latestWeight stored in kg, display converts it
   const latestWeightKg = bodyWeights[0]?.weight;
   const latestWeightDisplay = latestWeightKg ? toDisplay(latestWeightKg) : null;
+
+  const muscleRankDetails = computeMuscleRanks(workoutLogs, latestWeightKg || 80);
+  const muscleRankNames = {};
+  Object.keys(muscleRankDetails).forEach(m => { muscleRankNames[m] = muscleRankDetails[m].rank.name; });
 
   // totalVolume always in kg for XP — never affected by unit toggle
   const totalVolume = workoutLogs.reduce((s, l) => s + (l.total_volume || 0), 0);
