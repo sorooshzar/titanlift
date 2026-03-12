@@ -163,7 +163,18 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
 
 function ExercisesTab() {
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({ muscleGroups: [], equipment: [], sort: "name" });
+  const location = useLocation();
+
+  // Read ?submuscle= param set by MuscleModel — pre-filters to exact sub-muscle
+  const urlParams = new URLSearchParams(location.search);
+  const submuscleParam = urlParams.get("submuscle") ? decodeURIComponent(urlParams.get("submuscle")) : null;
+
+  const [filters, setFilters] = useState({
+    muscleGroups: [],
+    equipment: [],
+    sort: "name",
+    subMuscle: submuscleParam || null,
+  });
   const [showCreate, setShowCreate] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
 
