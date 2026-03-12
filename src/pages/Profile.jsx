@@ -365,6 +365,13 @@ export default function Profile() {
       {showLogWeight && <LogWeightModal onClose={() => setShowLogWeight(false)} />}
       {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} />}
       {showAddTracker && <AddTrackerModal onClose={() => setShowAddTracker(false)} onAdded={refetchTrackers} />}
+      {rankModalMuscle && (
+        <MuscleRankModal
+          muscle={rankModalMuscle}
+          rankData={muscleRankDetails[rankModalMuscle]}
+          onClose={() => setRankModalMuscle(null)}
+        />
+      )}
     </div>
   );
 }
