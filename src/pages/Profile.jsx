@@ -174,26 +174,9 @@ export default function Profile() {
     refetchTrackers();
   };
 
-  const muscleRanks = {};
-  const muscleLastTrained = {};
-
-  workoutLogs.forEach(log => {
-    log.exercises?.forEach(ex => {
-      const muscle = ex.muscle_group;
-      if (!muscle) return;
-      // Always use raw kg values (base unit) for rank calculations
-      let volume = 0;
-      ex.sets?.forEach(s => { if (s.completed) volume += (s.weight || 0) * (s.reps || 0); });
-      muscleRanks[muscle] = (muscleRanks[muscle] || 0) + volume;
-      const logDate = log.finished_at || log.started_at || log.created_date;
-      if (!muscleLastTrained[muscle] || new Date(logDate) > new Date(muscleLastTrained[muscle])) {
-        muscleLastTrained[muscle] = logDate;
-      }
-    });
-  });
-
+  const muscleRankDetails = computeMuscleRanks(workoutLogs, latestWeightKg);
   const muscleRankNames = {};
-  Object.keys(muscleRanks).forEach(m => { muscleRankNames[m] = getRankFromVolume(muscleRanks[m]); });
+  Object.keys(muscleRankDetails).forEach(m => { muscleRankNames[m] = muscleRankDetails[m].rank.name; });
 
   const recoveryData = computeRecovery(workoutLogs);
 
