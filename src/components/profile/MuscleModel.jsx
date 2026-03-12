@@ -39,10 +39,29 @@ const GROUP_TO_MUSCLE = {
   "Hamstrings":        "Hamstrings",
 };
 
+// Display labels for the popup — same as the exact primary_muscle string
 const MUSCLE_LABELS = {
-  chest: "Chest", shoulders: "Shoulders", biceps: "Biceps", triceps: "Triceps",
-  forearms: "Forearms", abs: "Abs", quads: "Quads", calves: "Calves",
-  traps: "Traps", lats: "Lats", back: "Back", glutes: "Glutes", hamstrings: "Hamstrings",
+  "Upper Chest":    "Upper Chest",
+  "Mid/Low Chest":  "Mid/Low Chest",
+  "Abs":            "Abs",
+  "Obliques":       "Obliques",
+  "Front Delt":     "Front Delts",
+  "Side Delt":      "Side Delts",
+  "Rear Delt":      "Rear Delts",
+  "Biceps":         "Biceps",
+  "Triceps":        "Triceps",
+  "Wrist Flexor":   "Wrist Flexors",
+  "Brachioradialis":"Brachioradialis",
+  "Quads":          "Quads",
+  "Adductors":      "Adductors",
+  "Abductors":      "Abductors",
+  "Calves":         "Calves",
+  "Traps":          "Traps",
+  "Lats":           "Lats",
+  "Mid Back":       "Mid Back",
+  "Erectors":       "Erectors",
+  "Glutes":         "Glutes",
+  "Hamstrings":     "Hamstrings",
 };
 
 // Front SVG path data (viewBox: 0 0 538 1164)
