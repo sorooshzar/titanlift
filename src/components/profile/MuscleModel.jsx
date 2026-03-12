@@ -317,7 +317,16 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
                 }}
                 className="w-full bg-primary text-white rounded-xl py-2.5 text-sm font-semibold"
               >
-                Find exercises → {MUSCLE_LABELS[clickedMuscle] || clickedMuscle}
+                See Exercises
+              </button>
+              <button
+                onClick={() => {
+                  onMuscleRank?.(clickedMuscle);
+                  setClickedMuscle(null);
+                }}
+                className="w-full mt-2 bg-secondary text-foreground rounded-xl py-2.5 text-sm font-semibold"
+              >
+                See Rank
               </button>
               <button onClick={() => setClickedMuscle(null)}
                 className="w-full mt-2 text-xs text-muted-foreground py-1.5">Cancel</button>
