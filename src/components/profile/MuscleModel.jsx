@@ -180,19 +180,19 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
   const navigate = useNavigate();
 
   const getMuscleColor = (groupId) => {
-    const appMuscle = GROUP_TO_MUSCLE[groupId];
-    if (!appMuscle) return null;
+    const muscleName = GROUP_TO_MUSCLE[groupId];
+    if (!muscleName) return null;
     if (showRecovery) {
-      const idx = RECOVERY_ORDER.indexOf(recoveryData[appMuscle]);
-      return idx >= 0 ? RECOVERY_COLORS[idx] : null;
+      const idx = RECOVERY_ORDER.indexOf(recoveryData[muscleName]);
+      return idx >= 0 ? RECOVERY_COLORS[idx] : "#3a3a3a";
     }
-    const idx = RANK_ORDER.indexOf(muscleRanks[appMuscle]);
-    return idx >= 0 ? RANK_COLORS[idx] : null;
+    const idx = RANK_ORDER.indexOf(muscleRanks[muscleName]);
+    return idx >= 0 ? RANK_COLORS[idx] : "#3a3a3a";
   };
 
   const handleMuscleClick = (groupId) => {
-    const appMuscle = GROUP_TO_MUSCLE[groupId];
-    if (appMuscle) setClickedMuscle(appMuscle);
+    const muscleName = GROUP_TO_MUSCLE[groupId];
+    if (muscleName) setClickedMuscle(muscleName);
   };
 
   const renderGroups = (groups) =>
