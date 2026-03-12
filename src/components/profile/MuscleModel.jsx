@@ -199,13 +199,14 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
     Object.entries(groups).map(([id, paths]) => {
       const color = getMuscleColor(id);
       const isClickable = !!GROUP_TO_MUSCLE[id];
+      const fill = color || "#3a3a3a";
       return (
         <g
           key={id}
-          fill="#ff2222"
-          fillOpacity={0.75}
-          stroke="rgba(0,0,0,0.6)"
-          strokeWidth="1.5"
+          fill={fill}
+          fillOpacity={0.82}
+          stroke="rgba(0,0,0,0.5)"
+          strokeWidth="1"
           onClick={() => handleMuscleClick(id)}
           style={{ cursor: isClickable ? "pointer" : "default" }}
         >
