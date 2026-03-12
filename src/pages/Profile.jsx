@@ -122,6 +122,7 @@ function ProfileInfoPanel({ user, onClose }) {
 export default function Profile() {
   const [showRecovery, setShowRecovery] = useState(false);
   const [showLogWeight, setShowLogWeight] = useState(false);
+  const [rankModalMuscle, setRankModalMuscle] = useState(null);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
   const [showGoalInput, setShowGoalInput] = useState(false);
   const [goalWeightInput, setGoalWeightInput] = useState("");
