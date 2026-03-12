@@ -17,6 +17,8 @@ import AddTrackerModal from "../components/profile/AddTrackerModal";
 import { MeasurementTracker, ExerciseTracker, HabitsTracker, MacrosTracker } from "../components/profile/TrackerWidgets";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
 import { computeRecovery } from "@/components/utils/recoveryEngine";
+import { computeMuscleRanks } from "@/components/utils/rankEngine";
+import MuscleRankModal from "../components/profile/MuscleRankModal";
 
 const RANK_ORDER = ["none", "wood", "bronze", "silver", "gold", "platinum", "diamond", "champion", "titan", "olympian"];
 
