@@ -8,8 +8,8 @@ const BACK_BODY_PATH = "M66.6099 606.651C66.4021 616.107 66.231 623.893 64.9581 
 
 const RANK_ORDER = ["wood", "bronze", "silver", "gold", "platinum", "diamond", "champion", "titan", "olympian"];
 const RANK_COLORS = ["#8B5E3C", "#CD7F32", "#9B9BB0", "#FFD700", "#E5E4E2", "#4DD8FF", "#9B59B6", "#E74C3C", "#FF6B35"];
-const RECOVERY_ORDER = ["light", "moderate", "heavy", "sore"];
-const RECOVERY_COLORS = ["#22c55e", "#eab308", "#f97316", "#ef4444"];
+const RECOVERY_ORDER = ["fresh", "light", "moderate", "heavy", "sore"];
+const RECOVERY_COLORS = ["#22c55e", "#84cc16", "#eab308", "#f97316", "#ef4444"];
 
 // Maps SVG group name → exact primary_muscle string used in Exercise entity
 const GROUP_TO_MUSCLE = {
