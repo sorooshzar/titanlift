@@ -340,12 +340,12 @@ export default function Profile() {
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
-            {/* Legend — right side, vertically spread, circles+names centered */}
-            <div className="flex-1 flex flex-col items-center ml-2" style={{ alignSelf: 'stretch' }}>
-              <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-1 text-center">
+            {/* Legend — right side, vertically centered within container */}
+            <div className="flex-1 flex flex-col items-center justify-center ml-2" style={{ alignSelf: 'stretch' }}>
+              <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2 text-center">
                 {showRecovery ? "Recovery" : "Muscle Rank"}
               </p>
-              <div className="flex-1 flex flex-col justify-between w-full items-center py-1">
+              <div className="flex flex-col w-full items-center gap-[5px]">
                 {!showRecovery ? (
                   [
                     { name: "Wood", color: "#8B6914" },
