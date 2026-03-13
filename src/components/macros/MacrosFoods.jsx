@@ -130,6 +130,16 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
 
   return (
     <div className="space-y-3">
+      {/* Meal context banner */}
+      {addingMeal && (
+        <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-xl px-3 py-2">
+          <p className="text-xs font-semibold text-primary">
+            Select a food to add to <span className="capitalize">{addingMeal}</span>
+          </p>
+          <button onClick={onClearMeal} className="text-[10px] text-muted-foreground underline">cancel</button>
+        </div>
+      )}
+
       {/* Search + Add */}
       <div className="flex gap-2">
         <div className="relative flex-1">
