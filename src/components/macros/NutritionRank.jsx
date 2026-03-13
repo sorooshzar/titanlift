@@ -1,6 +1,6 @@
 import React from "react";
 
-// 10 Level Nutrition Rank System
+// 10 Level Nutrition Rank System — streak-based
 export const NUTRITION_LEVELS = [
   {
     level: 1,
@@ -9,8 +9,8 @@ export const NUTRITION_LEVELS = [
     color: "#6B4226",
     bgColor: "#6B422622",
     borderColor: "#6B422655",
-    badge: "🥉",
-    description: "Just getting started",
+    minDays: 0,
+    maxDays: 1,
   },
   {
     level: 2,
@@ -19,8 +19,8 @@ export const NUTRITION_LEVELS = [
     color: "#A0522D",
     bgColor: "#A0522D22",
     borderColor: "#A0522D55",
-    badge: "🟤",
-    description: "Learning the basics",
+    minDays: 2,
+    maxDays: 3,
   },
   {
     level: 3,
@@ -29,38 +29,38 @@ export const NUTRITION_LEVELS = [
     color: "#CD7F32",
     bgColor: "#CD7F3222",
     borderColor: "#CD7F3255",
-    badge: "🥈",
-    description: "Getting consistent",
+    minDays: 4,
+    maxDays: 7,
   },
   {
     level: 4,
-    name: "Macro Minder",
-    emoji: "📊",
+    name: "Macro Monster",
+    emoji: "💪",
     color: "#B8860B",
     bgColor: "#B8860B22",
     borderColor: "#B8860B55",
-    badge: "🌟",
-    description: "Tracking regularly",
+    minDays: 8,
+    maxDays: 14,
   },
   {
     level: 5,
-    name: "Diet Detective",
-    emoji: "🔍",
+    name: "Fuel Fanatic",
+    emoji: "⚡",
     color: "#DAA520",
     bgColor: "#DAA52022",
     borderColor: "#DAA52055",
-    badge: "🥇",
-    description: "Solid habits forming",
+    minDays: 15,
+    maxDays: 20,
   },
   {
     level: 6,
-    name: "Fuel Master",
-    emoji: "⚡",
+    name: "Elite Eater",
+    emoji: "🏆",
     color: "#C0C0C0",
     bgColor: "#C0C0C022",
     borderColor: "#C0C0C055",
-    badge: "🥈",
-    description: "Consistently on track",
+    minDays: 21,
+    maxDays: 30,
   },
   {
     level: 7,
@@ -69,8 +69,8 @@ export const NUTRITION_LEVELS = [
     color: "#4FC3F7",
     bgColor: "#4FC3F722",
     borderColor: "#4FC3F755",
-    badge: "💎",
-    description: "Precision nutrition",
+    minDays: 31,
+    maxDays: 40,
   },
   {
     level: 8,
@@ -79,18 +79,18 @@ export const NUTRITION_LEVELS = [
     color: "#9B59B6",
     bgColor: "#9B59B622",
     borderColor: "#9B59B655",
-    badge: "💜",
-    description: "Near-perfect consistency",
+    minDays: 41,
+    maxDays: 50,
   },
   {
     level: 9,
-    name: "Elite Eater",
-    emoji: "🏆",
+    name: "Dietary Deity",
+    emoji: "🌟",
     color: "#E74C3C",
     bgColor: "#E74C3C22",
     borderColor: "#E74C3C55",
-    badge: "🔴",
-    description: "Elite level tracking",
+    minDays: 51,
+    maxDays: 60,
   },
   {
     level: 10,
@@ -99,44 +99,62 @@ export const NUTRITION_LEVELS = [
     color: "#B39DDB",
     bgColor: "#1A1A2E",
     borderColor: "#B39DDB88",
-    badge: "⬛",
-    description: "Legendary consistency",
+    minDays: 61,
+    maxDays: Infinity,
   },
 ];
 
-// Compute nutrition level (1-10) from macro + water logs
-// Consistency is the main driver (70%), accuracy secondary (30%)
-export function computeNutritionLevel(weekData, waterData, macroGoals) {
-  const totalDays = 7;
+// Compute streak from macro entries and water logs
+// allMacroEntries: array of MacroEntry records (with .date field)
+// allWaterLogs: array of WaterLog records (with .date field)
+// A day "counts" if at least 2 items logged (food entries + water entries >= 2)
+export function computeNutritionStreak(allMacroEntries, allWaterLogs) {
+  // Group by date
+  const macroByDate = {};
+  (allMacroEntries || []).forEach(e => {
+    if (!macroByDate[e.date]) macroByDate[e.date] = 0;
+    macroByDate[e.date]++;
+  });
 
-  // Consistency: how many days had ANY macro log
-  const daysWithMacros = weekData.filter(d => d.calories > 0).length;
-  const consistencyScore = daysWithMacros / totalDays; // 0-1
+  const waterByDate = {};
+  (allWaterLogs || []).forEach(w => {
+    if (!waterByDate[w.date]) waterByDate[w.date] = 0;
+    waterByDate[w.date]++;
+  });
 
-  // Water consistency: days with water logged
-  const daysWithWater = (waterData || []).filter(d => d.ml > 0).length;
-  const waterConsistency = daysWithWater / totalDays; // 0-1
+  // Count backwards from yesterday/today to find streak
+  let streak = 0;
+  const today = new Date();
 
-  // Accuracy: how close calories were to goal on logged days
-  const loggedDays = weekData.filter(d => d.calories > 0);
-  let accuracyScore = 0;
-  if (loggedDays.length > 0) {
-    const goal = macroGoals.calories || 2000;
-    const avgAccuracy = loggedDays.reduce((s, d) => {
-      const ratio = d.calories / goal;
-      // Score highest when at 80-110% of goal
-      const acc = ratio >= 0.8 && ratio <= 1.1 ? 1 : ratio >= 0.6 && ratio <= 1.3 ? 0.7 : 0.3;
-      return s + acc;
-    }, 0) / loggedDays.length;
-    accuracyScore = avgAccuracy;
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+
+    const macroCount = macroByDate[dateStr] || 0;
+    const waterCount = waterByDate[dateStr] || 0;
+    const totalItems = macroCount + waterCount;
+
+    if (totalItems >= 2) {
+      streak++;
+    } else {
+      // If today has nothing yet, allow streak to continue from yesterday
+      if (i === 0) continue;
+      break;
+    }
   }
 
-  // Combined score: consistency 50%, water consistency 20%, accuracy 30%
-  const combined = consistencyScore * 0.5 + waterConsistency * 0.2 + accuracyScore * 0.3;
+  return streak;
+}
 
-  // Map to level 1-10
-  const level = Math.max(1, Math.min(10, Math.ceil(combined * 10)));
-  return NUTRITION_LEVELS[level - 1];
+// Get level data from streak
+export function getNutritionLevelFromStreak(streak) {
+  for (let i = NUTRITION_LEVELS.length - 1; i >= 0; i--) {
+    if (streak >= NUTRITION_LEVELS[i].minDays) {
+      return NUTRITION_LEVELS[i];
+    }
+  }
+  return NUTRITION_LEVELS[0];
 }
 
 // Badge SVG component — medal-style with level number
@@ -185,12 +203,19 @@ export function NutritionBadge({ levelData, size = "md" }) {
   );
 }
 
-// Full card component for Profile page
-export default function NutritionRankCard({ weekData = [], waterData = [], macroGoals = {} }) {
-  const levelData = computeNutritionLevel(weekData, waterData, macroGoals);
-  const daysLogged = weekData.filter(d => d.calories > 0).length;
-  const daysWater = (waterData || []).filter(d => d.ml > 0).length;
+// Full card component — now takes streak directly
+export default function NutritionRankCard({ streak = 0 }) {
+  const levelData = getNutritionLevelFromStreak(streak);
   const isObsidian = levelData.level === 10;
+  const nextLevel = NUTRITION_LEVELS[levelData.level]; // undefined if level 10
+
+  // Days until next level
+  const daysUntilNext = nextLevel ? nextLevel.minDays - streak : 0;
+
+  // Progress within current level
+  const levelRange = levelData.maxDays === Infinity ? 10 : (levelData.maxDays - levelData.minDays + 1);
+  const daysIntoLevel = streak - levelData.minDays;
+  const progress = Math.min(daysIntoLevel / levelRange, 1);
 
   return (
     <div
@@ -218,38 +243,49 @@ export default function NutritionRankCard({ weekData = [], waterData = [], macro
           <p className="text-base font-black leading-tight" style={{ color: isObsidian ? levelData.color : "inherit" }}>
             {levelData.name}
           </p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{levelData.description}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            🔥 <span className="font-bold text-foreground">{streak}</span> day streak
+          </p>
         </div>
       </div>
 
       {/* Progress bar toward next level */}
-      {levelData.level < 10 && (
-        <div className="mt-3">
-          <div className="flex justify-between mb-1">
-            <span className="text-[9px] text-muted-foreground">Progress to Level {levelData.level + 1}</span>
-            <span className="text-[9px] text-muted-foreground">{daysLogged}/7 days logged</span>
-          </div>
-          <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{
-                width: `${(daysLogged / 7) * 100}%`,
-                backgroundColor: levelData.color,
-              }}
-            />
-          </div>
+      <div className="mt-3">
+        <div className="flex justify-between mb-1">
+          {nextLevel ? (
+            <>
+              <span className="text-[9px] text-muted-foreground">Progress to Level {levelData.level + 1}</span>
+              <span className="text-[9px] font-semibold" style={{ color: levelData.color }}>
+                {daysUntilNext} more {daysUntilNext === 1 ? "day" : "days"} needed
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-[9px] text-muted-foreground">Max level reached</span>
+              <span className="text-[9px] font-semibold" style={{ color: levelData.color }}>🏆 Legendary</span>
+            </>
+          )}
         </div>
-      )}
+        <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              width: `${isObsidian ? 100 : progress * 100}%`,
+              backgroundColor: levelData.color,
+            }}
+          />
+        </div>
+      </div>
 
       {/* Stats row */}
       <div className="flex gap-2 mt-3">
         <div className="flex-1 bg-secondary/50 rounded-xl px-3 py-2 text-center">
-          <p className="text-base font-bold">{daysLogged}<span className="text-[10px] text-muted-foreground">/7</span></p>
-          <p className="text-[9px] text-muted-foreground">Meals tracked</p>
+          <p className="text-base font-bold">{streak}</p>
+          <p className="text-[9px] text-muted-foreground">Day streak</p>
         </div>
         <div className="flex-1 bg-secondary/50 rounded-xl px-3 py-2 text-center">
-          <p className="text-base font-bold">{daysWater}<span className="text-[10px] text-muted-foreground">/7</span></p>
-          <p className="text-[9px] text-muted-foreground">Water logged</p>
+          <p className="text-base font-bold">{nextLevel ? nextLevel.minDays : "MAX"}</p>
+          <p className="text-[9px] text-muted-foreground">Next level at</p>
         </div>
       </div>
     </div>
