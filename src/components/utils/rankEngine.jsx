@@ -1,13 +1,13 @@
 export const RANKS = [
-  { name: "wood",     label: "Wood",     color: "#6B4423", textColor: "#fff", description: "Just getting started. Every rep counts — your foundation is being laid." },
-  { name: "bronze",   label: "Bronze",   color: "#B87333", textColor: "#fff", description: "Novice lifter. You're building the neuromuscular patterns that lead to real strength." },
-  { name: "silver",   label: "Silver",   color: "#708090", textColor: "#fff", description: "Intermediate. Consistent training is paying off — this muscle is responding to load." },
+  { name: "wood",     label: "Wood",     color: "#B8860B", textColor: "#fff", description: "Just getting started. Every rep counts — your foundation is being laid." },
+  { name: "bronze",   label: "Bronze",   color: "#CD7F32", textColor: "#fff", description: "Novice lifter. You're building the neuromuscular patterns that lead to real strength." },
+  { name: "silver",   label: "Silver",   color: "#C0C0C0", textColor: "#fff", description: "Intermediate. Consistent training is paying off — this muscle is responding to load." },
   { name: "gold",     label: "Gold",     color: "#FFD700", textColor: "#222", description: "Advanced. You're lifting more than most. This muscle is well-developed and strong." },
-  { name: "platinum", label: "Platinum", color: "#F0F8FF", textColor: "#000", description: "Elite performance. You're in the top tier of dedicated gym-goers." },
+  { name: "platinum", label: "Platinum", color: "#E5E4E2", textColor: "#000", description: "Elite performance. You're in the top tier of dedicated gym-goers." },
   { name: "diamond",  label: "Diamond",  color: "#00CED1", textColor: "#fff", description: "Top 5% of app users. Your strength here is exceptional and hard-earned." },
-  { name: "champion", label: "Champion", color: "#22C55E", textColor: "#fff", description: "Local legend territory. This muscle has been trained to a near-professional standard." },
-  { name: "titan",    label: "Titan",    color: "#1E3A8A", textColor: "#fff", description: "Mastery of the muscle. You're approaching the ceiling of natural human performance." },
-  { name: "olympian", label: "Olympian", color: "#0EA5E9", textColor: "#fff", description: "Human limit. Professional / world-class level. An extraordinary achievement." },
+  { name: "champion", label: "Champion", color: "#9370DB", textColor: "#fff", description: "Local legend territory. This muscle has been trained to a near-professional standard." },
+  { name: "titan",    label: "Titan",    color: "#FF6B6B", textColor: "#fff", description: "Mastery of the muscle. You're approaching the ceiling of natural human performance." },
+  { name: "olympian", label: "Olympian", color: "#FF8C42", textColor: "#fff", description: "Human limit. Professional / world-class level. An extraordinary achievement." },
 ];
 
 // Base e1RM/bodyweight thresholds for compound lifts.
