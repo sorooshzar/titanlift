@@ -29,15 +29,15 @@ export default {
         },
         // Muscle rank colors
         rank: {
-          wood: "#6B4423",
-          bronze: "#B87333",
-          silver: "#708090",
+          wood: "#B8860B",
+          bronze: "#CD7F32",
+          silver: "#C0C0C0",
           gold: "#FFD700",
-          platinum: "#F0F8FF",
+          platinum: "#E5E4E2",
           diamond: "#00CED1",
-          champion: "#22C55E",
-          titan: "#1E3A8A",
-          olympian: "#0EA5E9",
+          champion: "#9370DB",
+          titan: "#FF6B6B",
+          olympian: "#FF8C42",
         }
       },
       borderRadius: {
