@@ -197,18 +197,14 @@ export default function Profile() {
   const latestWeightDisplay = latestWeightKg ? toDisplay(latestWeightKg) : null;
 
   // Use new dynamic muscle rank calculator based on impressiveness scores
-  const { data: userMuscleRanks = [] } = useQuery({
-    queryKey: ["userMuscleRanks"],
-    queryFn: () => base44.entities.UserMuscleRank.list("muscle", 1000),
-    refetchInterval: 2000, // Refetch every 2s to catch updates from calculateRanks
-  });
+  const [dynamicMuscleRanks, setDynamicMuscleRanks] = useState({});
 
-  const dynamicMuscleRanks = {};
-  userMuscleRanks.forEach(entry => {
-    if (entry.muscle && entry.rank) {
-      dynamicMuscleRanks[entry.muscle] = entry.rank;
-    }
-  });
+  useEffect(() => {
+    (async () => {
+      const ranks = await calculateMuscleRanks();
+      setDynamicMuscleRanks(ranks || {});
+    })();
+  }, [workoutLogs]);
 
   // Fallback to old system if dynamic ranks not available
   const muscleRankDetails = computeMuscleRanks(workoutLogs, latestWeightKg || 80);
