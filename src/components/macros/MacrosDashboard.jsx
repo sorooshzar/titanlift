@@ -55,27 +55,7 @@ function SugarBar({ value, goal }) {
   );
 }
 
-// Nutrition rank based on macro consistency (0-100 score)
-const RANKS = [
-  { name: "Wood", min: 0, color: "#8B6914" },
-  { name: "Bronze", min: 15, color: "#CD7F32" },
-  { name: "Silver", min: 30, color: "#C0C0C0" },
-  { name: "Gold", min: 45, color: "#FFD700" },
-  { name: "Platinum", min: 60, color: "#E5E4E2" },
-  { name: "Diamond", min: 72, color: "#B9F2FF" },
-  { name: "Champion", min: 82, color: "#9B59B6" },
-  { name: "Titan", min: 90, color: "#E74C3C" },
-  { name: "Olympian", min: 96, color: "#FF6B35" },
-];
 
-function getNutritionRank(weekData, macroGoals) {
-  const daysLogged = weekData.filter(d => d.calories > 0).length;
-  const avgCalPct = weekData.reduce((s, d) => s + Math.min(d.calories / (macroGoals.calories || 1), 1), 0) / 7;
-  const score = Math.round((daysLogged / 7) * 60 + avgCalPct * 40);
-  let rank = RANKS[0];
-  for (const r of RANKS) { if (score >= r.min) rank = r; }
-  return { ...rank, score };
-}
 
 export default function MacrosDashboard({ date, macroGoals }) {
   const dates = useMemo(
