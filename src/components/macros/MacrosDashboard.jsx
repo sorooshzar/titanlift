@@ -113,7 +113,12 @@ export default function MacrosDashboard({ date, macroGoals }) {
 
   const electrolytes = estimateElectrolytes(todayData.protein, todayData.carbs, todayData.fat, todayData.calories);
   const estimatedSugar = Math.round(todayData.carbs * 0.35);
-  const rank = computeNutritionLevel(weekData, waterData, macroGoals);
+
+  // Compute streak-based rank from raw entries
+  const allMacroForStreak = useMemo(() => (weekRaw || []).flat(), [weekRaw]);
+  const allWaterForStreak = useMemo(() => (waterRaw || []).flat(), [waterRaw]);
+  const streak = computeNutritionStreak(allMacroForStreak, allWaterForStreak);
+  const rank = getNutritionLevelFromStreak(streak);
 
   return (
     <div className="space-y-4">
