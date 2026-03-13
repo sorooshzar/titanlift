@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays } from "date-fns";
 import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip, LineChart, Line, YAxis } from "recharts";
+import { NutritionBadge, computeNutritionLevel } from "./NutritionRank";
 
 const PROTEIN_COLOR = "#FF0055";
 const CARBS_COLOR = "#00AAFF";
