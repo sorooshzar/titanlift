@@ -379,7 +379,7 @@ export default function Profile() {
             </div>
 
             {/* Legend — far right, vertically centered */}
-            <div className="flex flex-col items-end justify-center ml-2">
+            <div className="flex flex-col items-end justify-center -ml-4">
               <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mb-3">
                 {showRecovery ? "Recovery" : "Muscle Rank"}
               </p>
