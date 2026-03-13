@@ -378,29 +378,14 @@ export default function Profile() {
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
-            {/* Legend — right side, vertically centered within container */}
-            <div className="flex-1 flex flex-col items-center justify-center ml-2" style={{ alignSelf: 'stretch' }}>
+            {/* Legend — right side */}
+            <div className="flex-1 flex flex-col items-center justify-center ml-2">
               <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2 text-center">
                 {showRecovery ? "Recovery" : "Muscle Rank"}
               </p>
-              <div className="flex flex-col w-full items-center gap-[5px]">
+              <div className="flex flex-col w-full items-center gap-1">
                 {!showRecovery ? (
-                  [
-                    { name: "Wood", color: "#8B6914" },
-                    { name: "Bronze", color: "#CD7F32" },
-                    { name: "Silver", color: "#C0C0C0" },
-                    { name: "Gold", color: "#FFD700" },
-                    { name: "Platinum", color: "#E5E4E2" },
-                    { name: "Diamond", color: "#B9F2FF" },
-                    { name: "Champion", color: "#9B59B6" },
-                    { name: "Titan", color: "#E74C3C" },
-                    { name: "Olympian", color: "#FF6B35" },
-                  ].map(r => (
-                    <div key={r.name} className="flex items-center justify-center gap-1.5 w-full">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                      <span className="text-[10px] font-semibold" style={{ color: r.color }}>{r.name}</span>
-                    </div>
-                  ))
+                  <RankLegend />
                 ) : (
                   [
                     { name: "Ready", color: "#22c55e" },
@@ -409,7 +394,7 @@ export default function Profile() {
                     { name: "Heavy", color: "#f97316" },
                     { name: "Sore", color: "#ef4444" },
                   ].map(r => (
-                    <div key={r.name} className="flex items-center justify-center gap-1.5 w-full">
+                    <div key={r.name} className="flex items-center gap-1.5">
                       <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
                       <span className="text-[10px] font-semibold" style={{ color: r.color }}>{r.name}</span>
                     </div>
