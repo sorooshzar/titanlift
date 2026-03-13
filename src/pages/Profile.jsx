@@ -200,7 +200,10 @@ export default function Profile() {
   const [dynamicMuscleRanks, setDynamicMuscleRanks] = useState({});
 
   useEffect(() => {
-    calculateMuscleRanks().then(ranks => setDynamicMuscleRanks(ranks));
+    (async () => {
+      const ranks = await calculateMuscleRanks();
+      setDynamicMuscleRanks(ranks || {});
+    })();
   }, [workoutLogs]);
 
   // Fallback to old system if dynamic ranks not available
