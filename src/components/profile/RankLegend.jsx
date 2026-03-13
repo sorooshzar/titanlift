@@ -3,7 +3,7 @@ import { RANKS } from "@/components/utils/rankEngine";
 
 export default function RankLegend() {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {RANKS.map((r) => (
         <div key={r.name} className="flex items-center gap-2">
           <div

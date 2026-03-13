@@ -379,14 +379,14 @@ export default function Profile() {
             </div>
 
             {/* Legend — far right, vertically centered */}
-            <div className="flex flex-col items-end justify-center ml-4">
+            <div className="flex flex-col items-end justify-center ml-2">
               <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mb-3">
                 {showRecovery ? "Recovery" : "Muscle Rank"}
               </p>
               {!showRecovery ? (
                 <RankLegend />
               ) : (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   {[
                     { name: "Ready", color: "#22c55e" },
                     { name: "Light", color: "#84cc16" },
