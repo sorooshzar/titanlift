@@ -235,6 +235,9 @@ Deno.serve(async (req) => {
       muscleRanks[muscle] = getRankFromScore(avgTop5, muscle);
     });
 
+    // Save muscle ranks to user entity
+    await base44.auth.updateMe({ muscle_ranks: muscleRanks });
+
     return Response.json({ 
       updatedLog: { ...workoutLog, exercises: updatedExercises },
       muscleRanks 
