@@ -334,7 +334,7 @@ export default function Profile() {
         ) : (
           <motion.div key="rank" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.15 }} className="space-y-4">
 
-        {/* Muscle Model Card */}
+        {/* Muscle Model Card — map left, legend right */}
         <div className="bg-card rounded-2xl border border-border p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-bold">Muscle Map</h2>
@@ -343,30 +343,62 @@ export default function Profile() {
               <Switch checked={showRecovery} onCheckedChange={setShowRecovery} className="scale-75" />
             </div>
           </div>
-          <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} />
-          <div className="mt-4">
-            {!showRecovery ? <RankLegend /> : (
-              <div className="space-y-2">
-                <p className="text-[10px] text-muted-foreground text-center mb-1">Based on sets, reps & intensity over last 7 days</p>
-                <div className="flex flex-wrap gap-1.5 justify-center">
+
+          <div className="flex gap-3 items-start">
+            {/* Muscle model — smaller, left-aligned */}
+            <div className="shrink-0" style={{ width: 140 }}>
+              <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
+            </div>
+
+            {/* Legend stacked on right */}
+            <div className="flex-1 min-w-0">
+              {!showRecovery ? (
+                <div className="space-y-1">
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">Muscle Rank</p>
                   {[
-                    { name: "Ready", label: "Fully recovered", color: "#22c55e" },
-                    { name: "Light", label: "Low fatigue",     color: "#84cc16" },
-                    { name: "Moderate", label: "Some fatigue", color: "#eab308" },
-                    { name: "Heavy", label: "High fatigue",    color: "#f97316" },
-                    { name: "Sore", label: "Rest needed",      color: "#ef4444" },
+                    { name: "Wood", color: "#8B6914" },
+                    { name: "Bronze", color: "#CD7F32" },
+                    { name: "Silver", color: "#C0C0C0" },
+                    { name: "Gold", color: "#FFD700" },
+                    { name: "Platinum", color: "#E5E4E2" },
+                    { name: "Diamond", color: "#B9F2FF" },
+                    { name: "Champion", color: "#9B59B6" },
+                    { name: "Titan", color: "#E74C3C" },
+                    { name: "Olympian", color: "#FF6B35" },
                   ].map(r => (
-                    <div key={r.name} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ backgroundColor: r.color + "22", border: `1px solid ${r.color}44` }}>
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
-                      <span className="text-[10px] font-semibold">{r.name}</span>
-                      <span className="text-[9px] text-muted-foreground hidden sm:inline">— {r.label}</span>
+                    <div key={r.name} className="flex items-center gap-2 py-0.5">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
+                      <span className="text-[11px] font-semibold" style={{ color: r.color }}>{r.name}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="space-y-1">
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">Recovery</p>
+                  {[
+                    { name: "Ready", color: "#22c55e" },
+                    { name: "Light", color: "#84cc16" },
+                    { name: "Moderate", color: "#eab308" },
+                    { name: "Heavy", color: "#f97316" },
+                    { name: "Sore", color: "#ef4444" },
+                  ].map(r => (
+                    <div key={r.name} className="flex items-center gap-2 py-0.5">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
+                      <span className="text-[11px] font-semibold" style={{ color: r.color }}>{r.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Nutrition Rank Card */}
+        <NutritionRankCard
+          weekData={nutritionWeekData}
+          waterData={nutritionWaterData}
+          macroGoals={{ calories: 2000 }}
+        />
           </motion.div>
         )}
         </AnimatePresence>
