@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, X } from "lucide-react";
+import { Search, Plus, X, ScanLine, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getFoodIcon } from "./foodIcons";
 import FoodDetailModal from "./FoodDetailModal";
+import ScanFoodModal from "./ScanFoodModal";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PROTEIN_COLOR = "#FF0055";
 const CARBS_COLOR = "#00AAFF";
@@ -14,95 +16,133 @@ const KCAL_COLOR = "#FFD700";
 
 function FoodRow({ food, onSelect }) {
   const icon = getFoodIcon(food.name);
+  const cal = Math.round((food.calories_per_100g || 0) * (food.serving_size || 100) / 100);
+  const protein = Math.round((food.protein_per_100g || 0) * (food.serving_size || 100) / 100);
   return (
     <button
       onClick={() => onSelect(food)}
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/40 hover:bg-secondary transition-colors text-left"
+      className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl bg-card border border-border hover:border-primary/30 hover:bg-primary/5 transition-all text-left active:scale-[0.98]"
     >
-      <span className="text-xl w-8 text-center shrink-0">{icon}</span>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{food.name}</p>
-        {food.brand && <p className="text-xs text-muted-foreground truncate">{food.brand}</p>}
+      <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0 text-xl">
+        {icon}
       </div>
-      <div className="flex gap-2 shrink-0 items-center">
-        <span className="text-[11px] font-bold" style={{ color: PROTEIN_COLOR }}>
-          P{Math.round((food.protein_per_100g || 0) * (food.serving_size || 100) / 100)}
-        </span>
-        <span className="text-[11px] font-bold" style={{ color: CARBS_COLOR }}>
-          C{Math.round((food.carbs_per_100g || 0) * (food.serving_size || 100) / 100)}
-        </span>
-        <span className="text-[11px] font-bold" style={{ color: FAT_COLOR }}>
-          F{Math.round((food.fat_per_100g || 0) * (food.serving_size || 100) / 100)}
-        </span>
-        <span className="text-[11px] font-bold" style={{ color: KCAL_COLOR }}>
-          🔥{Math.round((food.calories_per_100g || 0) * (food.serving_size || 100) / 100)}
-        </span>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold truncate">{food.name}</p>
+        {food.brand && <p className="text-[11px] text-muted-foreground truncate">{food.brand}</p>}
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[10px] font-bold" style={{ color: PROTEIN_COLOR }}>P{protein}g</span>
+          <span className="text-[10px] text-muted-foreground">·</span>
+          <span className="text-[10px] text-muted-foreground">per {food.serving_size || 100}{food.serving_unit || "g"}</span>
+        </div>
+      </div>
+      <div className="flex flex-col items-end gap-0.5 shrink-0">
+        <span className="text-sm font-bold" style={{ color: KCAL_COLOR }}>🔥{cal}</span>
+        <span className="text-[9px] text-muted-foreground">kcal</span>
       </div>
     </button>
   );
 }
 
-function AddFoodForm({ onClose, onCreate }) {
+function AddFoodForm({ onClose, onCreate, prefill }) {
   const [form, setForm] = useState({
-    name: "", brand: "", calories_per_100g: "", protein_per_100g: "",
-    carbs_per_100g: "", fat_per_100g: "", fiber_per_100g: "",
+    name: prefill?.name || "",
+    brand: prefill?.brand || "",
+    calories_per_100g: prefill?.calories_per_100g || "",
+    protein_per_100g: prefill?.protein_per_100g || "",
+    carbs_per_100g: prefill?.carbs_per_100g || "",
+    fat_per_100g: prefill?.fat_per_100g || "",
+    fiber_per_100g: prefill?.fiber_per_100g || "",
   });
 
   const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
 
+  const macroFields = [
+    { key: "calories_per_100g", label: "Calories", unit: "kcal", color: KCAL_COLOR },
+    { key: "protein_per_100g", label: "Protein", unit: "g", color: PROTEIN_COLOR },
+    { key: "carbs_per_100g", label: "Carbs", unit: "g", color: CARBS_COLOR },
+    { key: "fat_per_100g", label: "Fat", unit: "g", color: FAT_COLOR },
+    { key: "fiber_per_100g", label: "Fiber", unit: "g", color: "#8B5CF6" },
+  ];
+
   return (
-    <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
-      <div className="flex items-center justify-between">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      className="bg-card rounded-2xl border border-border overflow-hidden"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-secondary/30">
         <p className="text-sm font-bold">New Food</p>
-        <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-full bg-secondary">
+        <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      <Input placeholder="Food name *" value={form.name} onChange={e => set("name", e.target.value)}
-        className="bg-secondary border-0" />
-      <Input placeholder="Brand (optional)" value={form.brand} onChange={e => set("brand", e.target.value)}
-        className="bg-secondary border-0" />
+      <div className="p-4 space-y-3">
+        {/* Name & Brand */}
+        <div className="space-y-2">
+          <Input
+            placeholder="Food name *"
+            value={form.name}
+            onChange={e => set("name", e.target.value)}
+            className="bg-secondary border-0 h-11 rounded-xl font-medium"
+          />
+          <Input
+            placeholder="Brand (optional)"
+            value={form.brand}
+            onChange={e => set("brand", e.target.value)}
+            className="bg-secondary border-0 rounded-xl text-sm"
+          />
+        </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        {[
-          { key: "calories_per_100g", label: "Calories /100g *", color: KCAL_COLOR },
-          { key: "protein_per_100g", label: "Protein /100g", color: PROTEIN_COLOR },
-          { key: "carbs_per_100g", label: "Carbs /100g", color: CARBS_COLOR },
-          { key: "fat_per_100g", label: "Fat /100g", color: FAT_COLOR },
-          { key: "fiber_per_100g", label: "Fiber /100g", color: "#8B5CF6" },
-        ].map(f => (
-          <div key={f.key} className="relative">
-            <Input
-              type="number"
-              placeholder={f.label}
-              value={form[f.key]}
-              onChange={e => set(f.key, e.target.value)}
-              className="bg-secondary border-0 pl-3"
-              style={{ borderLeft: `3px solid ${f.color}` }}
-            />
-          </div>
-        ))}
-      </div>
+        {/* Per 100g label */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-[10px] text-muted-foreground font-semibold px-2">Per 100g</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
 
-      <div className="flex gap-2">
-        <Button variant="outline" className="flex-1 rounded-xl" onClick={onClose}>Cancel</Button>
-        <Button
-          className="flex-1 rounded-xl"
-          disabled={!form.name || !form.calories_per_100g}
-          onClick={() => onCreate(form)}
-        >
-          Save
-        </Button>
+        {/* Macro inputs — card style */}
+        <div className="grid grid-cols-1 gap-2">
+          {macroFields.map(f => (
+            <div key={f.key} className="flex items-center gap-3 bg-secondary/50 rounded-xl px-3 py-2.5">
+              <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
+              <span className="text-xs font-semibold text-muted-foreground w-16 shrink-0">{f.label}</span>
+              <Input
+                type="number"
+                placeholder="0"
+                value={form[f.key]}
+                onChange={e => set(f.key, e.target.value)}
+                className="flex-1 bg-transparent border-0 text-right font-bold h-7 p-0 focus:ring-0"
+              />
+              <span className="text-[10px] text-muted-foreground w-6 shrink-0">{f.unit}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-2 pt-1">
+          <Button variant="outline" className="flex-1 rounded-xl" onClick={onClose}>Cancel</Button>
+          <Button
+            className="flex-1 rounded-xl font-bold"
+            disabled={!form.name || !form.calories_per_100g}
+            onClick={() => onCreate(form)}
+          >
+            Save Food
+          </Button>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal, onAdd, onClearMeal }) {
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showScan, setShowScan] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
+  const [prefillData, setPrefillData] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: foods = [] } = useQuery({
@@ -111,7 +151,7 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
   });
 
   const filtered = foods.filter(f => !search || f.name.toLowerCase().includes(search.toLowerCase()));
-  const recent = foods.slice(0, 5); // last 5 by creation order
+  const recent = foods.slice(0, 5);
   const saved = foods.filter(f => f.is_custom);
 
   const handleCreate = async (form) => {
@@ -126,6 +166,14 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
     });
     queryClient.invalidateQueries({ queryKey: ["foods"] });
     setShowAddForm(false);
+    setPrefillData(null);
+  };
+
+  const handleScanResult = (foodData) => {
+    // Pre-fill the add food form with scanned data
+    setPrefillData(foodData);
+    setShowAddForm(true);
+    setShowScan(false);
   };
 
   return (
@@ -134,61 +182,88 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
       {addingMeal && (
         <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-xl px-3 py-2">
           <p className="text-xs font-semibold text-primary">
-            Select a food to add to <span className="capitalize">{addingMeal}</span>
+            Adding to <span className="capitalize">{addingMeal}</span>
           </p>
           <button onClick={onClearMeal} className="text-[10px] text-muted-foreground underline">cancel</button>
         </div>
       )}
 
-      {/* Search + Add */}
-      <div className="flex gap-2">
+      {/* Top action bar: Scan | Search | Add */}
+      <div className="flex gap-2 items-center">
+        {/* Scan button */}
+        <button
+          onClick={() => setShowScan(true)}
+          className="h-10 w-10 shrink-0 rounded-xl bg-card border border-border flex items-center justify-center hover:border-primary/50 transition-colors"
+          title="Scan barcode or label"
+        >
+          <ScanLine className="w-4 h-4 text-primary" />
+        </button>
+
+        {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             placeholder="Search foods..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-9 bg-secondary border-0 rounded-xl h-10"
-            autoFocus={false}
           />
         </div>
-        <Button size="sm" onClick={() => setShowAddForm(v => !v)} className="h-10 px-3 rounded-xl text-xs gap-1 shrink-0">
+
+        {/* Add button */}
+        <button
+          onClick={() => { setShowAddForm(v => !v); setPrefillData(null); }}
+          className="h-10 px-3 shrink-0 rounded-xl bg-primary text-primary-foreground flex items-center gap-1.5 text-xs font-bold hover:bg-primary/90 transition-colors"
+        >
           <Plus className="w-3.5 h-3.5" /> Add
-        </Button>
+        </button>
       </div>
 
-      {showAddForm && <AddFoodForm onClose={() => setShowAddForm(false)} onCreate={handleCreate} />}
+      {/* Add Food Form */}
+      <AnimatePresence>
+        {showAddForm && (
+          <AddFoodForm
+            onClose={() => { setShowAddForm(false); setPrefillData(null); }}
+            onCreate={handleCreate}
+            prefill={prefillData}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Search results */}
+      {/* Food list */}
       {search ? (
-        <div className="space-y-1">
-          <p className="text-xs text-muted-foreground font-semibold px-1">Results</p>
+        <div className="space-y-1.5">
+          <p className="text-xs text-muted-foreground font-semibold px-1">Results ({filtered.length})</p>
           {filtered.slice(0, 30).map(food => (
             <FoodRow key={food.id} food={food} onSelect={setSelectedFood} />
           ))}
           {filtered.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-6">No foods found</p>
+            <div className="text-center py-8">
+              <p className="text-2xl mb-2">🔍</p>
+              <p className="text-sm text-muted-foreground">No foods found for "{search}"</p>
+              <button
+                onClick={() => { setShowAddForm(true); setPrefillData({ name: search }); }}
+                className="mt-2 text-xs text-primary underline"
+              >
+                Add "{search}" as new food
+              </button>
+            </div>
           )}
         </div>
       ) : (
         <>
-          {/* Recent */}
           {recent.length > 0 && (
-            <div className="space-y-1">
-              <div className="flex items-center justify-between px-1">
-                <p className="text-xs text-muted-foreground font-semibold">Recent</p>
-                <p className="text-[10px] text-muted-foreground">Most Recent</p>
-              </div>
+            <div className="space-y-1.5">
+              <p className="text-xs text-muted-foreground font-semibold px-1">Recent</p>
               {recent.map(food => (
                 <FoodRow key={food.id} food={food} onSelect={setSelectedFood} />
               ))}
             </div>
           )}
 
-          {/* Saved / Custom */}
           {saved.length > 0 && (
-            <div className="space-y-1 mt-2">
-              <p className="text-xs text-muted-foreground font-semibold px-1">Saved</p>
+            <div className="space-y-1.5 mt-2">
+              <p className="text-xs text-muted-foreground font-semibold px-1">My Foods</p>
               {saved.map(food => (
                 <FoodRow key={food.id} food={food} onSelect={setSelectedFood} />
               ))}
@@ -197,8 +272,9 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
 
           {foods.length === 0 && !showAddForm && (
             <div className="text-center py-12">
-              <p className="text-3xl mb-2">🍽️</p>
-              <p className="text-sm text-muted-foreground">No foods yet. Add one to get started.</p>
+              <p className="text-4xl mb-3">🍽️</p>
+              <p className="text-sm font-semibold mb-1">No foods yet</p>
+              <p className="text-xs text-muted-foreground">Scan a barcode or add manually</p>
             </div>
           )}
         </>
@@ -214,6 +290,14 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
           date={date}
           onClose={() => setSelectedFood(null)}
           onAdd={(data) => { onAdd(data); onClearMeal(); setSelectedFood(null); }}
+        />
+      )}
+
+      {/* Scan modal */}
+      {showScan && (
+        <ScanFoodModal
+          onClose={() => setShowScan(false)}
+          onFoodFound={handleScanResult}
         />
       )}
     </div>
