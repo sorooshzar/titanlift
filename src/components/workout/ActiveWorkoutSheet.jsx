@@ -107,7 +107,7 @@ export default function ActiveWorkoutSheet() {
       exercises: [...prev.exercises, {
         exercise_id: exercise.id,
         exercise_name: exercise.name,
-        muscle_group: exercise.muscle_group,
+        muscle_group: exercise.primary_muscle,
         color: null,
         superset_group: null,
         notes: exercise.notes || null,
