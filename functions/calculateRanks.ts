@@ -12,7 +12,9 @@ const RANKS = [
   { name: "olympian", label: "Olympian" },
 ];
 
-const BASE_THRESHOLDS = [0.1, 0.4, 0.7, 1.1, 1.5, 2.0, 2.5, 3.0, 3.5, 99];
+// Thresholds for impressiveness score (after applying gender-adjusted factors)
+// Ranges from beginner to world-class
+const BASE_THRESHOLDS = [0.2, 0.5, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 99];
 
 const MUSCLE_SCALE = {
   "Quads":           1.0,
