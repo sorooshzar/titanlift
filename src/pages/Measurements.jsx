@@ -78,7 +78,10 @@ export default function Measurements() {
   const [addingPart, setAddingPart] = useState(null);
   const [historyPart, setHistoryPart] = useState(null);
   const [newValue, setNewValue] = useState("");
-  const [unit, setUnit] = useState("cm");
+  const [unit, setUnit] = useState(() => {
+    const saved = localStorage.getItem("gym-length-unit");
+    return saved === "ft_in" ? "in" : (saved === "cm" ? "cm" : "cm");
+  });
   const [weightInput, setWeightInput] = useState("");
   const [savingWeight, setSavingWeight] = useState(false);
 
