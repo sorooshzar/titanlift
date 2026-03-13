@@ -397,7 +397,7 @@ export default function Macros() {
          </div>
        )}
 
-      {tab === "dashboard" && <DashboardTab entries={entries} date={date} />}
+      {tab === "dashboard" && <DashboardTab entries={entries} date={date} macroGoals={macroGoals} />}
       {tab === "journal" && (
         <JournalTab entries={entries} date={date}
           onAddToMeal={meal => setAddingMeal(meal)}
