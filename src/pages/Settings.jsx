@@ -126,7 +126,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-5 pb-8 space-y-3">
+    <div className="max-w-lg mx-auto px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-8 space-y-3">
       {/* Header */}
       <div className="flex items-center gap-3 mb-2">
         <Link to={createPageUrl("Profile")}>
