@@ -183,17 +183,28 @@ Deno.serve(async (req) => {
       exercises: updatedExercises
     });
 
-    // Calculate muscle ranks (last 5 rule)
+    // Calculate muscle ranks (last 5 rule) with secondary muscle weighting
     const allLogs = await base44.entities.WorkoutLog.list("-finished_at", 100);
     const muscleScores = {};
 
     allLogs.forEach(log => {
       log.exercises?.forEach(ex => {
         if (ex.impressiveness_score && ex.muscle_group) {
+          // Primary muscle gets 100% weight
           if (!muscleScores[ex.muscle_group]) {
             muscleScores[ex.muscle_group] = [];
           }
           muscleScores[ex.muscle_group].push(ex.impressiveness_score);
+
+          // Secondary muscles get 40% weight
+          const secondaryMuscles = ex.secondary_muscles || [];
+          const secondaryScore = ex.impressiveness_score * 0.4;
+          secondaryMuscles.forEach(muscle => {
+            if (!muscleScores[muscle]) {
+              muscleScores[muscle] = [];
+            }
+            muscleScores[muscle].push(secondaryScore);
+          });
         }
       });
     });
