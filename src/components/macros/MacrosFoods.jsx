@@ -194,16 +194,16 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
         </>
       )}
 
-      {/* Food detail modal — view only from Foods tab (no add) */}
+      {/* Food detail modal */}
       {selectedFood && (
         <FoodDetailModal
           food={selectedFood}
           macroGoals={macroGoals}
           dailyTotals={dailyTotals}
-          mealType={null}
+          mealType={addingMeal}
           date={date}
           onClose={() => setSelectedFood(null)}
-          onAdd={null}
+          onAdd={addingMeal ? (data) => { onAdd(data); onClearMeal(); setSelectedFood(null); } : null}
         />
       )}
     </div>
