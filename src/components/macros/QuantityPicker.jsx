@@ -183,7 +183,7 @@ export default function QuantityPicker({ food, initialQty, initialUnit, onDone, 
         </div>
 
         {/* Done / Log buttons */}
-        <div className="grid grid-cols-2 gap-2 px-3 pb-5">
+        <div className={`grid gap-2 px-3 pb-5 ${onLog ? "grid-cols-2" : "grid-cols-1"}`}>
           <button
             onClick={() => onDone({ qty: qtyInG, unit, display, contributed })}
             className="h-12 rounded-xl font-semibold text-sm bg-foreground text-background transition-colors hover:opacity-90"
