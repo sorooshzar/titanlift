@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Scale, ChevronRight, Settings, X, Target, Plus, Ruler } from "lucide-react";
+import { Scale, ChevronRight, Settings, X, Target, Plus, Ruler, Inbox } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import MuscleModel from "../components/profile/MuscleModel";
@@ -84,14 +84,28 @@ function ProfileInfoPanel({ user, onClose }) {
           </button>
         </div>
         <div className="space-y-3">
-          <div className="bg-secondary rounded-xl px-4 py-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Name</p>
-            <p className="text-sm font-medium">{user?.full_name || "—"}</p>
-          </div>
-          <div className="bg-secondary rounded-xl px-4 py-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Email</p>
-            <p className="text-sm font-medium">{user?.email || "—"}</p>
-          </div>
+          {(() => {
+            const heightCm = user?.height_cm;
+            const weightKg = bodyWeights[0]?.weight;
+            const bmi = heightCm && weightKg ? (weightKg / Math.pow(heightCm / 100, 2)) : null;
+            const displayWeight = latestWeightDisplay ? `${latestWeightDisplay}${weightUnit}` : "—";
+            return (
+              <>
+                <div className="bg-secondary rounded-xl px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Current Weight</p>
+                  <p className="text-sm font-medium">{displayWeight}</p>
+                </div>
+                <div className="bg-secondary rounded-xl px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Total Workouts</p>
+                  <p className="text-sm font-medium">{workoutLogs.length}</p>
+                </div>
+                <div className="bg-secondary rounded-xl px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Nutrition Level</p>
+                  <p className="text-sm font-medium">{nutritionStreak.level || "—"}</p>
+                </div>
+              </>
+            );
+          })()}
         </div>
         <div className="flex gap-3 pt-2">
           <Link to={createPageUrl("Settings")} onClick={onClose} className="flex-1">
@@ -211,18 +225,21 @@ export default function Profile() {
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-lg pt-4 pb-2 border-b border-border/30 mb-4">
         <div className="flex items-center justify-between">
           <h1 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Profile</h1>
-          <div className="flex items-center gap-1.5">
-            <Link to={createPageUrl("Measurements")}>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
-                <Ruler className="w-4 h-4" />
-              </button>
-            </Link>
-            <Link to={createPageUrl("Settings")}>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
-                <Settings className="w-4 h-4" />
-              </button>
-            </Link>
-          </div>
+          <div className="flex items-center gap-2.5">
+             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
+               <Inbox className="w-4 h-4" />
+             </button>
+             <Link to={createPageUrl("Measurements")}>
+               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
+                 <Ruler className="w-4 h-4" />
+               </button>
+             </Link>
+             <Link to={createPageUrl("Settings")}>
+               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
+                 <Settings className="w-4 h-4" />
+               </button>
+             </Link>
+           </div>
         </div>
       </div>
 

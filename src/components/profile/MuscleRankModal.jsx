@@ -17,13 +17,13 @@ export default function MuscleRankModal({ muscle, rankData, onClose }) {
   if (!rankData) {
     return (
       <AnimatePresence>
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             onClick={e => e.stopPropagation()}
-            className="bg-card w-full max-w-sm rounded-t-3xl sm:rounded-3xl border border-border p-6 space-y-4"
+            className="bg-card w-full max-w-sm rounded-3xl border border-border p-6 space-y-4"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold">{muscle}</h2>
@@ -48,14 +48,14 @@ export default function MuscleRankModal({ muscle, rankData, onClose }) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+      <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.2 }}
           onClick={e => e.stopPropagation()}
-          className="bg-card w-full max-w-sm rounded-t-3xl sm:rounded-3xl border border-border overflow-hidden"
+          className="bg-card w-full max-w-sm rounded-3xl border border-border overflow-hidden max-h-[90vh] overflow-y-auto"
         >
           {/* Header band */}
           <div className="relative px-5 pt-5 pb-4" style={{ background: `linear-gradient(135deg, ${rank.color}22, ${rank.color}08)`, borderBottom: `2px solid ${rank.color}44` }}>

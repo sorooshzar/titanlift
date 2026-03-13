@@ -70,19 +70,19 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
               <MoreVertical className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {/* Color picker */}
-            <DropdownMenuItem className="text-xs flex-col items-start gap-1" onSelect={(e) => e.preventDefault()}>
-              <span className="font-medium text-xs text-muted-foreground mb-1">Color</span>
-              <div className="flex gap-1.5">
+          <DropdownMenuContent align="end" className="p-2">
+            {/* Color picker — compact grid */}
+            <div className="mb-2">
+              <p className="text-xs font-medium text-muted-foreground mb-2 px-0.5">Color</p>
+              <div className="grid grid-cols-4 gap-1.5">
                 {EXERCISE_COLORS.map((c, i) => (
                   <button key={i} onClick={() => onChange({ ...exercise, color: c })}
-                    className={`w-5 h-5 rounded-full border-2 transition-all ${exercise.color === c ? "border-foreground scale-110" : "border-transparent"}`}
+                    className={`w-6 h-6 rounded-full border-2 transition-all ${exercise.color === c ? "border-foreground" : "border-transparent"}`}
                     style={{ backgroundColor: c || "hsl(var(--secondary))" }} />
                 ))}
               </div>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            </div>
+            <div className="border-t border-border mb-1" />
             <DropdownMenuItem className="text-muted-foreground" onSelect={(e) => e.preventDefault()}>
               <Timer className="w-3.5 h-3.5 mr-2" /> Update Rest Timer
             </DropdownMenuItem>

@@ -32,8 +32,8 @@ function calc1RM(weight, reps) {
 }
 
 // Grid: [set] [prev] [weight] [reps] [rir] [%] [del]
-const GRID = "grid-cols-[28px_1fr_56px_56px_44px_36px_24px]";
-const GRID_ACTIVE = "grid-cols-[24px_28px_1fr_52px_52px_44px_36px_24px]";
+const GRID = "grid-cols-[28px_1.2fr_48px_48px_36px_28px_24px]";
+const GRID_ACTIVE = "grid-cols-[24px_28px_1.2fr_44px_44px_36px_28px_24px]";
 
 export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [] }) {
   const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
@@ -158,19 +158,19 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
         );
       })}
 
-      {/* Add buttons */}
-      <div className="flex gap-2 pt-1 px-1 flex-wrap">
-        <Button variant="ghost" size="sm" className="text-xs h-7 text-muted-foreground" onClick={() => addSet("working")}>
-          <Plus className="w-3 h-3 mr-1" /> Add Set
+      {/* Add buttons — compact single row */}
+      <div className="flex gap-1 pt-1 px-1">
+        <Button variant="ghost" size="sm" className="text-xs h-6 px-1.5 text-muted-foreground" onClick={() => addSet("working")}>
+          <Plus className="w-2.5 h-2.5 mr-0.5" /> Set
         </Button>
-        <Button variant="ghost" size="sm" className="text-xs h-7 text-amber-500" onClick={() => addSet("warmup")}>
-          <Flame className="w-3 h-3 mr-1" /> Warm-up
+        <Button variant="ghost" size="sm" className="text-xs h-6 px-1.5 text-amber-500" onClick={() => addSet("warmup")}>
+          <Flame className="w-2.5 h-2.5 mr-0.5" /> WU
         </Button>
-        <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive" onClick={() => addSet("failure")}>
-          + Failure
+        <Button variant="ghost" size="sm" className="text-xs h-6 px-1.5 text-destructive" onClick={() => addSet("failure")}>
+          F
         </Button>
-        <Button variant="ghost" size="sm" className="text-xs h-7 text-purple-400" onClick={() => addSet("dropset")}>
-          + Drop
+        <Button variant="ghost" size="sm" className="text-xs h-6 px-1.5 text-purple-400" onClick={() => addSet("dropset")}>
+          D
         </Button>
       </div>
     </div>
