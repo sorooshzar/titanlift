@@ -296,8 +296,9 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: view === "front" ? 20 : -20 }}
             transition={{ duration: 0.15 }}
-            onTouchStart={(e) => { e.currentTarget._sx = e.touches[0].clientX; }}
+            onTouchStart={(e) => { e.stopPropagation(); e.currentTarget._sx = e.touches[0].clientX; }}
             onTouchEnd={(e) => {
+              e.stopPropagation();
               const diff = e.changedTouches[0].clientX - (e.currentTarget._sx || 0);
               if (Math.abs(diff) > 40) setView(diff > 0 ? "front" : "back");
             }}
