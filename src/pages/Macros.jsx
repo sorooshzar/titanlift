@@ -323,6 +323,7 @@ function FoodsTab() {
 }
 
 export default function Macros() {
+   const macroGoals = useMacroGoals();
    const urlParams = new URLSearchParams(window.location.search);
    const [tab, setTab] = useState(urlParams.get("tab") || "dashboard");
    const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
