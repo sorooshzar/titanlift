@@ -374,19 +374,19 @@ export default function Profile() {
 
           <div className="flex items-center justify-between">
             {/* Muscle model — left */}
-            <div className="shrink-0" style={{ width: 185 }}>
+            <div className="shrink-0" style={{ width: 260 }}>
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
             {/* Legend — far right, vertically centered */}
             <div className="flex flex-col items-end justify-center ml-6">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mb-3">
                 {showRecovery ? "Recovery" : "Muscle Rank"}
               </p>
               {!showRecovery ? (
                 <RankLegend />
               ) : (
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-2">
                   {[
                     { name: "Ready", color: "#22c55e" },
                     { name: "Light", color: "#84cc16" },
@@ -394,9 +394,9 @@ export default function Profile() {
                     { name: "Heavy", color: "#f97316" },
                     { name: "Sore", color: "#ef4444" },
                   ].map(r => (
-                    <div key={r.name} className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                      <span className="text-[10px] font-semibold whitespace-nowrap" style={{ color: r.color }}>{r.name}</span>
+                    <div key={r.name} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
+                      <span className="text-xs font-semibold whitespace-nowrap" style={{ color: r.color }}>{r.name}</span>
                     </div>
                   ))}
                 </div>
