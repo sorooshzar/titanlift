@@ -88,6 +88,15 @@ export function ExerciseTracker({ tracker, onRemove }) {
 
 // ─── Habits Tracker ───────────────────────────────────────────────────────────
 export function HabitsTracker({ tracker, onRemove }) {
+  const [workoutGoal, setWorkoutGoal] = useState(4);
+
+  useEffect(() => {
+    base44.auth.me().then(user => {
+      const goal = parseWorkoutGoal(user?.workout_days_per_week);
+      setWorkoutGoal(goal);
+    }).catch(() => {});
+  }, []);
+
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
     queryFn: () => base44.entities.WorkoutLog.list("-created_date", 20),
@@ -96,9 +105,14 @@ export function HabitsTracker({ tracker, onRemove }) {
     queryKey: ["bodyWeights"],
     queryFn: () => base44.entities.BodyWeight.list("-date", 20),
   });
+  const { data: macroEntries = [] } = useQuery({
+    queryKey: ["macroEntriesHabits"],
+    queryFn: () => base44.entities.MacroEntry.list("-date", 100),
+  });
 
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
   const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
+  const todayStr = format(new Date(), "yyyy-MM-dd");
 
   const workoutsThisWeek = workoutLogs.filter(l => {
     const d = new Date(l.started_at || l.created_date);
@@ -110,9 +124,17 @@ export function HabitsTracker({ tracker, onRemove }) {
     return d >= weekStart && d <= weekEnd;
   }).length;
 
+  // Protein consistency: days this week with protein logged
+  const proteinDaysThisWeek = new Set(
+    macroEntries
+      .filter(e => { const d = new Date(e.date); return d >= weekStart && d <= weekEnd && (e.protein || 0) > 0; })
+      .map(e => e.date)
+  ).size;
+
   const habits = [
-    { label: "Workouts logged", count: workoutsThisWeek, goal: 4, color: "bg-primary" },
+    { label: "Workouts logged", count: workoutsThisWeek, goal: workoutGoal, color: "bg-primary" },
     { label: "Weight tracked", count: weightsThisWeek, goal: 3, color: "bg-green-500" },
+    { label: "Protein days", count: proteinDaysThisWeek, goal: 7, color: "bg-orange-500" },
   ];
 
   return (
