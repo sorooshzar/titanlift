@@ -331,18 +331,20 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex items-start" style={{ marginLeft: 8 }}>
-            {/* Muscle model — shifted slightly right, larger */}
-            <div className="shrink-0" style={{ width: 158 }}>
+          <div className="flex items-start">
+            {/* Muscle model — larger */}
+            <div className="shrink-0" style={{ width: 185 }}>
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
-            {/* Legend — pushed further right, circles perfectly aligned, names center-aligned */}
-            <div className="flex-1 min-w-0 ml-4">
-              {!showRecovery ? (
-                <div>
-                  <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">Muscle Rank</p>
-                  {[
+            {/* Legend — right side, vertically spread, circles+names centered */}
+            <div className="flex-1 flex flex-col items-center ml-2" style={{ alignSelf: 'stretch' }}>
+              <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-1 text-center">
+                {showRecovery ? "Recovery" : "Muscle Rank"}
+              </p>
+              <div className="flex-1 flex flex-col justify-between w-full items-center py-1">
+                {!showRecovery ? (
+                  [
                     { name: "Wood", color: "#8B6914" },
                     { name: "Bronze", color: "#CD7F32" },
                     { name: "Silver", color: "#C0C0C0" },
@@ -353,29 +355,26 @@ export default function Profile() {
                     { name: "Titan", color: "#E74C3C" },
                     { name: "Olympian", color: "#FF6B35" },
                   ].map(r => (
-                    <div key={r.name} className="flex items-center py-0.5" style={{ gap: 8 }}>
-                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                      <span className="text-[11px] font-semibold w-full text-center" style={{ color: r.color }}>{r.name}</span>
+                    <div key={r.name} className="flex items-center justify-center gap-1.5 w-full">
+                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
+                      <span className="text-[10px] font-semibold" style={{ color: r.color }}>{r.name}</span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div>
-                  <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">Recovery</p>
-                  {[
+                  ))
+                ) : (
+                  [
                     { name: "Ready", color: "#22c55e" },
                     { name: "Light", color: "#84cc16" },
                     { name: "Moderate", color: "#eab308" },
                     { name: "Heavy", color: "#f97316" },
                     { name: "Sore", color: "#ef4444" },
                   ].map(r => (
-                    <div key={r.name} className="flex items-center py-0.5" style={{ gap: 8 }}>
-                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                      <span className="text-[11px] font-semibold w-full text-center" style={{ color: r.color }}>{r.name}</span>
+                    <div key={r.name} className="flex items-center justify-center gap-1.5 w-full">
+                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
+                      <span className="text-[10px] font-semibold" style={{ color: r.color }}>{r.name}</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
