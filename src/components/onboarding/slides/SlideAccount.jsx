@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Mail, Eye, EyeOff, User } from "lucide-react";
 
-export default function SlideAccount({ answers, update, onNext, onFinish, saving }) {
+export default function SlideAccount({ answers, update, onFinish, saving }) {
   const [mode, setMode] = useState("signup"); // "signup" | "login"
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -12,8 +12,8 @@ export default function SlideAccount({ answers, update, onNext, onFinish, saving
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleOAuth = (provider) => {
-    base44.auth.redirectToLogin({ provider });
+  const handleOAuth = () => {
+    base44.auth.redirectToLogin();
   };
 
   const handleEmailSubmit = async () => {
@@ -22,12 +22,15 @@ export default function SlideAccount({ answers, update, onNext, onFinish, saving
     if (mode === "signup" && !name) { setError("Please enter your name."); return; }
     setLoading(true);
     try {
-      // Base44 handles auth — redirect to login with pre-filled info
       base44.auth.redirectToLogin();
     } catch (e) {
       setError(e.message || "Something went wrong.");
     }
     setLoading(false);
+  };
+
+  const handleSkip = () => {
+    onFinish?.();
   };
 
   return (
@@ -138,6 +141,10 @@ export default function SlideAccount({ answers, update, onNext, onFinish, saving
         <p className="text-[11px] text-muted-foreground text-center pt-1">
           By continuing you agree to our Terms of Service and Privacy Policy.
         </p>
+
+        <button onClick={handleSkip} className="w-full text-center text-xs text-muted-foreground pt-2 pb-1">
+          Skip for now →
+        </button>
       </motion.div>
     </div>
   );
