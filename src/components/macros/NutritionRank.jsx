@@ -277,17 +277,7 @@ export default function NutritionRankCard({ streak = 0 }) {
         </div>
       </div>
 
-      {/* Stats row */}
-      <div className="flex gap-2 mt-3">
-        <div className="flex-1 bg-secondary/50 rounded-xl px-3 py-2 text-center">
-          <p className="text-base font-bold">{streak}</p>
-          <p className="text-[9px] text-muted-foreground">Day streak</p>
-        </div>
-        <div className="flex-1 bg-secondary/50 rounded-xl px-3 py-2 text-center">
-          <p className="text-base font-bold">{nextLevel ? nextLevel.minDays : "MAX"}</p>
-          <p className="text-[9px] text-muted-foreground">Next level at</p>
-        </div>
-      </div>
+
     </div>
   );
 }
