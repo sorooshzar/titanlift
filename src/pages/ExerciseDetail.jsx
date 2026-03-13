@@ -134,6 +134,14 @@ export default function ExerciseDetail() {
             <BarChart3 className="w-3.5 h-3.5" />
             Stats
           </Button>
+          <Button
+            variant={tab === "muscles" ? "default" : "secondary"}
+            size="sm"
+            onClick={() => setTab("muscles")}
+            className="rounded-full gap-1.5"
+          >
+            Muscles
+          </Button>
         </div>
 
         {/* Content */}
@@ -167,12 +175,17 @@ export default function ExerciseDetail() {
                 </div>
               </div>
             )}
-            <ExerciseMuscleVisualization exercise={exercise} />
             {!exercise.description && !exercise.instructions && (
               <p className="text-sm text-muted-foreground text-center py-4">
                 No instructions available yet.
               </p>
             )}
+          </div>
+        )}
+
+        {tab === "muscles" && (
+          <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+            <ExerciseMuscleVisualization exercise={exercise} />
           </div>
         )}
 
