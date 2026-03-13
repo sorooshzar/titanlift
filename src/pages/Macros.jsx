@@ -123,7 +123,8 @@ function AddFoodModal({ mealType, date, onClose, onAdd }) {
   );
 }
 
-function DashboardTab({ entries, date }) {
+function DashboardTab({ entries, date, macroGoals }) {
+  const MACRO_GOALS = macroGoals;
   const totals = entries.reduce((acc, e) => ({
     calories: acc.calories + (e.calories || 0),
     protein: acc.protein + (e.protein || 0),
