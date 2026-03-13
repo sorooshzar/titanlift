@@ -183,38 +183,56 @@ Deno.serve(async (req) => {
       exercises: updatedExercises
     });
 
-    // Calculate muscle ranks (last 5 rule) with secondary muscle weighting
+    // Calculate muscle ranks using Power Pool system
+    // Pool: last 15 exercises affecting each muscle (primary or secondary)
+    // Weight: Primary = 1.0x, Secondary = 0.5x
+    // Rank: Average of top 5 weighted scores in the pool
     const allLogs = await base44.entities.WorkoutLog.list("-finished_at", 100);
-    const muscleScores = {};
+    const musclePools = {};
 
     allLogs.forEach(log => {
       log.exercises?.forEach(ex => {
         if (ex.impressiveness_score && ex.muscle_group) {
-          // Primary muscle gets 100% weight
-          if (!muscleScores[ex.muscle_group]) {
-            muscleScores[ex.muscle_group] = [];
+          // Primary muscle: 1.0x weight
+          if (!musclePools[ex.muscle_group]) {
+            musclePools[ex.muscle_group] = [];
           }
-          muscleScores[ex.muscle_group].push(ex.impressiveness_score);
+          musclePools[ex.muscle_group].push({
+            score: ex.impressiveness_score,
+            weight: 1.0
+          });
 
-          // Secondary muscles get 40% weight
+          // Secondary muscles: 0.5x weight
           const secondaryMuscles = ex.secondary_muscles || [];
-          const secondaryScore = ex.impressiveness_score * 0.4;
           secondaryMuscles.forEach(muscle => {
-            if (!muscleScores[muscle]) {
-              muscleScores[muscle] = [];
+            if (!musclePools[muscle]) {
+              musclePools[muscle] = [];
             }
-            muscleScores[muscle].push(secondaryScore);
+            musclePools[muscle].push({
+              score: ex.impressiveness_score,
+              weight: 0.5
+            });
           });
         }
       });
     });
 
-    // Calculate average of last 5 for each muscle
+    // Calculate rank: average of top 5 weighted scores in pool of 15
     const muscleRanks = {};
-    Object.entries(muscleScores).forEach(([muscle, scores]) => {
-      const last5 = scores.slice(0, 5);
-      const avg = last5.reduce((a, b) => a + b, 0) / last5.length;
-      muscleRanks[muscle] = getRankFromScore(avg, muscle);
+    Object.entries(musclePools).forEach(([muscle, pool]) => {
+      // Keep only the last 15 entries
+      const last15 = pool.slice(0, 15);
+      
+      // Calculate weighted scores
+      const weightedScores = last15.map(entry => entry.score * entry.weight);
+      
+      // Get top 5 highest weighted scores
+      const top5 = weightedScores.sort((a, b) => b - a).slice(0, 5);
+      
+      // Calculate average of top 5
+      const avgTop5 = top5.length > 0 ? top5.reduce((a, b) => a + b, 0) / top5.length : 0;
+      
+      muscleRanks[muscle] = getRankFromScore(avgTop5, muscle);
     });
 
     return Response.json({ 
