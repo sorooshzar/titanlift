@@ -324,7 +324,7 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
               </svg>
             ) : (
               <svg
-                viewBox="0 0 656 1503"
+                viewBox="0 0 656 1500"
                 preserveAspectRatio="xMidYMid meet"
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
               >
@@ -335,6 +335,8 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
                   stroke="rgba(0,0,0,0.3)"
                   strokeWidth="1"
                 />
+                {/* Hair */}
+                <path d={BACK_HAIR_PATH} fill="#A8A8A8" stroke="rgba(0,0,0,0.3)" strokeWidth="0.5" />
                 {renderGroups(BACK_GROUPS)}
               </svg>
             )}
