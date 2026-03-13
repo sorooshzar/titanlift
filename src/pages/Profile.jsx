@@ -20,6 +20,7 @@ import { computeRecovery } from "@/components/utils/recoveryEngine";
 import { computeMuscleRanks } from "@/components/utils/rankEngine";
 import MuscleRankModal from "../components/profile/MuscleRankModal";
 import NutritionRankCard from "../components/macros/NutritionRank";
+import { computeNutritionStreak } from "../components/macros/NutritionRank";
 import { subDays, format as fmtDate } from "date-fns";
 
 
