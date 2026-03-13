@@ -2,35 +2,81 @@ import React, { useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays } from "date-fns";
-import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip } from "recharts";
-import WaterTracker from "./WaterTracker";
+import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip, LineChart, Line, YAxis } from "recharts";
 
 const PROTEIN_COLOR = "#FF0055";
 const CARBS_COLOR = "#00AAFF";
 const FAT_COLOR = "#00CC66";
-const KCAL_COLOR = "#FF9500";
+const KCAL_COLOR = "#FFD700";
 
-function MacroBarRow({ label, value, goal, color }) {
-  const pct = Math.min((value / (goal || 1)) * 100, 100);
-  const remaining = Math.max(goal - value, 0);
+// Estimated daily goals for electrolytes (mg) and sugar (g)
+const ELECTROLYTE_GOALS = { Sodium: 2300, Potassium: 4700, Magnesium: 420, Calcium: 1000 };
+const ELECTROLYTE_COLORS = { Sodium: "#F97316", Potassium: "#A78BFA", Magnesium: "#34D399", Calcium: "#60A5FA" };
+const SUGAR_GOAL = 50; // g/day
+
+// Estimate electrolytes from macros (rough approximation when no dedicated tracking)
+function estimateElectrolytes(protein, carbs, fat, calories) {
+  return {
+    Sodium: Math.round(protein * 4 + carbs * 1.5),
+    Potassium: Math.round(protein * 10 + carbs * 3),
+    Magnesium: Math.round(protein * 1.2 + carbs * 0.4),
+    Calcium: Math.round(protein * 3 + fat * 0.5),
+  };
+}
+
+function ElectrolyteBar({ label, value, goal, color }) {
+  const pct = Math.min((value / goal) * 100, 100);
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between items-center">
-        <span className="text-xs font-bold" style={{ color }}>{label}</span>
-        <span className="text-xs text-muted-foreground">
-          {Math.round(value)}g <span className="text-muted-foreground/50">/ {goal}g</span>
-        </span>
-      </div>
-      <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] font-semibold w-16 shrink-0" style={{ color }}>{label}</span>
+      <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
         <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
-      <p className="text-[10px] text-muted-foreground">{Math.round(remaining)}g remaining</p>
+      <span className="text-[10px] text-muted-foreground w-20 text-right">{value}/{goal}mg</span>
     </div>
   );
 }
 
+function SugarBar({ value, goal }) {
+  const pct = Math.min((value / goal) * 100, 100);
+  const over = value > goal;
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] font-semibold w-16 shrink-0" style={{ color: over ? "#EF4444" : "#F59E0B" }}>Sugar</span>
+      <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, backgroundColor: over ? "#EF4444" : "#F59E0B" }}
+        />
+      </div>
+      <span className="text-[10px] text-muted-foreground w-20 text-right">{Math.round(value)}/{goal}g</span>
+    </div>
+  );
+}
+
+// Nutrition rank based on macro consistency (0-100 score)
+const RANKS = [
+  { name: "Wood", min: 0, color: "#8B6914" },
+  { name: "Bronze", min: 15, color: "#CD7F32" },
+  { name: "Silver", min: 30, color: "#C0C0C0" },
+  { name: "Gold", min: 45, color: "#FFD700" },
+  { name: "Platinum", min: 60, color: "#E5E4E2" },
+  { name: "Diamond", min: 72, color: "#B9F2FF" },
+  { name: "Champion", min: 82, color: "#9B59B6" },
+  { name: "Titan", min: 90, color: "#E74C3C" },
+  { name: "Olympian", min: 96, color: "#FF6B35" },
+];
+
+function getNutritionRank(weekData, macroGoals) {
+  const daysLogged = weekData.filter(d => d.calories > 0).length;
+  const avgCalPct = weekData.reduce((s, d) => s + Math.min(d.calories / (macroGoals.calories || 1), 1), 0) / 7;
+  const score = Math.round((daysLogged / 7) * 60 + avgCalPct * 40);
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (score >= r.min) rank = r; }
+  return { ...rank, score };
+}
+
 export default function MacrosDashboard({ date, macroGoals }) {
-  // Rolling 7 days: index 0 = 6 days ago, index 6 = today (current date)
   const dates = useMemo(
     () => Array.from({ length: 7 }, (_, i) => format(subDays(new Date(date + "T12:00:00"), 6 - i), "yyyy-MM-dd")),
     [date]
@@ -46,34 +92,64 @@ export default function MacrosDashboard({ date, macroGoals }) {
     },
   });
 
+  // Water logs for past 7 days
+  const { data: waterRaw } = useQuery({
+    queryKey: ["waterWeek", date],
+    queryFn: async () => {
+      const results = await Promise.all(
+        dates.map(d => base44.entities.WaterLog.filter({ date: d }, "-created_date", 50))
+      );
+      return results;
+    },
+  });
+
   const weekData = useMemo(() => {
     return dates.map((d, i) => {
       const entries = (weekRaw && weekRaw[i]) || [];
-      const dayLabel = format(new Date(d + "T12:00:00"), "EEE").slice(0, 1);
       return {
-        day: dayLabel,
-        fullDate: d,
+        day: format(new Date(d + "T12:00:00"), "EEE").slice(0, 1),
         protein: Math.round(entries.reduce((s, e) => s + (e.protein || 0), 0)),
         carbs: Math.round(entries.reduce((s, e) => s + (e.carbs || 0), 0)),
         fat: Math.round(entries.reduce((s, e) => s + (e.fat || 0), 0)),
         calories: Math.round(entries.reduce((s, e) => s + (e.calories || 0), 0)),
-        isToday: d === date,
       };
     });
-  }, [weekRaw, dates, date]);
+  }, [weekRaw, dates]);
+
+  const waterData = useMemo(() => {
+    return dates.map((d, i) => {
+      const logs = (waterRaw && waterRaw[i]) || [];
+      return {
+        day: format(new Date(d + "T12:00:00"), "EEE").slice(0, 1),
+        ml: Math.round(logs.reduce((s, l) => s + (l.amount_ml || 0), 0)),
+      };
+    });
+  }, [waterRaw, dates]);
 
   const todayData = weekData[6] || { protein: 0, carbs: 0, fat: 0, calories: 0 };
   const hasData = weekData.some(d => d.calories > 0);
+  const hasWaterData = waterData.some(d => d.ml > 0);
+
+  const electrolytes = estimateElectrolytes(todayData.protein, todayData.carbs, todayData.fat, todayData.calories);
+  const estimatedSugar = Math.round(todayData.carbs * 0.35); // rough: ~35% of carbs as sugars
+  const rank = getNutritionRank(weekData, macroGoals);
 
   return (
     <div className="space-y-4">
       {/* Weekly Chart */}
       <div className="bg-card rounded-2xl border border-border p-4">
-        <h2 className="text-sm font-bold mb-2">Macronutrients</h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-bold">Macronutrients</h2>
+          {/* Nutrition Rank badge */}
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border" style={{ borderColor: rank.color }}>
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: rank.color }} />
+            <span className="text-[10px] font-bold" style={{ color: rank.color }}>{rank.name}</span>
+          </div>
+        </div>
 
         {!hasData ? (
           <div className="h-28 flex items-center justify-center">
-            <p className="text-xs text-muted-foreground text-center">Log a meal to see this week's trends.</p>
+            <p className="text-xs text-muted-foreground text-center">Log a meal to see trends.</p>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={100}>
@@ -94,26 +170,18 @@ export default function MacrosDashboard({ date, macroGoals }) {
         {/* Legend */}
         <div className="grid grid-cols-4 gap-1 mt-2">
           {[
-            { label: "Protein", value: todayData.protein, goal: macroGoals.protein, color: PROTEIN_COLOR, isKcal: false },
-            { label: "Carbs", value: todayData.carbs, goal: macroGoals.carbs, color: CARBS_COLOR, isKcal: false },
-            { label: "Fat", value: todayData.fat, goal: macroGoals.fat, color: FAT_COLOR, isKcal: false },
-            { label: "kCal", value: todayData.calories, goal: macroGoals.calories, color: KCAL_COLOR, isKcal: true },
+            { label: "Protein", value: todayData.protein, color: PROTEIN_COLOR, suffix: "g" },
+            { label: "Carbs", value: todayData.carbs, color: CARBS_COLOR, suffix: "g" },
+            { label: "Fat", value: todayData.fat, color: FAT_COLOR, suffix: "g" },
+            { label: "kCal", value: todayData.calories, color: KCAL_COLOR, suffix: "", fire: true },
           ].map(m => (
             <div key={m.label} className="flex flex-col items-center gap-0.5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.color }} />
               <p className="text-[10px] font-bold" style={{ color: m.color }}>{m.label}</p>
-              <p className="text-xs font-semibold">
-                {m.isKcal ? "🔥" : ""}{m.value}{m.isKcal ? "" : "g"}
-              </p>
-              <p className="text-[9px] text-muted-foreground">{m.goal}{m.isKcal ? "" : "g"}</p>
+              <p className="text-xs font-semibold">{m.fire ? "🔥" : ""}{m.value}{m.suffix}</p>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Water directly below chart */}
-      <div className="bg-card rounded-2xl border border-border px-4 py-2">
-        <WaterTracker date={date} />
       </div>
 
       {/* Calories eaten */}
@@ -125,20 +193,46 @@ export default function MacrosDashboard({ date, macroGoals }) {
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground font-medium">Remaining</p>
-            <p className="text-3xl font-bold">🔥{Math.max(macroGoals.calories - todayData.calories, 0)}</p>
+            <p className="text-3xl font-bold">{Math.max(macroGoals.calories - todayData.calories, 0)}</p>
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground font-medium">Goal</p>
-            <p className="text-xl font-semibold text-muted-foreground">🔥{macroGoals.calories}</p>
+            <p className="text-xl font-semibold text-muted-foreground">{macroGoals.calories}</p>
           </div>
         </div>
       </div>
 
-      {/* Macro progress bars */}
-      <div className="bg-card rounded-2xl border border-border p-4 space-y-4">
-        <MacroBarRow label="Protein" value={todayData.protein} goal={macroGoals.protein} color={PROTEIN_COLOR} />
-        <MacroBarRow label="Carbs" value={todayData.carbs} goal={macroGoals.carbs} color={CARBS_COLOR} />
-        <MacroBarRow label="Fat" value={todayData.fat} goal={macroGoals.fat} color={FAT_COLOR} />
+      {/* Electrolytes + Sugar */}
+      <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
+        <h3 className="text-xs font-bold">Electrolytes <span className="text-muted-foreground font-normal">(estimated)</span></h3>
+        {Object.entries(electrolytes).map(([name, val]) => (
+          <ElectrolyteBar key={name} label={name} value={val} goal={ELECTROLYTE_GOALS[name]} color={ELECTROLYTE_COLORS[name]} />
+        ))}
+        <div className="pt-2 border-t border-border/40 space-y-2">
+          <h3 className="text-xs font-bold">Sugar <span className="text-muted-foreground font-normal">(estimated)</span></h3>
+          <SugarBar value={estimatedSugar} goal={SUGAR_GOAL} />
+        </div>
+      </div>
+
+      {/* Water consumption graph */}
+      <div className="bg-card rounded-2xl border border-border p-4">
+        <h3 className="text-xs font-bold mb-2">Water (7 days)</h3>
+        {!hasWaterData ? (
+          <div className="h-20 flex items-center justify-center">
+            <p className="text-xs text-muted-foreground">Log water to see trends.</p>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={80}>
+            <BarChart data={waterData} barCategoryGap="25%">
+              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+              <Tooltip
+                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11 }}
+                formatter={(v) => [`${v}ml`, "Water"]}
+              />
+              <Bar dataKey="ml" fill="#60A5FA" radius={[3, 3, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

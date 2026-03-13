@@ -1,14 +1,12 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { format, addDays, subDays } from "date-fns";
 import WaterTracker from "./WaterTracker";
-import FoodDetailModal from "./FoodDetailModal";
 import { getFoodIcon } from "./foodIcons";
 
 const PROTEIN_COLOR = "#FF0055";
 const CARBS_COLOR = "#00AAFF";
 const FAT_COLOR = "#00CC66";
-const KCAL_COLOR = "#FF9500";
+const KCAL_COLOR = "#FFD700";
 
 const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
 
@@ -25,7 +23,7 @@ function DailyMacroBar({ label, value, goal, color }) {
   );
 }
 
-function MealSection({ meal, entries, macroGoals, onAdd, onDelete, onEditEntry, date }) {
+function MealSection({ meal, entries, macroGoals, onAdd, onDelete, onEditEntry }) {
   const totals = entries.reduce(
     (acc, e) => ({
       protein: acc.protein + (e.protein || 0),
@@ -36,34 +34,33 @@ function MealSection({ meal, entries, macroGoals, onAdd, onDelete, onEditEntry, 
     { protein: 0, carbs: 0, fat: 0, calories: 0 }
   );
 
-  const carbPct = Math.min((totals.carbs / (macroGoals.carbs || 1)) * 100, 100);
+  const calPct = Math.min((totals.calories / (macroGoals.calories || 1)) * 100, 100);
 
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden">
-      {/* Compact meal header */}
-      <div className="flex items-center px-3 py-2 border-b border-border/40 gap-2">
-        {/* Macro summary — left side, compact */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[10px] font-bold" style={{ color: PROTEIN_COLOR }}>P{Math.round(totals.protein)}</span>
-          <span className="text-[10px] font-bold" style={{ color: FAT_COLOR }}>F{Math.round(totals.fat)}</span>
-          {/* Carbs with bar */}
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] font-bold" style={{ color: CARBS_COLOR }}>C{Math.round(totals.carbs)}</span>
-            <div className="w-10 h-1 bg-secondary rounded-full overflow-hidden">
-              <div className="h-full rounded-full" style={{ width: `${carbPct}%`, backgroundColor: CARBS_COLOR }} />
-            </div>
-          </div>
-          <span className="text-[10px] font-bold" style={{ color: KCAL_COLOR }}>🔥{Math.round(totals.calories)}</span>
+      {/* Meal header: [Name] [P F C macros] [🔥cal] [yellow bar →] [+] */}
+      <div className="flex items-center px-3 py-2 border-b border-border/40 gap-1.5">
+        {/* Meal name */}
+        <span className="text-xs font-bold capitalize shrink-0 w-16">{meal}</span>
+
+        {/* P F C numbers */}
+        <span className="text-[10px] font-bold shrink-0" style={{ color: PROTEIN_COLOR }}>P{Math.round(totals.protein)}</span>
+        <span className="text-[10px] font-bold shrink-0" style={{ color: FAT_COLOR }}>F{Math.round(totals.fat)}</span>
+        <span className="text-[10px] font-bold shrink-0" style={{ color: CARBS_COLOR }}>C{Math.round(totals.carbs)}</span>
+
+        {/* Calorie number */}
+        <span className="text-[10px] font-bold shrink-0" style={{ color: KCAL_COLOR }}>🔥{Math.round(totals.calories)}</span>
+
+        {/* Yellow calorie bar — stretches to fill remaining space */}
+        <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden mx-1">
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${calPct}%`, backgroundColor: KCAL_COLOR }} />
         </div>
 
-        {/* Meal name — center */}
-        <span className="flex-1 text-xs font-bold capitalize text-center">{meal}</span>
-
-        {/* Add button — right */}
+        {/* Add button */}
         <button
           onClick={onAdd}
           className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-          style={{ backgroundColor: `${KCAL_COLOR}22` }}
+          style={{ backgroundColor: `${KCAL_COLOR}33` }}
         >
           <Plus className="w-3 h-3" style={{ color: KCAL_COLOR }} />
         </button>
@@ -106,14 +103,7 @@ function MealSection({ meal, entries, macroGoals, onAdd, onDelete, onEditEntry, 
   );
 }
 
-export default function MacrosJournal({ date, entries, macroGoals, onAddToMeal, onDeleteEntry, onDateChange, onEditEntry, dailyTotals }) {
-  const dateObj = new Date(date + "T12:00:00");
-  const todayStr = format(new Date(), "yyyy-MM-dd");
-  const isCurrentDay = date === todayStr;
-
-  const goBack = () => onDateChange(format(subDays(dateObj, 1), "yyyy-MM-dd"));
-  const goForward = () => onDateChange(format(addDays(dateObj, 1), "yyyy-MM-dd"));
-
+export default function MacrosJournal({ date, entries, macroGoals, onAddToMeal, onDeleteEntry, onEditEntry, dailyTotals }) {
   const totals = dailyTotals || { protein: 0, carbs: 0, fat: 0, calories: 0 };
 
   return (
@@ -144,7 +134,6 @@ export default function MacrosJournal({ date, entries, macroGoals, onAddToMeal, 
           onAdd={() => onAddToMeal(meal)}
           onDelete={onDeleteEntry}
           onEditEntry={onEditEntry}
-          date={date}
         />
       ))}
     </div>
