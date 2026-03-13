@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock, Dumbbell, BarChart2, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,8 @@ import { createPageUrl } from "@/utils";
 import { useActiveWorkout } from "../components/workout/ActiveWorkoutContext";
 import { motion } from "framer-motion";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
+import { base44 } from "@/api/base44Client";
+import { RANKS } from "@/components/utils/rankEngine";
 
 const SET_TYPE_LABELS = { warmup: "W", working: null, failure: "F", dropset: "D" };
 const SET_TYPE_COLORS = { warmup: "text-amber-500", working: "text-muted-foreground", failure: "text-destructive", dropset: "text-purple-400" };
@@ -21,10 +23,45 @@ export default function WorkoutSummary() {
   const navigate = useNavigate();
   const { completedLog, clearCompletedLog } = useActiveWorkout();
   const { unit: weightUnit, toDisplay } = useWeightUnit();
+  const [userGender, setUserGender] = useState("male");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!completedLog) navigate(createPageUrl("Lifts"), { replace: true });
   }, [completedLog]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setUserGender(user?.gender || "male");
+        if (completedLog?.id) {
+          calculateRanks();
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      }
+    };
+    fetchUser();
+  }, [completedLog]);
+
+  const calculateRanks = async () => {
+    if (!completedLog?.id) return;
+    setLoading(true);
+    try {
+      const response = await base44.functions.invoke('calculateRanks', {
+        workoutLogId: completedLog.id,
+        userGender
+      });
+      if (response.data.updatedLog) {
+        // Note: The log is updated in the database, this is just for local state if needed
+      }
+    } catch (err) {
+      console.error("Error calculating ranks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!completedLog) return null;
 
@@ -79,14 +116,27 @@ export default function WorkoutSummary() {
           const completedSets = ex.sets?.filter(s => s.completed) || [];
           if (completedSets.length === 0) return null;
 
+          const rankInfo = ex.rank ? RANKS.find(r => r.name === ex.rank) : null;
           return (
             <motion.div key={exIdx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + exIdx * 0.05 }}
               className="bg-card rounded-xl border border-border overflow-hidden"
               style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
               <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                {/* Reserved rank icon space */}
-                <div className="w-5 h-5 flex-shrink-0" />
-                <p className="text-sm font-semibold">{ex.exercise_name}</p>
+                {rankInfo && (
+                  <div className="w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                    style={{ backgroundColor: rankInfo.color }}>
+                    {rankInfo.label[0]}
+                  </div>
+                )}
+                {!rankInfo && <div className="w-5 h-5 flex-shrink-0" />}
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">{ex.exercise_name}</p>
+                  {ex.impressiveness_score > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {rankInfo?.label || "—"} • {ex.impressiveness_score.toFixed(1)}
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="px-4 py-2">
                 {/* Header */}
