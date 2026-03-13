@@ -4,6 +4,7 @@ import { X, BookOpen, BarChart3 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
+import ExerciseMuscleVisualization from "@/components/exercises/ExerciseMuscleVisualization";
 import {
   Dialog,
   DialogContent,
@@ -137,6 +138,7 @@ export default function ExerciseDetailModal({ exercise, isOpen, onClose, workout
                   </div>
                 </div>
               )}
+              <ExerciseMuscleVisualization exercise={exercise} />
               {!exercise.description && !exercise.instructions && (
                 <p className="text-sm text-muted-foreground text-center py-4">
                   No instructions available yet.
