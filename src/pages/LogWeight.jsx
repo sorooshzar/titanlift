@@ -26,7 +26,6 @@ export default function LogWeight() {
       date: date,
     });
     queryClient.invalidateQueries({ queryKey: ["bodyWeights"] });
-    queryClient.invalidateQueries({ queryKey: ["profileAllMacroEntries"] });
     setSaving(false);
     navigate(createPageUrl("Profile"));
   };
