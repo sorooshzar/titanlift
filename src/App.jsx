@@ -9,7 +9,6 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import OnboardingGate from '@/components/onboarding/OnboardingGate';
 import SignIn from '@/pages/SignIn';
 import { AnimatePresence, motion } from 'framer-motion';
-import { TabHistoryProvider } from '@/lib/TabHistoryContext';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -102,9 +101,7 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <TabHistoryProvider>
-            <AuthenticatedApp />
-          </TabHistoryProvider>
+          <AuthenticatedApp />
         </Router>
         <Toaster />
       </QueryClientProvider>

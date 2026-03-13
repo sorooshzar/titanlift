@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Check } from 'lucide-react';
 
 export default function SelectDrawer({ open, onOpenChange, items, value, onSelect, placeholder, searchable = true }) {
-  const [search, setSearch] = React.useState('');
+  const [search, setSearch] = useState('');
 
   const filtered = searchable
     ? items.filter(item =>
