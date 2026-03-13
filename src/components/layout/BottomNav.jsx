@@ -29,8 +29,8 @@ export default function BottomNav() {
     <>
       <QuickActionMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border user-select-none">
+        <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2" style={{ paddingBottom: 'var(--safe-area-inset-bottom)' }}>
           {tabs.map((tab) => {
             if (tab.name === "plus") {
               return (

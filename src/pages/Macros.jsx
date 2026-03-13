@@ -172,7 +172,9 @@ export default function Macros() {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-5 pb-4">
+    <div className="max-w-lg mx-auto px-4 pb-4">
+      {/* Sticky Header with safe area */}
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm -mx-4 px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-3 border-b border-border/30">
       {/* Header row: Title + date picker */}
       <div className="flex items-center justify-between mb-3">
         <h1 className="text-2xl font-bold">Macros</h1>
@@ -202,7 +204,7 @@ export default function Macros() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex bg-secondary rounded-xl p-1 mb-4">
+      <div className="flex bg-secondary rounded-xl p-1 mb-4 mt-3">
         {TABS.map(t => (
           <button
             key={t.id}
@@ -213,10 +215,11 @@ export default function Macros() {
           >
             {t.label}
           </button>
-        ))}
-      </div>
+          ))}
+          </div>
+          </div>
 
-      {tab === "dashboard" && (
+          {tab === "dashboard" && (
         <MacrosDashboard date={date} macroGoals={macroGoals} />
       )}
 

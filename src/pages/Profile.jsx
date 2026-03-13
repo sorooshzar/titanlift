@@ -236,7 +236,7 @@ export default function Profile() {
   return (
     <div className="max-w-lg mx-auto px-4 pb-4">
       {/* Sticky header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-lg pt-4 pb-2 border-b border-border/30 mb-4">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-lg pt-[calc(1rem+env(safe-area-inset-top))] pb-2 border-b border-border/30 mb-4">
         <div className="flex items-center justify-between">
           <h1 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Profile</h1>
           <div className="flex items-center gap-2.5">

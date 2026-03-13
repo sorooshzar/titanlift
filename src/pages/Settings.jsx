@@ -226,6 +226,17 @@ export default function Settings() {
           <Switch checked={includeBodyweight} onCheckedChange={v => save("gym-include-bodyweight", v, setIncludeBodyweight)} />
         </SettingRow>
       </Section>
-    </div>
-  );
-}
+
+      {/* Account */}
+      <Section icon={Apple} title="Account" color="#dc2626">
+        <button onClick={() => {
+          if (window.confirm("Are you sure you want to delete your account? This cannot be undone.")) {
+            base44.auth.deleteAccount?.().catch(err => console.error(err));
+          }
+        }} className="w-full flex items-center justify-center px-4 py-3.5 text-sm font-semibold text-destructive hover:bg-destructive/5 transition-colors">
+          Delete Account
+        </button>
+      </Section>
+      </div>
+      );
+      }
