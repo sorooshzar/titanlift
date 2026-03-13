@@ -9,7 +9,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useActiveWorkout } from "../components/workout/ActiveWorkoutContext";
 import PullToRefresh from "../components/mobile/PullToRefresh";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
