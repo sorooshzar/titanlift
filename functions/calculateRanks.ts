@@ -235,8 +235,23 @@ Deno.serve(async (req) => {
       muscleRanks[muscle] = getRankFromScore(avgTop5, muscle);
     });
 
-    // Save muscle ranks to user entity
-    await base44.auth.updateMe({ muscle_ranks: muscleRanks });
+    // Save muscle ranks to UserMuscleRank entity (overwrite existing)
+    const user = await base44.auth.me();
+    if (user) {
+      // Delete old muscle rank entries for this user
+      const existing = await base44.asServiceRole.entities.UserMuscleRank.filter({ created_by: user.email }, null, 1000);
+      for (const entry of existing) {
+        await base44.asServiceRole.entities.UserMuscleRank.delete(entry.id);
+      }
+      
+      // Create new entries with latest ranks
+      for (const [muscle, rank] of Object.entries(muscleRanks)) {
+        await base44.asServiceRole.entities.UserMuscleRank.create({
+          muscle,
+          rank
+        });
+      }
+    }
 
     return Response.json({ 
       updatedLog: { ...workoutLog, exercises: updatedExercises },
