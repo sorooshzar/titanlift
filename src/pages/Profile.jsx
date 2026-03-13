@@ -160,7 +160,7 @@ export default function Profile() {
 
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 100),
+    queryFn: () => base44.entities.WorkoutLog.list("-finished_at", 100),
   });
 
   const { data: bodyWeights = [] } = useQuery({
