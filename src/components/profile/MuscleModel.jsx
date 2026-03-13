@@ -329,11 +329,9 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
               >
                 {/* Body silhouette */}
                 <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
                   d={BACK_BODY_PATH}
-                  fill="#CFCFCF"
-                  stroke="black"
+                  fill="#D0D0D0"
+                  stroke="rgba(0,0,0,0.3)"
                   strokeWidth="1"
                 />
                 {renderGroups(BACK_GROUPS)}
