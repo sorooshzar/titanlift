@@ -8,8 +8,32 @@ import { format, addDays, subDays } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import WaterTracker from "../components/macros/WaterTracker";
 
-const MACRO_GOALS = { calories: 2000, protein: 150, carbs: 200, fat: 65 };
 const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"];
+
+function useMacroGoals() {
+  const [goals, setGoals] = React.useState({ calories: 2000, protein: 150, carbs: 200, fat: 65 });
+  React.useEffect(() => {
+    base44.auth.me().then(user => {
+      if (user?.daily_calories) {
+        setGoals({
+          calories: user.daily_calories || 2000,
+          protein: user.daily_protein || 150,
+          carbs: user.daily_carbs || 200,
+          fat: user.daily_fat || 65,
+        });
+      } else {
+        const cal = parseInt(localStorage.getItem("gym-macro-calories"));
+        if (cal) setGoals({
+          calories: cal,
+          protein: parseInt(localStorage.getItem("gym-macro-protein")) || 150,
+          carbs: parseInt(localStorage.getItem("gym-macro-carbs")) || 200,
+          fat: parseInt(localStorage.getItem("gym-macro-fat")) || 65,
+        });
+      }
+    }).catch(() => {});
+  }, []);
+  return goals;
+}
 
 function MacroBar({ label, value, goal, color }) {
   const pct = Math.min((value / goal) * 100, 100);
