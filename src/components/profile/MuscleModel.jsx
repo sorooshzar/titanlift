@@ -267,10 +267,10 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
       );
     });
 
-  // Front: 538x1164, Back: 656x1503
+  // Front: 663x1509, Back: 656x1503
   const containerW = 220;
   const containerH = view === "front"
-    ? Math.round(containerW * 1164 / 538)
+    ? Math.round(containerW * 1509 / 663)
     : Math.round(containerW * 1503 / 656);
 
   return (
