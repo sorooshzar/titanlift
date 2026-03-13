@@ -272,7 +272,7 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
   const containerW = 220;
   const containerH = view === "front"
     ? Math.round(containerW * 1509 / 663)
-    : Math.round(containerW * 1503 / 656);
+    : Math.round(containerW * 1500 / 656);
 
   return (
     <div className="relative">
