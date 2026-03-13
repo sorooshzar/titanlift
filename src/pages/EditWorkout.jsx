@@ -20,6 +20,7 @@ export default function EditWorkout() {
   const [saving, setSaving] = useState(false);
   const [showUnsavedConfirm, setShowUnsavedConfirm] = useState(false);
   const isDirty = useRef(false);
+  const draftKey = `edit-draft-${id}`;
 
   const { data: template } = useQuery({
     queryKey: ["template-edit", id],
@@ -30,11 +31,34 @@ export default function EditWorkout() {
 
   useEffect(() => {
     if (template) {
-      setName(template.name);
-      setExercises(template.exercises || []);
-      isDirty.current = false;
+      // Check if there's a draft version first
+      const draft = localStorage.getItem(draftKey);
+      if (draft) {
+        try {
+          const { name: draftName, exercises: draftExercises } = JSON.parse(draft);
+          setName(draftName);
+          setExercises(draftExercises);
+          isDirty.current = true;
+        } catch {
+          // Fallback to template if draft is corrupted
+          setName(template.name);
+          setExercises(template.exercises || []);
+          isDirty.current = false;
+        }
+      } else {
+        setName(template.name);
+        setExercises(template.exercises || []);
+        isDirty.current = false;
+      }
     }
-  }, [template]);
+  }, [template, draftKey]);
+
+  // Auto-save draft
+  useEffect(() => {
+    if (isDirty.current && (name || exercises.length > 0)) {
+      localStorage.setItem(draftKey, JSON.stringify({ name, exercises }));
+    }
+  }, [name, exercises, draftKey]);
 
   const markDirty = (fn) => (...args) => { isDirty.current = true; fn(...args); };
 
@@ -67,6 +91,7 @@ export default function EditWorkout() {
     setSaving(true);
     await base44.entities.WorkoutTemplate.update(id, { name, exercises });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
+    localStorage.removeItem(draftKey);
     isDirty.current = false;
     setSaving(false);
     navigate(createPageUrl("Workouts"));
@@ -78,6 +103,12 @@ export default function EditWorkout() {
     } else {
       navigate(createPageUrl("Workouts"));
     }
+  };
+
+  const handleDiscard = () => {
+    localStorage.removeItem(draftKey);
+    setShowUnsavedConfirm(false);
+    navigate(createPageUrl("Workouts"));
   };
 
   return (
@@ -142,10 +173,10 @@ export default function EditWorkout() {
             <h2 className="text-base font-bold mb-1">Unsaved Changes</h2>
             <p className="text-sm text-muted-foreground mb-5">You have unsaved changes. Are you sure you want to leave without saving?</p>
             <div className="flex flex-col gap-2">
-              <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save & Exit"}</Button>
-              <Button variant="destructive" onClick={() => { setShowUnsavedConfirm(false); navigate(createPageUrl("Workouts")); }}>Discard Changes</Button>
-              <Button variant="ghost" onClick={() => setShowUnsavedConfirm(false)}>Keep Editing</Button>
-            </div>
+               <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save & Exit"}</Button>
+               <Button variant="destructive" onClick={handleDiscard}>Discard Changes</Button>
+               <Button variant="ghost" onClick={() => setShowUnsavedConfirm(false)}>Keep Editing</Button>
+             </div>
           </div>
         </div>
       )}
