@@ -2,12 +2,14 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import OnboardingGate from '@/components/onboarding/OnboardingGate';
 import SignIn from '@/pages/SignIn';
+import { AnimatePresence, motion } from 'framer-motion';
+import { TabHistoryProvider } from '@/lib/TabHistoryContext';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -17,8 +19,23 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
+const RouteContent = ({ children, pageKey }) => {
+  return (
+    <motion.div
+      key={pageKey}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      transition={{ duration: 0.2 }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const location = useLocation();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -40,26 +57,40 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <OnboardingGate>
-    <Routes>
-      <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          }
-        />
-      ))}
-      <Route path="/SignIn" element={<SignIn />} />
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={
+            <RouteContent pageKey="/">
+              <LayoutWrapper currentPageName={mainPageKey}>
+                <MainPage />
+              </LayoutWrapper>
+            </RouteContent>
+          } />
+          {Object.entries(Pages).map(([path, Page]) => (
+            <Route
+              key={path}
+              path={`/${path}`}
+              element={
+                <RouteContent pageKey={path}>
+                  <LayoutWrapper currentPageName={path}>
+                    <Page />
+                  </LayoutWrapper>
+                </RouteContent>
+              }
+            />
+          ))}
+          <Route path="/SignIn" element={
+            <RouteContent pageKey="/SignIn">
+              <SignIn />
+            </RouteContent>
+          } />
+          <Route path="*" element={
+            <RouteContent pageKey="404">
+              <PageNotFound />
+            </RouteContent>
+          } />
+        </Routes>
+      </AnimatePresence>
     </OnboardingGate>
   );
 };
@@ -71,7 +102,9 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <AuthenticatedApp />
+          <TabHistoryProvider>
+            <AuthenticatedApp />
+          </TabHistoryProvider>
         </Router>
         <Toaster />
       </QueryClientProvider>
