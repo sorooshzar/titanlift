@@ -37,7 +37,7 @@ const GROUP_TO_MUSCLE = {
   "Adductors":         "Adductors",
   "Abductors":         "Abductors",
   "Calves":            "Calves",
-  "Neck":              null,
+  "Neck":              "Neck",
   // Back
   "Traps":             "Traps",
   "Mid Back":          "Mid Back",
@@ -72,6 +72,7 @@ const MUSCLE_LABELS = {
   "Erectors":       "Erectors",
   "Glutes":         "Glutes",
   "Hamstrings":     "Hamstrings",
+  "Neck":           "Neck",
 };
 
 // Front SVG path data (viewBox: 0 0 663 1509)
