@@ -60,6 +60,7 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      <Route path="/SignIn" element={<SignIn />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </OnboardingGate>
