@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 import { X } from "lucide-react";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
+
+// Parse workout frequency from onboarding answer like "3-4" → upper bound
+function parseWorkoutGoal(daysPerWeek) {
+  if (!daysPerWeek) return 4;
+  const parts = String(daysPerWeek).split("-");
+  return parseInt(parts[parts.length - 1]) || 4;
+}
 
 // ─── Measurement Tracker ──────────────────────────────────────────────────────
 export function MeasurementTracker({ tracker, onRemove }) {
