@@ -18,6 +18,7 @@ import { MeasurementTracker, ExerciseTracker, HabitsTracker, MacrosTracker } fro
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
 import { computeRecovery } from "@/components/utils/recoveryEngine";
 import { computeMuscleRanks } from "@/components/utils/rankEngine";
+import { calculateMuscleRanks } from "@/components/utils/muscleRankCalculator";
 import MuscleRankModal from "../components/profile/MuscleRankModal";
 import NutritionRankCard from "../components/macros/NutritionRank";
 import { computeNutritionStreak } from "../components/macros/NutritionRank";
@@ -195,9 +196,19 @@ export default function Profile() {
   const latestWeightKg = bodyWeights[0]?.weight;
   const latestWeightDisplay = latestWeightKg ? toDisplay(latestWeightKg) : null;
 
+  // Use new dynamic muscle rank calculator based on impressiveness scores
+  const [dynamicMuscleRanks, setDynamicMuscleRanks] = useState({});
+
+  useEffect(() => {
+    calculateMuscleRanks().then(ranks => setDynamicMuscleRanks(ranks));
+  }, [workoutLogs]);
+
+  // Fallback to old system if dynamic ranks not available
   const muscleRankDetails = computeMuscleRanks(workoutLogs, latestWeightKg || 80);
-  const muscleRankNames = {};
-  Object.keys(muscleRankDetails).forEach(m => { muscleRankNames[m] = muscleRankDetails[m].rank.name; });
+  const muscleRankNames = Object.keys(dynamicMuscleRanks).length > 0 ? dynamicMuscleRanks : {};
+  if (Object.keys(muscleRankNames).length === 0) {
+    Object.keys(muscleRankDetails).forEach(m => { muscleRankNames[m] = muscleRankDetails[m].rank.name; });
+  }
 
   // totalVolume always in kg for XP — never affected by unit toggle
   const totalVolume = workoutLogs.reduce((s, l) => s + (l.total_volume || 0), 0);
