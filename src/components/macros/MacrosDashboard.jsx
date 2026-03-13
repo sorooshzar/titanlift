@@ -122,9 +122,12 @@ export default function MacrosDashboard({ date, macroGoals }) {
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-sm font-bold">Macronutrients</h2>
           {/* Nutrition Rank badge */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border" style={{ borderColor: rank.color }}>
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: rank.color }} />
-            <span className="text-[10px] font-bold" style={{ color: rank.color }}>{rank.name}</span>
+          <div className="flex items-center gap-2">
+            <NutritionBadge levelData={rank} size="sm" />
+            <div>
+              <p className="text-[9px] text-muted-foreground leading-none">Level {rank.level}</p>
+              <p className="text-[11px] font-bold leading-tight" style={{ color: rank.color }}>{rank.name}</p>
+            </div>
           </div>
         </div>
 
