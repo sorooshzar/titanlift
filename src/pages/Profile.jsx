@@ -372,14 +372,14 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
             {/* Muscle model — left */}
             <div className="shrink-0" style={{ width: 290 }}>
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
-            {/* Legend — far right, vertically centered */}
-            <div className="flex flex-col items-end justify-center -ml-32">
+            {/* Legend — next to model, vertically centered */}
+            <div className="flex flex-col items-start justify-center">
               <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mb-3">
                 {showRecovery ? "Recovery" : "Muscle Rank"}
               </p>
