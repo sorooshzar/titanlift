@@ -8,7 +8,7 @@ export default function OnboardingGate({ children }) {
   useEffect(() => {
     base44.auth.me()
       .then(user => {
-        if (user?.onboarding_completed) {
+        if (false && user?.onboarding_completed) {
           setStatus("done");
         } else {
           setStatus("show_onboarding");
