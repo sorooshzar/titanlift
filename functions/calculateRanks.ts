@@ -236,7 +236,6 @@ Deno.serve(async (req) => {
     });
 
     // Save muscle ranks to UserMuscleRank entity (overwrite existing)
-    const user = await base44.auth.me();
     if (user) {
       // Delete old muscle rank entries for this user
       const existing = await base44.asServiceRole.entities.UserMuscleRank.filter({ created_by: user.email }, null, 1000);
