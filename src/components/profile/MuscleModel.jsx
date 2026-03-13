@@ -235,13 +235,15 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
     const muscleName = GROUP_TO_MUSCLE[groupId];
     if (!muscleName) return null;
     if (showRecovery) {
-      // recoveryData is keyed by lowercase group name (from workout log muscle_group field)
       const key = muscleName.toLowerCase();
       const state = recoveryData[key] || "fresh";
       const idx = RECOVERY_ORDER.indexOf(state);
       return idx >= 0 ? RECOVERY_COLORS[idx] : RECOVERY_COLORS[0];
     }
-    const idx = RANK_ORDER.indexOf(muscleRanks[muscleName]);
+    // Use calculated rank from muscleRanks prop
+    const rankName = muscleRanks[muscleName];
+    if (!rankName) return "#B8B8B8";
+    const idx = RANK_ORDER.indexOf(rankName);
     return idx >= 0 ? RANK_COLORS[idx] : "#B8B8B8";
   };
 
