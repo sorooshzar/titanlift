@@ -30,16 +30,18 @@ export default function SlideWelcome({ onNext }) {
         transition={{ delay: 0.35 }}
         className="w-full max-w-xs space-y-3 mb-10"
       >
-        {[
-          { icon: Zap, label: "Smart workout tracking" },
-          { icon: BarChart2, label: "Muscle rank progression" },
-          { icon: Apple, label: "Macro & nutrition tracking" },
-        ].map(({ icon: Icon, label }) => (
-          <div key={label} className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3 text-left">
-            <Icon className="w-4 h-4 text-primary shrink-0" />
-            <span className="text-sm font-medium">{label}</span>
-          </div>
-        ))}
+        <div className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3 text-left">
+          <Zap className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-sm font-medium">Smart workout tracking</span>
+        </div>
+        <div className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3 text-left">
+          <BarChart2 className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-sm font-medium">Muscle rank progression</span>
+        </div>
+        <div className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3 text-left">
+          <Apple className="w-4 h-4 text-primary shrink-0" />
+          <span className="text-sm font-medium">Macro & nutrition tracking</span>
+        </div>
       </motion.div>
 
       <motion.div
