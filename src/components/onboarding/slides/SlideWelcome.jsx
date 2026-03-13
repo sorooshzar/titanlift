@@ -81,6 +81,20 @@ export default function SlideWelcome({ onNext }) {
         >
           Already have an account? Log In
         </button>
+        {/* Dark mode toggle */}
+        <div className="flex items-center justify-center gap-2 pt-1">
+          <Sun className="w-3.5 h-3.5 text-muted-foreground" />
+          <button
+            onClick={toggleDark}
+            className={`relative w-10 h-5.5 rounded-full transition-colors ${darkMode ? "bg-primary" : "bg-secondary"}`}
+            style={{ height: "22px" }}
+          >
+            <span
+              className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${darkMode ? "translate-x-5" : "translate-x-0.5"}`}
+            />
+          </button>
+          <Moon className="w-3.5 h-3.5 text-muted-foreground" />
+        </div>
         <p className="text-xs text-muted-foreground">Takes about 2 minutes to set up</p>
       </motion.div>
     </div>
