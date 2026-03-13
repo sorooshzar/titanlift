@@ -346,7 +346,7 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
         </AnimatePresence>
       </div>
 
-      <p className="text-center text-[10px] text-muted-foreground mt-1">Tap muscle to find exercises · Swipe to flip</p>
+      {!compact && <p className="text-center text-[10px] text-muted-foreground mt-1">Tap muscle to find exercises · Swipe to flip</p>}
 
       {/* Muscle click popup */}
       <AnimatePresence>
