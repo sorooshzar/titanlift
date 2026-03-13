@@ -159,13 +159,13 @@ export default function ActiveWorkoutSheet() {
       total_sets: totalSets,
     };
 
-    await base44.entities.WorkoutLog.create(logData);
+    const createdLog = await base44.entities.WorkoutLog.create(logData);
     queryClient.invalidateQueries({ queryKey: ["workoutLogs"] });
 
     // Confetti
     confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, ticks: 120 });
 
-    endWorkout(logData);
+    endWorkout({ ...logData, id: createdLog.id });
     navigate(createPageUrl("WorkoutSummary"));
   };
 
