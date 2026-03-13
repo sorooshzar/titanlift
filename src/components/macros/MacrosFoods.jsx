@@ -10,7 +10,7 @@ import FoodDetailModal from "./FoodDetailModal";
 const PROTEIN_COLOR = "#FF0055";
 const CARBS_COLOR = "#00AAFF";
 const FAT_COLOR = "#00CC66";
-const KCAL_COLOR = "#FF9500";
+const KCAL_COLOR = "#FFD700";
 
 function FoodRow({ food, onSelect }) {
   const icon = getFoodIcon(food.name);
@@ -26,16 +26,16 @@ function FoodRow({ food, onSelect }) {
       </div>
       <div className="flex gap-2 shrink-0 items-center">
         <span className="text-[11px] font-bold" style={{ color: PROTEIN_COLOR }}>
-          P{Math.round(food.protein_per_100g || 0)}
+          P{Math.round((food.protein_per_100g || 0) * (food.serving_size || 100) / 100)}
         </span>
         <span className="text-[11px] font-bold" style={{ color: CARBS_COLOR }}>
-          C{Math.round(food.carbs_per_100g || 0)}
+          C{Math.round((food.carbs_per_100g || 0) * (food.serving_size || 100) / 100)}
         </span>
         <span className="text-[11px] font-bold" style={{ color: FAT_COLOR }}>
-          F{Math.round(food.fat_per_100g || 0)}
+          F{Math.round((food.fat_per_100g || 0) * (food.serving_size || 100) / 100)}
         </span>
         <span className="text-[11px] font-bold" style={{ color: KCAL_COLOR }}>
-          {Math.round(food.calories_per_100g || 0)}
+          🔥{Math.round((food.calories_per_100g || 0) * (food.serving_size || 100) / 100)}
         </span>
       </div>
     </button>
@@ -213,7 +213,7 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
           mealType={addingMeal}
           date={date}
           onClose={() => setSelectedFood(null)}
-          onAdd={addingMeal ? (data) => { onAdd(data); onClearMeal(); setSelectedFood(null); } : null}
+          onAdd={(data) => { onAdd(data); onClearMeal(); setSelectedFood(null); }}
         />
       )}
     </div>
