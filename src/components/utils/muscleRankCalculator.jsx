@@ -57,15 +57,36 @@ export async function calculateMuscleRanks() {
     const logs = await base44.entities.WorkoutLog.list("-finished_at", 200);
     
     const muscleScores = {};
+    const muscleLookup = {
+      "Upper Chest": "Upper Chest",
+      "Mid/Low Chest": "Mid/Low Chest",
+      "Lats": "Lats",
+      "Mid Back": "Mid Back",
+      "Traps": "Traps",
+      "Rear Delt": "Rear Delt",
+      "Front Delt": "Front Delt",
+      "Side Delt": "Side Delt",
+      "Biceps": "Biceps",
+      "Triceps": "Triceps",
+      "Quads": "Quads",
+      "Hamstrings": "Hamstrings",
+      "Glutes": "Glutes",
+      "Calves": "Calves",
+      "Erectors": "Erectors",
+    };
 
     // Collect impressiveness scores per muscle (last 5)
     logs.forEach(log => {
       log.exercises?.forEach(ex => {
-        if (ex.impressiveness_score && ex.muscle_group) {
-          if (!muscleScores[ex.muscle_group]) {
-            muscleScores[ex.muscle_group] = [];
+        if (ex.impressiveness_score !== undefined && ex.impressiveness_score !== null && ex.impressiveness_score > 0) {
+          const muscleGroup = ex.muscle_group || "";
+          if (muscleGroup && muscleLookup[muscleGroup]) {
+            const normalizedMuscle = muscleLookup[muscleGroup];
+            if (!muscleScores[normalizedMuscle]) {
+              muscleScores[normalizedMuscle] = [];
+            }
+            muscleScores[normalizedMuscle].push(ex.impressiveness_score);
           }
-          muscleScores[ex.muscle_group].push(ex.impressiveness_score);
         }
       });
     });
