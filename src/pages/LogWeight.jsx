@@ -11,7 +11,9 @@ import { format } from "date-fns";
 export default function LogWeight() {
   const [weight, setWeight] = useState("");
   const [unit, setUnit] = useState("kg");
-  const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const todayLocal = new Date();
+  const todayStr = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, "0")}-${String(todayLocal.getDate()).padStart(2, "0")}`;
+  const [date, setDate] = useState(todayStr);
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
