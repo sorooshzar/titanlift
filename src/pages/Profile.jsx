@@ -331,16 +331,16 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex gap-3 items-start">
-            {/* Muscle model — smaller, left-aligned */}
-            <div className="shrink-0" style={{ width: 140 }}>
+          <div className="flex items-start" style={{ marginLeft: 8 }}>
+            {/* Muscle model — shifted slightly right, larger */}
+            <div className="shrink-0" style={{ width: 158 }}>
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
-            {/* Legend stacked on right */}
-            <div className="flex-1 min-w-0">
+            {/* Legend — pushed further right, circles perfectly aligned, names center-aligned */}
+            <div className="flex-1 min-w-0 ml-4">
               {!showRecovery ? (
-                <div className="space-y-1">
+                <div>
                   <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">Muscle Rank</p>
                   {[
                     { name: "Wood", color: "#8B6914" },
@@ -353,14 +353,14 @@ export default function Profile() {
                     { name: "Titan", color: "#E74C3C" },
                     { name: "Olympian", color: "#FF6B35" },
                   ].map(r => (
-                    <div key={r.name} className="flex items-center gap-2 py-0.5">
+                    <div key={r.name} className="flex items-center py-0.5" style={{ gap: 8 }}>
                       <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                      <span className="text-[11px] font-semibold" style={{ color: r.color }}>{r.name}</span>
+                      <span className="text-[11px] font-semibold w-full text-center" style={{ color: r.color }}>{r.name}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="space-y-1">
+                <div>
                   <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">Recovery</p>
                   {[
                     { name: "Ready", color: "#22c55e" },
@@ -369,9 +369,9 @@ export default function Profile() {
                     { name: "Heavy", color: "#f97316" },
                     { name: "Sore", color: "#ef4444" },
                   ].map(r => (
-                    <div key={r.name} className="flex items-center gap-2 py-0.5">
+                    <div key={r.name} className="flex items-center py-0.5" style={{ gap: 8 }}>
                       <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                      <span className="text-[11px] font-semibold" style={{ color: r.color }}>{r.name}</span>
+                      <span className="text-[11px] font-semibold w-full text-center" style={{ color: r.color }}>{r.name}</span>
                     </div>
                   ))}
                 </div>
