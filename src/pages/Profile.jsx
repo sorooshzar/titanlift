@@ -26,7 +26,10 @@ import { subDays, format as fmtDate } from "date-fns";
 
 function LogWeightModal({ onClose }) {
   const [weight, setWeight] = useState("");
-  const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  // Use local date (not UTC) to avoid timezone-off-by-one
+  const todayLocal = new Date();
+  const todayStr = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, "0")}-${String(todayLocal.getDate()).padStart(2, "0")}`;
+  const [date, setDate] = useState(todayStr);
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
   const { unit, toKg } = useWeightUnit();
