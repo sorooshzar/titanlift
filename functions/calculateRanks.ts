@@ -104,26 +104,27 @@ function getRankFromScore(score, muscleName) {
 }
 
 function calculateImpressionessScore(e1rm, bodyweightKg, exerciseName, userGender) {
-  let factors = IMPRESSIVENESS_FACTORS[exerciseName];
-  
-  // If not found, try matching partial name
-  if (!factors) {
-    for (const [key, value] of Object.entries(IMPRESSIVENESS_FACTORS)) {
-      if (exerciseName.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(exerciseName.toLowerCase())) {
-        factors = value;
-        break;
-      }
-    }
-  }
-  
-  // Default if still not found
-  if (!factors) {
-    factors = { male: 100, female: 100 };
-  }
-  
-  const factor = userGender === "female" ? factors.female : factors.male;
-  const ratio = e1rm / bodyweightKg;
-  return ratio * factor;
+   let factors = IMPRESSIVENESS_FACTORS[exerciseName];
+
+   // If not found, try matching partial name (remove brackets for matching)
+   if (!factors) {
+     const cleanName = exerciseName.replace(/\[.*?\]/g, '').trim();
+     for (const [key, value] of Object.entries(IMPRESSIVENESS_FACTORS)) {
+       if (cleanName.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(cleanName.toLowerCase())) {
+         factors = value;
+         break;
+       }
+     }
+   }
+
+   // Default if still not found - use 1.0 (no amplification, just e1rm/bodyweight ratio)
+   if (!factors) {
+     factors = { male: 1.0, female: 1.0 };
+   }
+
+   const factor = userGender === "female" ? factors.female : factors.male;
+   const ratio = e1rm / bodyweightKg;
+   return ratio * factor;
 }
 
 Deno.serve(async (req) => {
