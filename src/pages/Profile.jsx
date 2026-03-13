@@ -235,8 +235,15 @@ export default function Profile() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1.5">
-              <p className="font-bold text-sm truncate">{user?.full_name || "Athlete"}</p>
-              <div className="flex gap-3 shrink-0">
+              <div className="flex gap-3 shrink-0 flex-wrap">
+                {(() => {
+                  const heightCm = user?.height_cm;
+                  const weightKg = latestWeightKg;
+                  const bmi = heightCm && weightKg ? (weightKg / Math.pow(heightCm / 100, 2)) : null;
+                  return bmi ? (
+                    <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{bmi.toFixed(1)}</span> BMI</span>
+                  ) : null;
+                })()}
                 <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{workoutLogs.length}</span> workouts</span>
                 <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{latestWeightDisplay ? `${latestWeightDisplay}${weightUnit}` : "--"}</span> weight</span>
               </div>
