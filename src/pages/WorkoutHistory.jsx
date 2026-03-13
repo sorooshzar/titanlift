@@ -179,7 +179,7 @@ export default function WorkoutHistory() {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-5 pb-6 space-y-4">
+    <div className="max-w-lg mx-auto px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-6 space-y-4">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />

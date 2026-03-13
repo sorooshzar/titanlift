@@ -31,7 +31,7 @@ export default function LogWeight() {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-6">
+    <div className="max-w-lg mx-auto px-4 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-8">
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
         <Link to={createPageUrl("Profile")}>

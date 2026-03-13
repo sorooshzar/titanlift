@@ -8,6 +8,8 @@ import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useActiveWorkout } from "../components/workout/ActiveWorkoutContext";
+import PullToRefresh from "../components/mobile/PullToRefresh";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -309,10 +311,14 @@ function ExercisesTab() {
 }
 
 export default function Lifts() {
-  const [tab, setTab] = useState(TABS.WORKOUTS);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+   const [tab, setTab] = useState(TABS.WORKOUTS);
+   const location = useLocation();
+   const navigate = useNavigate();
+   const queryClient = useQueryClient();
+
+   const handleRefresh = async () => {
+     await queryClient.invalidateQueries({ queryKey: ["templates", "folders"] });
+   };
   const { startWorkout } = useActiveWorkout();
   const touchStartX = useRef(null);
 
@@ -340,9 +346,10 @@ export default function Lifts() {
   };
 
   return (
+     <PullToRefresh onRefresh={handleRefresh}>
      <div className="max-w-lg mx-auto pb-4" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
        {/* Sticky Header */}
-         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-3 border-b border-border/30">
+       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-3 border-b border-border/30">
          <div className="flex items-center justify-between">
            <h1 className="text-2xl font-bold">Lifts</h1>
            <div className="flex bg-secondary rounded-xl p-1">
@@ -376,7 +383,8 @@ export default function Lifts() {
         ) : (
           <ExercisesTab />
         )}
-      </div>
-    </div>
-  );
-}
+        </div>
+        </div>
+        </PullToRefresh>
+        );
+        }

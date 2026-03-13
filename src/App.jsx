@@ -10,6 +10,7 @@ import OnboardingGate from '@/components/onboarding/OnboardingGate';
 import SignIn from '@/pages/SignIn';
 import { AnimatePresence, motion } from 'framer-motion'
 import { Navigate } from 'react-router-dom';
+import { TabStateProvider } from '@/components/mobile/TabStateManager';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -102,7 +103,9 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <AuthenticatedApp />
+          <TabStateProvider>
+            <AuthenticatedApp />
+          </TabStateProvider>
         </Router>
         <Toaster />
       </QueryClientProvider>

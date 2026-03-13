@@ -65,15 +65,17 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
     @apply bg-background text-foreground font-inter;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
   }
-  button, [role="button"], svg {
+  button, [role="button"], svg, input {
     user-select: none;
     -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
