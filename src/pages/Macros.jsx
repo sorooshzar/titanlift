@@ -1,10 +1,75 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import MacrosDashboard from "../components/macros/MacrosDashboard";
 import MacrosJournal from "../components/macros/MacrosJournal";
 import MacrosFoods from "../components/macros/MacrosFoods";
+import FoodDetailModal from "../components/macros/FoodDetailModal";
+
+// Mini calendar popover
+function MiniCalendar({ date, onSelect, onClose }) {
+  const [viewDate, setViewDate] = React.useState(new Date(date + "T12:00:00"));
+  const today = new Date();
+
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const prevMonth = () => setViewDate(new Date(year, month - 1, 1));
+  const nextMonth = () => setViewDate(new Date(year, month + 1, 1));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-32" onClick={onClose}>
+      <div
+        className="bg-card border border-border rounded-2xl shadow-xl p-4 w-72"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary">
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <p className="text-sm font-bold">{format(viewDate, "MMMM yyyy")}</p>
+          <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary">
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="grid grid-cols-7 gap-0.5 text-center mb-1">
+          {["S","M","T","W","T","F","S"].map((d, i) => (
+            <p key={i} className="text-[10px] text-muted-foreground font-semibold py-1">{d}</p>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-0.5">
+          {cells.map((d, i) => {
+            if (!d) return <div key={i} />;
+            const cellDate = format(new Date(year, month, d), "yyyy-MM-dd");
+            const isSelected = cellDate === date;
+            const isToday = cellDate === format(today, "yyyy-MM-dd");
+            return (
+              <button
+                key={i}
+                onClick={() => { onSelect(cellDate); onClose(); }}
+                className={`h-8 w-8 mx-auto flex items-center justify-center rounded-full text-xs font-medium transition-colors ${
+                  isSelected ? "bg-primary text-primary-foreground" :
+                  isToday ? "border border-primary text-primary" :
+                  "hover:bg-secondary"
+                }`}
+              >
+                {d}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function useMacroGoals() {
   const [goals, setGoals] = React.useState({ calories: 2000, protein: 150, carbs: 200, fat: 65 });
@@ -42,7 +107,19 @@ export default function Macros() {
   const urlParams = new URLSearchParams(window.location.search);
   const [tab, setTab] = useState(urlParams.get("tab") || "dashboard");
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [addingMeal, setAddingMeal] = useState(null);
+  const [editingEntry, setEditingEntry] = useState(null); // {entry, food}
   const queryClient = useQueryClient();
+
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const isCurrentDay = date === todayStr;
+  const dateObj = new Date(date + "T12:00:00");
+
+  const goBack = () => setDate(format(subDays(dateObj, 1), "yyyy-MM-dd"));
+  const goForward = () => setDate(format(addDays(dateObj, 1), "yyyy-MM-dd"));
+
+  const displayLabel = isCurrentDay ? "Today" : format(dateObj, "MMM d");
 
   const { data: entries = [] } = useQuery({
     queryKey: ["macroEntries", date],
@@ -64,40 +141,68 @@ export default function Macros() {
     queryClient.invalidateQueries({ queryKey: ["macroEntries", date] });
   };
 
+  const handleUpdateEntry = async (id, data) => {
+    await base44.entities.MacroEntry.update(id, data);
+    queryClient.invalidateQueries({ queryKey: ["macroEntries", date] });
+  };
+
   const handleDelete = async (id) => {
     await base44.entities.MacroEntry.delete(id);
     queryClient.invalidateQueries({ queryKey: ["macroEntries", date] });
   };
-
-  // When journal plus is clicked → navigate to Foods tab with meal context
-  const [addingMeal, setAddingMeal] = useState(null);
 
   const handleAddToMeal = (meal) => {
     setAddingMeal(meal);
     setTab("foods");
   };
 
+  // When user clicks a logged food entry — open FoodDetailModal in edit mode
+  const handleEditEntry = (entry) => {
+    // We need the food object to compute macros. Build it from per-100g stored on entry
+    const impliedFood = {
+      id: entry.food_id,
+      name: entry.food_name,
+      calories_per_100g: entry.quantity > 0 ? (entry.calories / entry.quantity) * 100 : 0,
+      protein_per_100g: entry.quantity > 0 ? (entry.protein / entry.quantity) * 100 : 0,
+      carbs_per_100g: entry.quantity > 0 ? (entry.carbs / entry.quantity) * 100 : 0,
+      fat_per_100g: entry.quantity > 0 ? (entry.fat / entry.quantity) * 100 : 0,
+      serving_size: entry.quantity,
+    };
+    setEditingEntry({ entry, food: impliedFood });
+  };
+
   return (
     <div className="max-w-lg mx-auto px-4 pt-5 pb-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      {/* Header row: Title + date picker */}
+      <div className="flex items-center justify-between mb-3">
         <h1 className="text-2xl font-bold">Macros</h1>
-        {addingMeal && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Adding to</span>
-            <span className="text-xs font-bold capitalize bg-secondary px-2 py-1 rounded-lg">{addingMeal}</span>
-            <button
-              onClick={() => setAddingMeal(null)}
-              className="text-xs text-muted-foreground underline"
-            >
-              cancel
-            </button>
-          </div>
-        )}
+
+        {/* Compact date navigator — slightly left of center */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={goBack}
+            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setShowCalendar(true)}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-secondary transition-colors"
+          >
+            <Calendar className="w-3 h-3 text-muted-foreground" />
+            <span className="text-xs font-semibold">{displayLabel}</span>
+          </button>
+          <button
+            onClick={goForward}
+            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Tab bar */}
-      <div className="flex bg-secondary rounded-xl p-1 mb-5">
+      <div className="flex bg-secondary rounded-xl p-1 mb-4">
         {TABS.map(t => (
           <button
             key={t.id}
@@ -120,9 +225,11 @@ export default function Macros() {
           date={date}
           entries={entries}
           macroGoals={macroGoals}
+          dailyTotals={dailyTotals}
           onAddToMeal={handleAddToMeal}
           onDeleteEntry={handleDelete}
           onDateChange={setDate}
+          onEditEntry={handleEditEntry}
         />
       )}
 
@@ -134,6 +241,34 @@ export default function Macros() {
           addingMeal={addingMeal}
           onAdd={handleAddEntry}
           onClearMeal={() => setAddingMeal(null)}
+        />
+      )}
+
+      {/* Mini calendar */}
+      {showCalendar && (
+        <MiniCalendar
+          date={date}
+          onSelect={setDate}
+          onClose={() => setShowCalendar(false)}
+        />
+      )}
+
+      {/* Edit logged food */}
+      {editingEntry && (
+        <FoodDetailModal
+          food={editingEntry.food}
+          macroGoals={macroGoals}
+          dailyTotals={dailyTotals}
+          mealType={editingEntry.entry.meal_type}
+          date={date}
+          editEntryId={editingEntry.entry.id}
+          initialQty={editingEntry.entry.quantity}
+          onClose={() => setEditingEntry(null)}
+          onUpdate={async (id, data) => {
+            await handleUpdateEntry(id, data);
+            setEditingEntry(null);
+          }}
+          onAdd={null}
         />
       )}
     </div>
