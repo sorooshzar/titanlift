@@ -239,7 +239,7 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
       return idx >= 0 ? RECOVERY_COLORS[idx] : RECOVERY_COLORS[0];
     }
     const idx = RANK_ORDER.indexOf(muscleRanks[muscleName]);
-    return idx >= 0 ? RANK_COLORS[idx] : "#3a3a3a";
+    return idx >= 0 ? RANK_COLORS[idx] : "#B8B8B8";
   };
 
   const handleMuscleClick = (groupId) => {
