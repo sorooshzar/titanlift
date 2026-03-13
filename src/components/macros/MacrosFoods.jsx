@@ -30,19 +30,20 @@ function FoodRow({ food, onSelect }) {
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold truncate">{food.name}</p>
-        {food.brand && <p className="text-[11px] text-muted-foreground truncate">{food.brand}</p>}
+        <div className="flex items-baseline gap-1 min-w-0">
+          <p className="text-sm font-semibold truncate">{food.name}</p>
+          {food.brand && <span className="text-[10px] text-muted-foreground shrink-0 italic">{food.brand}</span>}
+        </div>
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-          <span className="text-[10px] font-bold" style={{ color: PROTEIN_COLOR }}>P{protein}g</span>
+          <span className="text-[10px] font-bold" style={{ color: PROTEIN_COLOR }}>P:{protein}g</span>
           <span className="text-[10px] text-muted-foreground">·</span>
-          <span className="text-[10px] font-bold" style={{ color: CARBS_COLOR }}>C{carbs}g</span>
+          <span className="text-[10px] font-bold" style={{ color: CARBS_COLOR }}>C:{carbs}g</span>
           <span className="text-[10px] text-muted-foreground">·</span>
-          <span className="text-[10px] font-bold" style={{ color: FAT_COLOR }}>F{fat}g</span>
+          <span className="text-[10px] font-bold" style={{ color: FAT_COLOR }}>F:{fat}g</span>
         </div>
       </div>
-      <div className="flex flex-col items-center gap-0 shrink-0">
-        <span className="text-sm font-bold leading-tight" style={{ color: KCAL_COLOR }}>🔥{cal}</span>
-        <span className="text-[9px] text-muted-foreground leading-tight">kcal</span>
+      <div className="flex items-center shrink-0">
+        <span className="text-sm font-bold" style={{ color: KCAL_COLOR }}>🔥{cal}</span>
       </div>
     </button>
   );

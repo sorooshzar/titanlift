@@ -17,7 +17,8 @@ export default function WeightChart({ data = [], goalWeight = null }) {
   const chartData = Object.values(byDay)
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .map(d => ({
-      date: format(new Date(d.date), "MMM d"),
+      // Parse date string as local date to avoid UTC timezone shift
+      date: (() => { const [y, m, day] = d.date.split("-"); return format(new Date(+y, +m - 1, +day), "MMM d"); })(),
       weight: toDisplay(d.weight),
     }));
 
