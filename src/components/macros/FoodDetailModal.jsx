@@ -206,6 +206,7 @@ export default function FoodDetailModal({
           onDone={handleQtyDone}
           onLog={onAdd ? handleQtyLog : null}
           onClose={() => setShowQtyPicker(false)}
+          preselectedMeal={mealType || null}
         />
       )}
     </>
