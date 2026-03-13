@@ -1,8 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Dumbbell, Zap, BarChart2, Apple } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 
 export default function SlideWelcome({ onNext }) {
+  const handleLogin = () => {
+    base44.auth.redirectToLogin();
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 text-center">
       <motion.div
@@ -56,9 +61,13 @@ export default function SlideWelcome({ onNext }) {
         >
           Get Started 🚀
         </button>
-        <p className="text-xs text-muted-foreground">
-          Takes about 2 minutes to set up
-        </p>
+        <button
+          onClick={handleLogin}
+          className="w-full h-12 rounded-2xl bg-secondary text-foreground text-sm font-semibold active:scale-[0.98] transition-transform"
+        >
+          Already have an account? Log In
+        </button>
+        <p className="text-xs text-muted-foreground">Takes about 2 minutes to set up</p>
       </motion.div>
     </div>
   );
