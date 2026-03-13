@@ -1,36 +1,38 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 import SlideWelcome from "./slides/SlideWelcome";
 import SlideGoal from "./slides/SlideGoal";
 import SlideExperience from "./slides/SlideExperience";
 import SlideBio from "./slides/SlideBio";
+import SlideUnits from "./slides/SlideUnits";
 import SlideMeasurements from "./slides/SlideMeasurements";
 import SlideActivity from "./slides/SlideActivity";
 import SlideFrequency from "./slides/SlideFrequency";
 import SlideNutrition from "./slides/SlideNutrition";
 import SlideMacros from "./slides/SlideMacros";
-import SlideUnits from "./slides/SlideUnits";
 import SlideWeekStart from "./slides/SlideWeekStart";
 import SlideWorkoutStyle from "./slides/SlideWorkoutStyle";
 import SlideSummary from "./slides/SlideSummary";
+import SlideAccount from "./slides/SlideAccount";
 
 const SLIDES = [
-  { id: "welcome",       component: SlideWelcome,      optional: false, title: "Welcome" },
-  { id: "goal",          component: SlideGoal,          optional: false, title: "Your Goal" },
-  { id: "experience",    component: SlideExperience,    optional: false, title: "Experience" },
-  { id: "bio",           component: SlideBio,           optional: false, title: "About You" },
-  { id: "measurements",  component: SlideMeasurements,  optional: true,  title: "Body Stats" },
-  { id: "activity",      component: SlideActivity,      optional: false, title: "Activity Level" },
-  { id: "frequency",     component: SlideFrequency,     optional: false, title: "Training Days" },
-  { id: "nutrition",     component: SlideNutrition,     optional: false, title: "Nutrition" },
-  { id: "macros",        component: SlideMacros,        optional: true,  title: "Macros" },
-  { id: "units",         component: SlideUnits,         optional: false, title: "Units" },
-  { id: "weekstart",     component: SlideWeekStart,     optional: false, title: "Week Start" },
-  { id: "workoutstyle",  component: SlideWorkoutStyle,  optional: true,  title: "Workout Style" },
-  { id: "summary",       component: SlideSummary,       optional: false, title: "All Set!" },
+  { id: "welcome",      component: SlideWelcome,      title: "Welcome" },
+  { id: "goal",         component: SlideGoal,          title: "Your Goal" },
+  { id: "experience",   component: SlideExperience,    title: "Experience" },
+  { id: "bio",          component: SlideBio,           title: "About You" },
+  { id: "units",        component: SlideUnits,         title: "Units" },
+  { id: "measurements", component: SlideMeasurements,  title: "Body Stats" },
+  { id: "activity",     component: SlideActivity,      title: "Activity Level" },
+  { id: "frequency",    component: SlideFrequency,     title: "Training Days" },
+  { id: "nutrition",    component: SlideNutrition,     title: "Nutrition" },
+  { id: "macros",       component: SlideMacros,        title: "Macros" },
+  { id: "weekstart",    component: SlideWeekStart,     title: "Week Start" },
+  { id: "workoutstyle", component: SlideWorkoutStyle,  title: "Workout Style" },
+  { id: "summary",      component: SlideSummary,       title: "All Set!" },
+  { id: "account",      component: SlideAccount,       title: "Create Account" },
 ];
 
 export default function OnboardingFlow({ onComplete }) {
@@ -53,6 +55,8 @@ export default function OnboardingFlow({ onComplete }) {
     daily_carbs: null,
     daily_fat: null,
     weight_unit: "kg",
+    distance_unit: "km",
+    length_unit: "cm",
     week_start: "monday",
     workout_style: null,
   });
@@ -61,6 +65,7 @@ export default function OnboardingFlow({ onComplete }) {
   const SlideComponent = slide.component;
   const isLast = step === SLIDES.length - 1;
   const isFirst = step === 0;
+  const isSummary = slide.id === "summary";
 
   const update = (key, value) => setAnswers(prev => ({ ...prev, [key]: value }));
   const updateMany = (obj) => setAnswers(prev => ({ ...prev, ...obj }));
@@ -82,12 +87,12 @@ export default function OnboardingFlow({ onComplete }) {
   const handleFinish = async () => {
     setSaving(true);
     try {
-      // Apply unit preference
       localStorage.setItem("gym-weight-unit", answers.weight_unit);
+      localStorage.setItem("gym-distance-unit", answers.distance_unit);
+      localStorage.setItem("gym-length-unit", answers.length_unit);
       const weekStartVal = answers.week_start === "sunday" ? "0" : "1";
       localStorage.setItem("gym-week-start", weekStartVal);
 
-      // Save to user profile
       await base44.auth.updateMe({
         onboarding_completed: true,
         goal: answers.goal,
@@ -109,7 +114,6 @@ export default function OnboardingFlow({ onComplete }) {
         workout_style: answers.workout_style,
       });
 
-      // Save baseline body weight if provided
       if (answers.weight_kg) {
         await base44.entities.BodyWeight.create({
           weight: answers.weight_kg,
@@ -118,7 +122,6 @@ export default function OnboardingFlow({ onComplete }) {
         });
       }
 
-      // Save macro goals to localStorage for immediate use
       if (answers.daily_calories) {
         localStorage.setItem("gym-macro-calories", String(answers.daily_calories));
         localStorage.setItem("gym-macro-protein", String(answers.daily_protein || 0));
@@ -138,10 +141,12 @@ export default function OnboardingFlow({ onComplete }) {
     exit: (d) => ({ x: d > 0 ? "-60%" : "60%", opacity: 0 }),
   };
 
-  // Progress: skip welcome from count
   const progressSteps = SLIDES.length - 1;
   const progressCurrent = Math.max(0, step - 1);
   const progressPct = step === 0 ? 0 : (progressCurrent / progressSteps) * 100;
+
+  // Hide bottom nav on welcome, summary, and account slides
+  const hideNav = isFirst || isSummary || isLast;
 
   return (
     <div className="fixed inset-0 z-[100] bg-background flex flex-col">
@@ -174,15 +179,15 @@ export default function OnboardingFlow({ onComplete }) {
               update={update}
               updateMany={updateMany}
               onNext={goNext}
-              onFinish={isLast ? handleFinish : undefined}
+              onFinish={isLast ? handleFinish : isSummary ? goNext : undefined}
               saving={saving}
             />
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Nav buttons (hidden on welcome slide and summary) */}
-      {!isFirst && !isLast && (
+      {/* Nav buttons */}
+      {!hideNav && (
         <div className="shrink-0 px-6 pb-8 pt-3 flex items-center justify-between gap-3 border-t border-border/30 bg-background/95 backdrop-blur">
           <button
             onClick={goBack}
@@ -192,14 +197,14 @@ export default function OnboardingFlow({ onComplete }) {
           </button>
 
           <div className="flex gap-1.5">
-            {SLIDES.slice(1, -1).map((_, i) => (
+            {SLIDES.slice(1, -2).map((_, i) => (
               <div
                 key={i}
                 className="rounded-full transition-all duration-300"
                 style={{
                   width: i === step - 1 ? "20px" : "6px",
                   height: "6px",
-                  background: i < step - 1 ? "hsl(var(--primary))" : i === step - 1 ? "hsl(var(--primary))" : "hsl(var(--secondary))",
+                  background: i <= step - 1 ? "hsl(var(--primary))" : "hsl(var(--secondary))",
                   opacity: i <= step - 1 ? 1 : 0.4,
                 }}
               />

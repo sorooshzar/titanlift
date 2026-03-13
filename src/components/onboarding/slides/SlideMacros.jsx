@@ -43,7 +43,7 @@ function calcMacros(answers) {
   return { calories, protein, fat, carbs, tdee };
 }
 
-export default function SlideMacros({ answers, updateMany }) {
+export default function SlideMacros({ answers, updateMany, onNext }) {
   const [editing, setEditing] = useState(false);
   const [custom, setCustom] = useState({ calories: "", protein: "", carbs: "", fat: "" });
 
@@ -70,6 +70,7 @@ export default function SlideMacros({ answers, updateMany }) {
       });
     }
     setEditing(false);
+    onNext?.();
   };
 
   const handleSaveCustom = () => {
