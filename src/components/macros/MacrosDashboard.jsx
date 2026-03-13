@@ -112,8 +112,8 @@ export default function MacrosDashboard({ date, macroGoals }) {
   const hasWaterData = waterData.some(d => d.ml > 0);
 
   const electrolytes = estimateElectrolytes(todayData.protein, todayData.carbs, todayData.fat, todayData.calories);
-  const estimatedSugar = Math.round(todayData.carbs * 0.35); // rough: ~35% of carbs as sugars
-  const rank = getNutritionRank(weekData, macroGoals);
+  const estimatedSugar = Math.round(todayData.carbs * 0.35);
+  const rank = computeNutritionLevel(weekData, waterData, macroGoals);
 
   return (
     <div className="space-y-4">
