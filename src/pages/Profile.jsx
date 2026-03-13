@@ -150,30 +150,16 @@ export default function Profile() {
     queryFn: () => base44.entities.BodyWeight.list("-date", 50),
   });
 
-  // For nutrition rank — fetch last 7 days of macro + water data
-  const last7Dates = Array.from({ length: 7 }, (_, i) =>
-    fmtDate(subDays(new Date(), 6 - i), "yyyy-MM-dd")
-  );
-  const { data: weekMacroRaw } = useQuery({
-    queryKey: ["profileNutritionWeek"],
-    queryFn: async () => Promise.all(
-      last7Dates.map(d => base44.entities.MacroEntry.filter({ date: d }, "-created_date", 100))
-    ),
+  // For nutrition rank — fetch all macro + water entries to compute streak
+  const { data: allMacroEntries = [] } = useQuery({
+    queryKey: ["profileAllMacroEntries"],
+    queryFn: () => base44.entities.MacroEntry.list("-date", 500),
   });
-  const { data: weekWaterRaw } = useQuery({
-    queryKey: ["profileWaterWeek"],
-    queryFn: async () => Promise.all(
-      last7Dates.map(d => base44.entities.WaterLog.filter({ date: d }, "-created_date", 20))
-    ),
+  const { data: allWaterLogs = [] } = useQuery({
+    queryKey: ["profileAllWaterLogs"],
+    queryFn: () => base44.entities.WaterLog.list("-date", 500),
   });
-  const nutritionWeekData = last7Dates.map((d, i) => {
-    const entries = (weekMacroRaw && weekMacroRaw[i]) || [];
-    return { calories: entries.reduce((s, e) => s + (e.calories || 0), 0) };
-  });
-  const nutritionWaterData = last7Dates.map((d, i) => {
-    const logs = (weekWaterRaw && weekWaterRaw[i]) || [];
-    return { ml: logs.reduce((s, l) => s + (l.amount_ml || 0), 0) };
-  });
+  const nutritionStreak = computeNutritionStreak(allMacroEntries, allWaterLogs);
 
   const refetchTrackers = () => queryClient.invalidateQueries({ queryKey: ["userTrackers"] });
   const { data: userTrackers = [] } = useQuery({
