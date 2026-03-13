@@ -381,11 +381,7 @@ export default function Profile() {
         </div>
 
         {/* Nutrition Rank Card */}
-        <NutritionRankCard
-          weekData={nutritionWeekData}
-          waterData={nutritionWaterData}
-          macroGoals={{ calories: 2000 }}
-        />
+        <NutritionRankCard streak={nutritionStreak} />
           </motion.div>
         )}
         </AnimatePresence>
