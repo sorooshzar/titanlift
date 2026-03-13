@@ -90,7 +90,7 @@ export default function Measurements() {
 
   const { data: bodyWeights = [] } = useQuery({
     queryKey: ["bodyWeights"],
-    queryFn: () => base44.entities.BodyWeight.list("-date", 50),
+    queryFn: () => base44.entities.BodyWeight.list("-created_date", 50),
   });
 
   const { data: bodyMeasurements = [] } = useQuery({
