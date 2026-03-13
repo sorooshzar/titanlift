@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Scale } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { format } from "date-fns";
 
 export default function LogWeight() {
   const [weight, setWeight] = useState("");
