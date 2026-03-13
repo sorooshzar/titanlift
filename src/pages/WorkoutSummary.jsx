@@ -25,43 +25,39 @@ export default function WorkoutSummary() {
   const { unit: weightUnit, toDisplay } = useWeightUnit();
   const [userGender, setUserGender] = useState("male");
   const [loading, setLoading] = useState(false);
+  const [displayLog, setDisplayLog] = useState(null);
 
   useEffect(() => {
     if (!completedLog) navigate(createPageUrl("Lifts"), { replace: true });
   }, [completedLog]);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndCalculate = async () => {
+      if (!completedLog?.id) return;
       try {
         const user = await base44.auth.me();
         setUserGender(user?.gender || "male");
-        if (completedLog?.id) {
-          calculateRanks();
+        setLoading(true);
+        
+        const response = await base44.functions.invoke('calculateRanks', {
+          workoutLogId: completedLog.id,
+          userGender: user?.gender || "male"
+        });
+        
+        // Update display log with calculated ranks
+        if (response.data.updatedLog) {
+          setDisplayLog(response.data.updatedLog);
         }
       } catch (err) {
-        console.error("Error fetching user:", err);
+        console.error("Error calculating ranks:", err);
+        setDisplayLog(completedLog);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchUser();
-  }, [completedLog]);
-
-  const calculateRanks = async () => {
-    if (!completedLog?.id) return;
-    setLoading(true);
-    try {
-      const response = await base44.functions.invoke('calculateRanks', {
-        workoutLogId: completedLog.id,
-        userGender
-      });
-      if (response.data.updatedLog) {
-        // Note: The log is updated in the database, this is just for local state if needed
-      }
-    } catch (err) {
-      console.error("Error calculating ranks:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    
+    fetchUserAndCalculate();
+  }, [completedLog?.id]);
 
   if (!completedLog) return null;
 
@@ -69,6 +65,9 @@ export default function WorkoutSummary() {
     clearCompletedLog();
     navigate(createPageUrl("Lifts"), { replace: true });
   };
+
+  // Use displayLog if available (with ranks), otherwise completedLog
+  const logToDisplay = displayLog || completedLog;
 
   let workingSetCounter = {};
 
@@ -85,7 +84,7 @@ export default function WorkoutSummary() {
       {/* Congrats header */}
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6">
         <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-2" />
-        <h1 className="text-2xl font-bold">{completedLog.name}</h1>
+        <h1 className="text-2xl font-bold">{logToDisplay.name}</h1>
         <p className="text-sm text-muted-foreground mt-1">Workout Complete</p>
       </motion.div>
 
@@ -94,24 +93,24 @@ export default function WorkoutSummary() {
         className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-card rounded-xl p-3 text-center border border-border">
           <Clock className="w-4 h-4 text-primary mx-auto mb-1" />
-          <p className="text-lg font-bold">{formatDuration(completedLog.duration_minutes)}</p>
+          <p className="text-lg font-bold">{formatDuration(logToDisplay.duration_minutes)}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Duration</p>
         </div>
         <div className="bg-card rounded-xl p-3 text-center border border-border">
           <BarChart2 className="w-4 h-4 text-primary mx-auto mb-1" />
-          <p className="text-lg font-bold">{toDisplay(completedLog.total_volume)?.toLocaleString() || 0} {weightUnit}</p>
+          <p className="text-lg font-bold">{toDisplay(logToDisplay.total_volume)?.toLocaleString() || 0} {weightUnit}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Volume</p>
         </div>
         <div className="bg-card rounded-xl p-3 text-center border border-border">
           <Dumbbell className="w-4 h-4 text-primary mx-auto mb-1" />
-          <p className="text-lg font-bold">{completedLog.total_sets || 0}</p>
+          <p className="text-lg font-bold">{logToDisplay.total_sets || 0}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sets</p>
         </div>
       </motion.div>
 
       {/* Exercise breakdown */}
       <div className="space-y-3">
-        {completedLog.exercises?.map((ex, exIdx) => {
+        {logToDisplay.exercises?.map((ex, exIdx) => {
           if (!workingSetCounter[exIdx]) workingSetCounter[exIdx] = 0;
           const completedSets = ex.sets?.filter(s => s.completed) || [];
           if (completedSets.length === 0) return null;
