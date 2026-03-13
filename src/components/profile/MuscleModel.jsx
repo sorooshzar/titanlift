@@ -279,12 +279,12 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
   return (
     <div className="relative">
       {/* View toggle */}
-      <div className="flex justify-center gap-2 mb-3">
+      <div className="flex justify-center gap-1.5 mb-2">
         {["front", "back"].map(v => (
           <button key={v} onClick={() => setView(v)}
-            className={`px-4 py-1 rounded-full text-xs font-semibold capitalize transition-all ${
-              view === v ? "bg-primary text-white" : "bg-secondary text-muted-foreground"
-            }`}>
+            className={`rounded-full font-semibold capitalize transition-all ${
+              compact ? "px-2.5 py-0.5 text-[10px]" : "px-4 py-1 text-xs"
+            } ${view === v ? "bg-primary text-white" : "bg-secondary text-muted-foreground"}`}>
             {v}
           </button>
         ))}
