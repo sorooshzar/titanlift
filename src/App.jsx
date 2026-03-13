@@ -33,11 +33,8 @@ const AuthenticatedApp = () => {
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
     }
+    // For auth_required, fall through to OnboardingGate which handles unauthenticated users
   }
 
   // Render the main app
