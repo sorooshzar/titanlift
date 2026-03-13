@@ -99,7 +99,7 @@ function AddFoodForm({ onClose, onCreate }) {
   );
 }
 
-export default function MacrosFoods({ macroGoals, dailyTotals, date }) {
+export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal, onAdd, onClearMeal }) {
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
