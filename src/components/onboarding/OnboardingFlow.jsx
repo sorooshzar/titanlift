@@ -122,6 +122,15 @@ export default function OnboardingFlow({ onComplete }) {
         });
       }
 
+      if (answers.height_cm) {
+        await base44.entities.BodyMeasurement.create({
+          body_part: "Height",
+          value: answers.height_cm,
+          unit: "cm",
+          date: new Date().toISOString().split("T")[0],
+        });
+      }
+
       if (answers.daily_calories) {
         localStorage.setItem("gym-macro-calories", String(answers.daily_calories));
         localStorage.setItem("gym-macro-protein", String(answers.daily_protein || 0));
