@@ -14,7 +14,7 @@ export default function OnboardingGate({ children }) {
           setStatus("show_onboarding");
         }
       })
-      .catch(() => setStatus("done")); // if not logged in, let auth handle it
+      .catch(() => setStatus("show_onboarding")); // not logged in → show welcome/onboarding
   }, []);
 
   if (status === "loading") {
