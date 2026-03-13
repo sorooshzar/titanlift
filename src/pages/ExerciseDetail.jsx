@@ -9,6 +9,7 @@ import { getUrlParam } from "@/components/utils/urlParams";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { TABS } from "@/components/utils/constants";
+import ExerciseMuscleVisualization from "@/components/exercises/ExerciseMuscleVisualization";
 
 export default function ExerciseDetail() {
   const id = getUrlParam("id");
@@ -166,6 +167,7 @@ export default function ExerciseDetail() {
                 </div>
               </div>
             )}
+            <ExerciseMuscleVisualization exercise={exercise} />
             {!exercise.description && !exercise.instructions && (
               <p className="text-sm text-muted-foreground text-center py-4">
                 No instructions available yet.
