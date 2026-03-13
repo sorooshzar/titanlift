@@ -32,6 +32,7 @@ const GROUP_TO_MUSCLE = {
   "Side Delts":        "Side Delt",
   "Biceps":            "Biceps",
   "Wrist Extensors":   "Wrist Flexor",
+  "Wrist Flexors":     "Wrist Flexor",
   "Brachioradialis":   "Brachioradialis",
   "Quads":             "Quads",
   "Adductors":         "Adductors",
