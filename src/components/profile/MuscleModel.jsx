@@ -30,14 +30,14 @@ const GROUP_TO_MUSCLE = {
   "Front Delts":       "Front Delt",
   "Side Delts":        "Side Delt",
   "Biceps":            "Biceps",
-  "Wrist Flexors":     "Wrist Flexor",
+  "Wrist Extensors":   "Wrist Flexor",
   "Brachioradialis":   "Brachioradialis",
   "Quads":             "Quads",
   "Adductors":         "Adductors",
   "Abductors":         "Abductors",
   "Calves":            "Calves",
-  // Back
   "Neck":              null,
+  // Back
   "Traps":             "Traps",
   "Mid Back":          "Mid Back",
   "Lats":              "Lats",
