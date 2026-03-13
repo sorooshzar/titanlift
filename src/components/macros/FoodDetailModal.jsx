@@ -7,7 +7,7 @@ import QuantityPicker from "./QuantityPicker";
 const PROTEIN_COLOR = "#FF0055";
 const CARBS_COLOR = "#00AAFF";
 const FAT_COLOR = "#00CC66";
-const KCAL_COLOR = "#FF9500";
+const KCAL_COLOR = "#FFD700";
 
 function NutrientBar({ label, value, goal, color }) {
   const pct = goal > 0 ? Math.min((value / goal) * 100, 100) : 0;
@@ -27,7 +27,9 @@ export default function FoodDetailModal({
   food, macroGoals, dailyTotals, mealType, date, onClose, onAdd,
   editEntryId, initialQty, onUpdate
 }) {
-  const [quantity, setQuantity] = useState(initialQty || food.serving_size || 100);
+  // Default to 1 serving
+  const servingSize = food.serving_size || 100;
+  const [quantity, setQuantity] = useState(initialQty || servingSize);
   const [showQtyPicker, setShowQtyPicker] = useState(false);
 
   const factor = quantity / 100;
@@ -47,21 +49,28 @@ export default function FoodDetailModal({
     fat: Math.max((macroGoals?.fat || 65) - (dailyTotals?.fat || 0), 0),
   };
 
-  const buildData = () => ({
-    date, meal_type: mealType, food_name: food.name, food_id: food.id,
-    quantity, unit: "g",
-    calories: contributed.calories,
-    protein: contributed.protein,
-    carbs: contributed.carbs,
-    fat: contributed.fat,
+  const buildData = (qty = quantity, meal = mealType) => ({
+    date, meal_type: meal, food_name: food.name, food_id: food.id,
+    quantity: Math.round(qty), unit: "g",
+    calories: Math.round((food.calories_per_100g || 0) * (qty / 100)),
+    protein: Math.round((food.protein_per_100g || 0) * (qty / 100) * 10) / 10,
+    carbs: Math.round((food.carbs_per_100g || 0) * (qty / 100) * 10) / 10,
+    fat: Math.round((food.fat_per_100g || 0) * (qty / 100) * 10) / 10,
   });
 
-  const handleAdd = () => { onAdd(buildData()); onClose(); };
   const handleUpdate = () => { onUpdate(editEntryId, buildData()); };
 
-  const handleQtyConfirm = ({ qty }) => {
+  // "Done" from qty picker — update quantity on detail page, close picker
+  const handleQtyDone = ({ qty }) => {
     setQuantity(Math.round(qty));
     setShowQtyPicker(false);
+  };
+
+  // "Log" from qty picker — log to chosen meal and close everything
+  const handleQtyLog = ({ qty, meal }) => {
+    onAdd(buildData(qty, meal));
+    setShowQtyPicker(false);
+    onClose();
   };
 
   const icon = getFoodIcon(food.name);
@@ -115,7 +124,7 @@ export default function FoodDetailModal({
           </div>
 
           <div className="px-5 pb-6 space-y-5 mt-4">
-            {/* Contribution to remaining macros */}
+            {/* Contribution to remaining */}
             <div>
               <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-3">
                 Contribution to Remaining Macros
@@ -128,7 +137,7 @@ export default function FoodDetailModal({
               </div>
             </div>
 
-            {/* Nutrition facts per 100g */}
+            {/* Nutrition per 100g */}
             <div>
               <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-3">
                 Nutrition per 100g
@@ -176,32 +185,26 @@ export default function FoodDetailModal({
             </div>
           </div>
 
-          {/* Action button */}
-          {(onAdd || isEditMode) && (
+          {/* Action button — edit mode only */}
+          {isEditMode && (
             <div className="sticky bottom-0 px-5 pb-5 pt-2 bg-card border-t border-border/50">
-              {isEditMode ? (
-                <Button onClick={handleUpdate} className="w-full h-12 rounded-xl font-semibold gap-2">
-                  <Check className="w-4 h-4" />
-                  Update Amount
-                </Button>
-              ) : (
-                <Button onClick={handleAdd} className="w-full h-12 rounded-xl font-semibold gap-2" style={{ backgroundColor: KCAL_COLOR }}>
-                  <Check className="w-4 h-4" />
-                  Add to {mealType || "Log"}
-                </Button>
-              )}
+              <Button onClick={handleUpdate} className="w-full h-12 rounded-xl font-semibold gap-2">
+                <Check className="w-4 h-4" />
+                Update Amount
+              </Button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Quantity picker slide-up */}
+      {/* Quantity picker */}
       {showQtyPicker && (
         <QuantityPicker
           food={food}
-          initialQty={quantity}
-          initialUnit="g"
-          onConfirm={handleQtyConfirm}
+          initialQty={1}
+          initialUnit="serving"
+          onDone={handleQtyDone}
+          onLog={onAdd ? handleQtyLog : null}
           onClose={() => setShowQtyPicker(false)}
         />
       )}
