@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { X, Save, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { Reorder, AnimatePresence } from "framer-motion";
 import ExerciseBlock from "../components/workout/ExerciseBlock";
 import ExercisePicker from "../components/workout/ExercisePicker";
 
@@ -137,18 +138,21 @@ export default function EditWorkout() {
         </div>
       </div>
 
-      {/* Exercises */}
-      <div className="px-4 pt-4 space-y-3">
-        {exercises.map((exercise, index) => (
-          <ExerciseBlock
-            key={index}
-            exercise={exercise}
-            index={index}
-            onChange={(updated) => { isDirty.current = true; handleExerciseChange(index, updated); }}
-            onRemove={() => { isDirty.current = true; handleRemoveExercise(index); }}
-            isActive={false}
-          />
-        ))}
+      {/* Exercises — Drag to reorder */}
+      <Reorder.Group axis="y" values={exercises} onReorder={(newOrder) => { isDirty.current = true; setExercises(newOrder); }} className="px-4 pt-4 space-y-3">
+        <AnimatePresence>
+          {exercises.map((exercise, index) => (
+            <Reorder.Item key={exercise.exercise_id || index} value={exercise}>
+              <ExerciseBlock
+                exercise={exercise}
+                index={index}
+                onChange={(updated) => { isDirty.current = true; handleExerciseChange(index, updated); }}
+                onRemove={() => { isDirty.current = true; handleRemoveExercise(index); }}
+                isActive={false}
+              />
+            </Reorder.Item>
+          ))}
+        </AnimatePresence>
 
         <Button
           variant="outline"
@@ -158,7 +162,7 @@ export default function EditWorkout() {
           <Plus className="w-4 h-4 mr-2" />
           Add Exercise
         </Button>
-      </div>
+      </Reorder.Group>
 
       <ExercisePicker
         open={showPicker}
