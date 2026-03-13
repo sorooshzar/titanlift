@@ -16,8 +16,11 @@ const KCAL_COLOR = "#FFD700";
 
 function FoodRow({ food, onSelect }) {
   const icon = getFoodIcon(food.name);
-  const cal = Math.round((food.calories_per_100g || 0) * (food.serving_size || 100) / 100);
-  const protein = Math.round((food.protein_per_100g || 0) * (food.serving_size || 100) / 100);
+  const ratio = (food.serving_size || 100) / 100;
+  const cal = Math.round((food.calories_per_100g || 0) * ratio);
+  const protein = Math.round((food.protein_per_100g || 0) * ratio);
+  const carbs = Math.round((food.carbs_per_100g || 0) * ratio);
+  const fat = Math.round((food.fat_per_100g || 0) * ratio);
   return (
     <button
       onClick={() => onSelect(food)}
@@ -29,15 +32,17 @@ function FoodRow({ food, onSelect }) {
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold truncate">{food.name}</p>
         {food.brand && <p className="text-[11px] text-muted-foreground truncate">{food.brand}</p>}
-        <div className="flex items-center gap-2 mt-0.5">
+        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
           <span className="text-[10px] font-bold" style={{ color: PROTEIN_COLOR }}>P{protein}g</span>
           <span className="text-[10px] text-muted-foreground">·</span>
-          <span className="text-[10px] text-muted-foreground">per {food.serving_size || 100}{food.serving_unit || "g"}</span>
+          <span className="text-[10px] font-bold" style={{ color: CARBS_COLOR }}>C{carbs}g</span>
+          <span className="text-[10px] text-muted-foreground">·</span>
+          <span className="text-[10px] font-bold" style={{ color: FAT_COLOR }}>F{fat}g</span>
         </div>
       </div>
-      <div className="flex flex-col items-end gap-0.5 shrink-0">
-        <span className="text-sm font-bold" style={{ color: KCAL_COLOR }}>🔥{cal}</span>
-        <span className="text-[9px] text-muted-foreground">kcal</span>
+      <div className="flex flex-col items-center gap-0 shrink-0">
+        <span className="text-sm font-bold leading-tight" style={{ color: KCAL_COLOR }}>🔥{cal}</span>
+        <span className="text-[9px] text-muted-foreground leading-tight">kcal</span>
       </div>
     </button>
   );
