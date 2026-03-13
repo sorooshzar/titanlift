@@ -53,13 +53,13 @@ export default function ExercisePicker({ open, onClose, onSelect }) {
               </div>
               {exs.map((ex) => (
                 <button
-                  key={ex.id}
-                  onClick={() => { onSelect(ex); onClose(); }}
-                  className="w-full text-left px-4 py-3 hover:bg-secondary/50 transition-colors"
-                >
-                  <p className="text-sm font-medium">{ex.name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{ex.muscle_group?.replace(/_/g, " ")}</p>
-                </button>
+                   key={ex.id}
+                   onClick={() => { onSelect(ex); onClose(); }}
+                   className="w-full text-left px-4 py-3 hover:bg-secondary/50 transition-colors"
+                 >
+                   <p className="text-sm font-medium">{ex.name}</p>
+                   <p className="text-xs text-muted-foreground capitalize">{ex.primary_muscle?.replace(/_/g, " ")}</p>
+                 </button>
               ))}
             </div>
           ))}
