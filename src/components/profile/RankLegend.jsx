@@ -1,16 +1,5 @@
 import React from "react";
-
-const RANKS = [
-  { name: "Wood",     color: "#8B6914", bg: "#3d2c00" },
-  { name: "Bronze",   color: "#CD7F32", bg: "#3d2200" },
-  { name: "Silver",   color: "#C0C0C0", bg: "#2a2a2a" },
-  { name: "Gold",     color: "#FFD700", bg: "#3d3000" },
-  { name: "Platinum", color: "#B0E0E6", bg: "#002a2e" },
-  { name: "Diamond",  color: "#7DF9FF", bg: "#003040" },
-  { name: "Champion", color: "#c084fc", bg: "#2d0050" },
-  { name: "Titan",    color: "#F87171", bg: "#400000" },
-  { name: "Olympian", color: "#FF6B35", bg: "#3d1500" },
-];
+import { RANKS } from "@/components/utils/rankEngine";
 
 export default function RankLegend() {
   return (
