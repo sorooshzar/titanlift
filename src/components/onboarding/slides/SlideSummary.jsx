@@ -34,7 +34,7 @@ function Row({ label, value }) {
   );
 }
 
-export default function SlideSummary({ answers, onFinish, saving }) {
+export default function SlideSummary({ answers, onFinish }) {
   return (
     <div className="min-h-screen flex flex-col px-6 py-10">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
@@ -75,10 +75,9 @@ export default function SlideSummary({ answers, onFinish, saving }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
         onClick={onFinish}
-        disabled={saving}
-        className="w-full h-14 rounded-2xl bg-primary text-white text-base font-bold shadow-lg shadow-primary/30 disabled:opacity-60"
+        className="w-full h-14 rounded-2xl bg-primary text-white text-base font-bold shadow-lg shadow-primary/30"
       >
-        {saving ? "Setting up your account..." : "Start Training 🚀"}
+        Create Account →
       </motion.button>
     </div>
   );
