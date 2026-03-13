@@ -38,38 +38,54 @@ const MUSCLE_SCALE = {
   "Brachioradialis": 0.4,
 };
 
+// Impressiveness factors: multiply the (e1rm / bodyweight) ratio
+// Compound lifts (low factor) | Isolation (medium) | Weak isolation (high)
+// This creates realistic progressions where compound lifts are hardest to impress with
 const IMPRESSIVENESS_FACTORS = {
-  "Barbell Bench Press": { male: 83.72, female: 136.36 },
-  "Dumbbell Bench Press": { male: 100.00, female: 166.67 },
-  "Incline Barbell Press": { male: 105.88, female: 176.47 },
-  "Dumbbell Shoulder Press (Seated)": { male: 163.64, female: 250.00 },
-  "Barbell Overhead Press (Standing)": { male: 133.33, female: 214.29 },
-  "Dumbbell Lateral Raise": { male: 450.00, female: 600.00 },
-  "Dumbbell Front Raise": { male: 360.00, female: 500.00 },
-  "Barbell Deadlift (Conventional)": { male: 48.00, female: 75.00 },
-  "Barbell Deadlift (Sumo)": { male: 45.57, female: 83.33 },
-  "Barbell Squat (High Bar)": { male: 64.29, female: 100.00 },
-  "Barbell Squat (Low Bar)": { male: 61.02, female: 93.75 },
-  "Leg Press (Machine)": { male: 30.00, female: 42.86 },
-  "Barbell Row (Bent-Over)": { male: 97.30, female: 150.00 },
-  "Pull-up (Bodyweight)": { male: 100.00, female: 100.00 },
-  "Chin-up (Bodyweight)": { male: 100.00, female: 100.00 },
-  "Weighted Pull-up": { male: 85.71, female: 90.91 },
-  "Lat Pulldown (Machine)": { male: 100.00, female: 150.00 },
-  "Seated Cable Row": { male: 128.57, female: 166.67 },
-  "Barbell Bicep Curl": { male: 225.00, female: 333.33 },
-  "Dumbbell Bicep Curl": { male: 257.14, female: 375.00 },
-  "Tricep Pushdown (Cable)": { male: 225.00, female: 214.29 },
-  "Close-Grip Bench Press": { male: 92.31, female: 166.67 },
-  "Overhead Dumbbell Extension": { male: 300.00, female: 428.57 },
-  "Leg Extension (Machine)": { male: 100.00, female: 150.00 },
-  "Leg Curl (Machine)": { male: 112.50, female: 166.67 },
-  "Calf Raise (Standing)": { male: 72.00, female: 93.75 },
-  "Hip Thrust (Barbell)": { male: 60.00, female: 83.33 },
-  "Good Mornings (Barbell)": { male: 150.00, female: 214.29 },
-  "Romanian Deadlift (Barbell)": { male: 80.00, female: 125.00 },
-  "Face Pull (Cable)": { male: 225.00, female: 300.00 },
-  "Kettlebell Swing": { male: 180.00, female: 214.29 },
+  // Powerlifts & Main Compounds (0.5-1.0x multiplier)
+  "Barbell Deadlift (Conventional)": { male: 0.5, female: 0.5 },
+  "Barbell Deadlift (Sumo)": { male: 0.55, female: 0.55 },
+  "Barbell Squat (High Bar)": { male: 0.65, female: 0.65 },
+  "Barbell Squat (Low Bar)": { male: 0.60, female: 0.60 },
+  "Barbell Bench Press": { male: 0.7, female: 0.7 },
+  
+  // Secondary Compounds (0.8-1.2x)
+  "Barbell Row (Bent-Over)": { male: 0.85, female: 0.85 },
+  "Dumbbell Bench Press": { male: 0.9, female: 0.9 },
+  "Incline Barbell Press": { male: 1.0, female: 1.0 },
+  "Barbell Overhead Press (Standing)": { male: 1.1, female: 1.1 },
+  "Hip Thrust (Barbell)": { male: 0.8, female: 0.8 },
+  "Romanian Deadlift (Barbell)": { male: 0.75, female: 0.75 },
+  
+  // Pull Variations (0.9-1.3x)
+  "Pull-up (Bodyweight)": { male: 1.0, female: 1.2 },
+  "Chin-up (Bodyweight)": { male: 1.0, female: 1.2 },
+  "Weighted Pull-up": { male: 0.9, female: 1.1 },
+  "Lat Pulldown (Machine)": { male: 1.2, female: 1.3 },
+  "Seated Cable Row": { male: 1.15, female: 1.2 },
+  
+  // Machine Movements (1.5-2.0x)
+  "Leg Press (Machine)": { male: 2.0, female: 2.0 },
+  "Leg Extension (Machine)": { male: 2.0, female: 2.0 },
+  "Leg Curl (Machine)": { male: 1.8, female: 1.8 },
+  "Calf Raise (Standing)": { male: 1.5, female: 1.5 },
+  
+  // Isolation - Arms (2.5-3.5x multiplier)
+  "Barbell Bicep Curl": { male: 2.8, female: 3.0 },
+  "Dumbbell Bicep Curl": { male: 3.0, female: 3.2 },
+  "Tricep Pushdown (Cable)": { male: 3.0, female: 3.0 },
+  "Close-Grip Bench Press": { male: 0.8, female: 0.8 },
+  "Overhead Dumbbell Extension": { male: 2.8, female: 3.0 },
+  
+  // Isolation - Shoulders (2.0-3.0x)
+  "Dumbbell Shoulder Press (Seated)": { male: 1.3, female: 1.4 },
+  "Dumbbell Lateral Raise": { male: 3.0, female: 3.2 },
+  "Dumbbell Front Raise": { male: 2.8, female: 3.0 },
+  "Face Pull (Cable)": { male: 2.5, female: 2.5 },
+  
+  // Other (1.5-2.0x)
+  "Good Mornings (Barbell)": { male: 1.2, female: 1.2 },
+  "Kettlebell Swing": { male: 1.0, female: 1.0 },
 };
 
 function getRankFromScore(score, muscleName) {
