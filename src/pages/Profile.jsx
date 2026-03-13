@@ -372,22 +372,22 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex items-start">
-            {/* Muscle model — larger */}
+          <div className="flex items-center justify-between">
+            {/* Muscle model — left */}
             <div className="shrink-0" style={{ width: 185 }}>
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
-            {/* Legend — right side */}
-            <div className="flex-1 flex flex-col items-center justify-center ml-2">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-2 text-center">
+            {/* Legend — far right, vertically centered */}
+            <div className="flex flex-col items-end justify-center ml-6">
+              <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-3">
                 {showRecovery ? "Recovery" : "Muscle Rank"}
               </p>
-              <div className="flex flex-col w-full items-center gap-1">
-                {!showRecovery ? (
-                  <RankLegend />
-                ) : (
-                  [
+              {!showRecovery ? (
+                <RankLegend />
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  {[
                     { name: "Ready", color: "#22c55e" },
                     { name: "Light", color: "#84cc16" },
                     { name: "Moderate", color: "#eab308" },
@@ -396,11 +396,11 @@ export default function Profile() {
                   ].map(r => (
                     <div key={r.name} className="flex items-center gap-1.5">
                       <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                      <span className="text-[10px] font-semibold" style={{ color: r.color }}>{r.name}</span>
+                      <span className="text-[10px] font-semibold whitespace-nowrap" style={{ color: r.color }}>{r.name}</span>
                     </div>
-                  ))
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
