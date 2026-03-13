@@ -257,17 +257,25 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
       const color = getMuscleColor(id);
       const isClickable = !!(GROUP_TO_MUSCLE[id]);
       const fill = color || "#B8B8B8";
+      const gradientId = `grad-${id}`;
       return (
-        <g
-          key={id}
-          fill={fill}
-          fillOpacity={isClickable ? 0.9 : 0.7}
-          stroke="rgba(0,0,0,0.25)"
-          strokeWidth="0.5"
-          onClick={() => handleMuscleClick(id)}
-          style={{ cursor: isClickable ? "pointer" : "default" }}
-        >
-          {paths.map((d, i) => <path key={i} d={d} />)}
+        <g key={id}>
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={fill} stopOpacity="1" />
+              <stop offset="100%" stopColor={fill} stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+          <g
+            fill={`url(#${gradientId})`}
+            fillOpacity={isClickable ? 0.9 : 0.7}
+            stroke="rgba(0,0,0,0.25)"
+            strokeWidth="0.5"
+            onClick={() => handleMuscleClick(id)}
+            style={{ cursor: isClickable ? "pointer" : "default" }}
+          >
+            {paths.map((d, i) => <path key={i} d={d} />)}
+          </g>
         </g>
       );
     });

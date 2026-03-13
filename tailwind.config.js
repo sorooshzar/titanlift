@@ -31,9 +31,9 @@ export default {
         rank: {
           wood: "#B8860B",
           bronze: "#CD7F32",
-          silver: "#C0C0C0",
+          silver: "#E8E8E8",
           gold: "#FFD700",
-          platinum: "#E5E4E2",
+          emerald: "#50C878",
           diamond: "#00CED1",
           champion: "#9370DB",
           titan: "#FF6B6B",
