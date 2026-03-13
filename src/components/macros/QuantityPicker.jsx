@@ -190,20 +190,21 @@ export default function QuantityPicker({ food, initialQty, initialUnit, onDone, 
           >
             Done
           </button>
-          <button
-            onClick={() => {
-              if (preselectedMeal) {
-                // Already know the meal — log directly without asking
-                onLog({ qty: qtyInG, unit, display, contributed, meal: preselectedMeal });
-              } else {
-                setShowMealChooser(true);
-              }
-            }}
-            className="h-12 rounded-xl font-semibold text-sm transition-colors hover:opacity-90"
-            style={{ backgroundColor: KCAL_COLOR, color: "#000" }}
-          >
-            Log
-          </button>
+          {onLog && (
+            <button
+              onClick={() => {
+                if (preselectedMeal) {
+                  onLog({ qty: qtyInG, unit, display, contributed, meal: preselectedMeal });
+                } else {
+                  setShowMealChooser(true);
+                }
+              }}
+              className="h-12 rounded-xl font-semibold text-sm transition-colors hover:opacity-90"
+              style={{ backgroundColor: KCAL_COLOR, color: "#000" }}
+            >
+              Log
+            </button>
+          )}
         </div>
       </div>
     </div>
