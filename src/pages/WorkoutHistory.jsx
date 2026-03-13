@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
+import { RANKS } from "@/components/utils/rankEngine";
 
 function formatDuration(mins) {
   if (!mins) return "--";
@@ -109,9 +110,27 @@ function WorkoutDetailModal({ log, onClose }) {
             <div key={i} className="bg-card rounded-xl border border-border p-4"
               style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
               <div className="flex items-center gap-2 mb-2">
-                {/* Reserved rank icon space */}
-                <div className="w-5 h-5 flex-shrink-0" />
-                <p className="text-sm font-semibold flex-1">{ex.exercise_name}</p>
+                {ex.rank && RANKS.find(r => r.name === ex.rank) ? (
+                  (() => {
+                    const rankInfo = RANKS.find(r => r.name === ex.rank);
+                    return (
+                      <div className="w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                        style={{ backgroundColor: rankInfo.color }}>
+                        {rankInfo.label[0]}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div className="w-5 h-5 flex-shrink-0" />
+                )}
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">{ex.exercise_name}</p>
+                  {ex.impressiveness_score > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {ex.rank ? RANKS.find(r => r.name === ex.rank)?.label : "—"} • {ex.impressiveness_score.toFixed(1)}
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="space-y-1">
                 {ex.sets?.filter(s => s.completed).map((s, j) => {
