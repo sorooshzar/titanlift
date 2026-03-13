@@ -305,22 +305,22 @@ export default function MuscleModel({ muscleRanks = {}, recoveryData = {}, showR
             style={{ position: "relative", width: `${containerW}px`, height: `${containerH}px` }}
           >
             {view === "front" ? (
-              <>
-                {/* PNG body model base */}
-                <img
-                  src={FRONT_BODY_URL}
-                  alt="body model"
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
-                />
-                {/* SVG muscle map overlay */}
-                <svg
-                  viewBox="0 0 538 1164"
-                  preserveAspectRatio="xMidYMid meet"
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-                >
-                  {renderGroups(FRONT_GROUPS)}
-                </svg>
-              </>
+              <svg
+                viewBox="0 0 663 1509"
+                preserveAspectRatio="xMidYMid meet"
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+              >
+                {/* Body silhouette */}
+                <path d={FRONT_BODY_PATH} fill="#D0D0D0" stroke="rgba(0,0,0,0.3)" strokeWidth="1" />
+                {/* Hair */}
+                <path d={FRONT_HAIR_PATH} fill="#A8A8A8" stroke="rgba(0,0,0,0.3)" strokeWidth="0.5" />
+                {/* Face/neck skin */}
+                {FRONT_FACE_PATHS.map((d, i) => (
+                  <path key={i} d={d} fill="#D0D0D0" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
+                ))}
+                {/* Muscle map */}
+                {renderGroups(FRONT_GROUPS)}
+              </svg>
             ) : (
               <svg
                 viewBox="0 0 656 1503"
