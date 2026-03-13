@@ -64,7 +64,8 @@ export default function ActiveWorkout() {
       {
         exercise_id: exercise.id,
         exercise_name: exercise.name,
-        muscle_group: exercise.muscle_group,
+        muscle_group: exercise.primary_muscle,
+        secondary_muscles: exercise.secondary_muscles || [],
         color: null,
         superset_group: null,
         order: exercises.length,
