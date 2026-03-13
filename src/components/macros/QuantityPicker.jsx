@@ -68,7 +68,7 @@ function MealChooser({ food, contributed, qtyInG, unit, onChoose, onBack }) {
   );
 }
 
-export default function QuantityPicker({ food, initialQty, initialUnit, onDone, onLog, onClose }) {
+export default function QuantityPicker({ food, initialQty, initialUnit, onDone, onLog, onClose, preselectedMeal }) {
   // Default to 1 serving
   const defaultUnit = "serving";
   const defaultQty = "1";
