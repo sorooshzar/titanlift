@@ -144,11 +144,11 @@ export default function FoodDetailModal({
               </h4>
               <div className="bg-secondary/40 rounded-xl p-3 space-y-2">
                 {[
-                  { label: "Calories", value: food.calories_per_100g || 0, unit: "🔥", color: KCAL_COLOR },
-                  { label: "Protein", value: food.protein_per_100g || 0, unit: "g", color: PROTEIN_COLOR },
-                  { label: "Carbs", value: food.carbs_per_100g || 0, unit: "g", color: CARBS_COLOR },
-                  { label: "Fat", value: food.fat_per_100g || 0, unit: "g", color: FAT_COLOR },
-                  { label: "Fiber", value: food.fiber_per_100g || 0, unit: "g", color: "#8B5CF6" },
+                  { label: "Calories", value: Math.round(food.calories_per_100g || 0), unit: "🔥", color: KCAL_COLOR },
+                  { label: "Protein", value: Math.round((food.protein_per_100g || 0) * 10) / 10, unit: "g", color: PROTEIN_COLOR },
+                  { label: "Carbs", value: Math.round((food.carbs_per_100g || 0) * 10) / 10, unit: "g", color: CARBS_COLOR },
+                  { label: "Fat", value: Math.round((food.fat_per_100g || 0) * 10) / 10, unit: "g", color: FAT_COLOR },
+                  { label: "Fiber", value: Math.round((food.fiber_per_100g || 0) * 10) / 10, unit: "g", color: "#8B5CF6" },
                 ].map(n => (
                   <div key={n.label} className="flex justify-between items-center">
                     <span className="text-xs" style={{ color: n.color }}>{n.label}</span>
