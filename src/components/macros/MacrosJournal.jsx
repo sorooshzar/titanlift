@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, Trash2, Flame } from "lucide-react";
+import React from "react";
+import { Plus, Trash2 } from "lucide-react";
 import { format, addDays, subDays } from "date-fns";
 import WaterTracker from "./WaterTracker";
 import FoodDetailModal from "./FoodDetailModal";
