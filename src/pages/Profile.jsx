@@ -258,7 +258,7 @@ export default function Profile() {
                   const weightKg = latestWeightKg;
                   const bmi = heightCm && weightKg ? (weightKg / Math.pow(heightCm / 100, 2)) : null;
                   return bmi ? (
-                    <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{bmi.toFixed(1)}</span> BMI</span>
+                    <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{Math.round(bmi)}</span> BMI</span>
                   ) : null;
                 })()}
                 <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{workoutLogs.length}</span> workouts</span>
