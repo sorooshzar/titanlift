@@ -1,0 +1,63 @@
+import React from "react";
+import { motion } from "framer-motion";
+import { Dumbbell, Zap, BarChart2, Apple } from "lucide-react";
+
+export default function SlideWelcome({ onNext }) {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 text-center">
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+        className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center mb-8 shadow-2xl shadow-primary/20"
+      >
+        <Dumbbell className="w-12 h-12 text-primary" />
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <h1 className="text-4xl font-black mb-3 leading-tight">
+          Welcome to<br />
+          <span className="text-primary">IronLog</span> 💪
+        </h1>
+        <p className="text-muted-foreground text-base leading-relaxed mb-10 max-w-xs mx-auto">
+          Track workouts, nutrition, and health progress all in one place.
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="w-full max-w-xs space-y-3 mb-10"
+      >
+        {[
+          { icon: Zap, label: "Smart workout tracking" },
+          { icon: BarChart2, label: "Muscle rank progression" },
+          { icon: Apple, label: "Macro & nutrition tracking" },
+        ].map(({ icon: Icon, label }) => (
+          <div key={label} className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3 text-left">
+            <Icon className="w-4 h-4 text-primary shrink-0" />
+            <span className="text-sm font-medium">{label}</span>
+          </div>
+        ))}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}
+        className="w-full max-w-xs space-y-3"
+      >
+        <button
+          onClick={onNext}
+          className="w-full h-14 rounded-2xl bg-primary text-white text-base font-bold shadow-lg shadow-primary/30 active:scale-[0.98] transition-transform"
+        >
+          Get Started 🚀
+        </button>
+        <p className="text-xs text-muted-foreground">
+          Takes about 2 minutes to set up
+        </p>
+      </motion.div>
+    </div>
+  );
+}
