@@ -154,8 +154,8 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
   const { data: foods = [] } = useQuery({
     queryKey: ["foods"],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.Food.filter({ created_by: user.email }, "name", 200);
+      // Load ALL foods globally (preloaded shared foods + user custom foods)
+      return base44.entities.Food.list("name", 500);
     },
   });
 
