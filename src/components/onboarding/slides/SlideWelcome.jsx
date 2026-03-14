@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Dumbbell, Zap, BarChart2, Apple, Moon, Sun } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 
 export default function SlideWelcome({ onNext }) {
-  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("gym-dark-mode");
     return saved === null ? true : saved === "true";
@@ -19,7 +18,7 @@ export default function SlideWelcome({ onNext }) {
   };
 
   const handleLogin = () => {
-    navigate("/Login");
+    base44.auth.redirectToLogin();
   };
 
   return (

@@ -58,6 +58,7 @@ import Macros from './pages/Macros';
 import Measurements from './pages/Measurements';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import SignIn from './pages/SignIn';
 import WorkoutHistory from './pages/WorkoutHistory';
 import WorkoutSummary from './pages/WorkoutSummary';
 import __Layout from './Layout.jsx';
@@ -75,6 +76,7 @@ export const PAGES = {
     "Measurements": Measurements,
     "Profile": Profile,
     "Settings": Settings,
+    "SignIn": SignIn,
     "WorkoutHistory": WorkoutHistory,
     "WorkoutSummary": WorkoutSummary,
 }

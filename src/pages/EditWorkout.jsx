@@ -95,21 +95,21 @@ export default function EditWorkout() {
     localStorage.removeItem(draftKey);
     isDirty.current = false;
     setSaving(false);
-    navigate(createPageUrl("Workouts"));
+    navigate(createPageUrl("Lifts"));
   };
 
   const handleClose = () => {
     if (isDirty.current) {
       setShowUnsavedConfirm(true);
     } else {
-      navigate(createPageUrl("Workouts"));
+      navigate(createPageUrl("Lifts"));
     }
   };
 
   const handleDiscard = () => {
     localStorage.removeItem(draftKey);
     setShowUnsavedConfirm(false);
-    navigate(createPageUrl("Workouts"));
+    navigate(createPageUrl("Lifts"));
   };
 
   return (
