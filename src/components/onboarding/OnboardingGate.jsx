@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import OnboardingFlow from "./OnboardingFlow";
 import { initUserStorage, userStorage } from "@/components/utils/userStorage";
+import { applyTheme } from "@/components/profile/SettingsPanel";
 
 // Key used to persist onboarding answers across OAuth redirect
 const PENDING_KEY = "gym-pending-onboarding";
