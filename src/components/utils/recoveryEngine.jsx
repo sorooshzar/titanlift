@@ -34,13 +34,13 @@ function rirToIntensity(rir) {
   return 0.5;                   // RIR 4+ — easy work, low fatigue
 }
 
-// Fatigue thresholds — calibrated to typical session:
-// 3 sets × 10 reps × 0.8 intensity = 24 fatigue units before decay
+// Fatigue thresholds — lowered so muscles stay yellow/orange for 24-48h after a hard session.
+// Typical heavy session produces ~40-80 fatigue units; these thresholds ensure visible fatigue.
 const THRESHOLDS = {
-  light:    8,
-  moderate: 20,
-  heavy:    38,
-  sore:     60,
+  light:    4,
+  moderate: 12,
+  heavy:    25,
+  sore:     45,
 };
 
 export function computeRecovery(workoutLogs) {
