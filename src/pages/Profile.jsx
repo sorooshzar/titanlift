@@ -287,6 +287,12 @@ export default function Profile() {
             <span className="text-base font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
           </div>
           <div className="flex-1 min-w-0">
+            {user?.full_name && (
+              <p className="text-sm font-bold truncate leading-tight">{user.full_name}</p>
+            )}
+            {user?.email && (
+              <p className="text-[11px] text-muted-foreground truncate leading-tight mb-1">{user.email}</p>
+            )}
             <div className="flex items-center gap-3 mb-1.5">
               <div className="flex gap-3 shrink-0 flex-wrap">
                 {(() => {
