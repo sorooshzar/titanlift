@@ -89,19 +89,19 @@ export default function Settings() {
   const [isolationRestTime, setIsolationRestTime] = useState(90);
 
   useEffect(() => {
-    const saved = localStorage.getItem("gym-dark-mode");
+    const saved = localStorage.getItem("gym-dark-mode"); // dark mode is device-global (fine)
     setDarkMode(saved === null ? true : saved === "true");
-    setTheme(localStorage.getItem("gym-theme") || "default");
-    setWeightUnit(localStorage.getItem("gym-weight-unit") || "kg");
-    setDistanceUnit(localStorage.getItem("gym-distance-unit") || "metric");
-    setWeekStart(localStorage.getItem("gym-week-start") || "monday");
-    setCountDumbbellTwice(localStorage.getItem("gym-dumbbell-twice") === "true");
-    setDisableSleep(localStorage.getItem("gym-disable-sleep") === "true");
-    setSoundEffects(localStorage.getItem("gym-sound-effects") === "true");
-    setIncludeBodyweight(localStorage.getItem("gym-include-bodyweight") === "true");
-    setWarmupRestTime(parseInt(localStorage.getItem("gym-warmup-rest") || "60"));
-    setCompoundRestTime(parseInt(localStorage.getItem("gym-compound-rest") || "180"));
-    setIsolationRestTime(parseInt(localStorage.getItem("gym-isolation-rest") || "90"));
+    setTheme(userStorage.getItem("gym-theme") || "default");
+    setWeightUnit(userStorage.getItem("gym-weight-unit") || "kg");
+    setDistanceUnit(userStorage.getItem("gym-distance-unit") || "metric");
+    setWeekStart(userStorage.getItem("gym-week-start") || "monday");
+    setCountDumbbellTwice(userStorage.getItem("gym-dumbbell-twice") === "true");
+    setDisableSleep(userStorage.getItem("gym-disable-sleep") === "true");
+    setSoundEffects(userStorage.getItem("gym-sound-effects") === "true");
+    setIncludeBodyweight(userStorage.getItem("gym-include-bodyweight") === "true");
+    setWarmupRestTime(parseInt(userStorage.getItem("gym-warmup-rest") || "60"));
+    setCompoundRestTime(parseInt(userStorage.getItem("gym-compound-rest") || "180"));
+    setIsolationRestTime(parseInt(userStorage.getItem("gym-isolation-rest") || "90"));
   }, []);
 
   const toggleDark = (v) => {
