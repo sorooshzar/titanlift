@@ -133,19 +133,20 @@ export default function WorkoutSummary() {
             <motion.div key={exIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 + exIdx * 0.04, type: "spring", stiffness: 300, damping: 25 }}
               className="bg-card rounded-xl border border-border overflow-hidden"
               style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
-              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                {rankInfo && (
-                  <div className="w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+              <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
+                {rankInfo ? (
+                  <div className="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-[11px] font-bold text-white shadow-sm"
                     style={{ backgroundColor: rankInfo.color }}>
                     {rankInfo.label[0]}
                   </div>
+                ) : (
+                  <div className="w-6 h-6 flex-shrink-0 rounded-full bg-secondary" />
                 )}
-                {!rankInfo && <div className="w-5 h-5 flex-shrink-0" />}
                 <div className="flex-1">
                   <p className="text-sm font-semibold">{ex.exercise_name}</p>
                   {ex.impressiveness_score > 0 && (
                     <p className="text-xs text-muted-foreground">
-                      {rankInfo?.label || "—"} • {ex.impressiveness_score.toFixed(1)}
+                      {rankInfo?.label || "—"} · score {ex.impressiveness_score.toFixed(1)}
                     </p>
                   )}
                 </div>
