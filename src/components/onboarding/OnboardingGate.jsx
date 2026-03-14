@@ -34,18 +34,18 @@ async function savePendingOnboarding(user) {
       workout_style: answers.workout_style,
     });
 
-    // Persist settings to localStorage
-    if (answers.weight_unit) localStorage.setItem("gym-weight-unit", answers.weight_unit);
-    if (answers.distance_unit) localStorage.setItem("gym-distance-unit", answers.distance_unit);
-    if (answers.week_start) localStorage.setItem("gym-week-start", answers.week_start === "sunday" ? "0" : "1");
+    // Persist settings to user-scoped localStorage
+    if (answers.weight_unit) userStorage.setItem("gym-weight-unit", answers.weight_unit);
+    if (answers.distance_unit) userStorage.setItem("gym-distance-unit", answers.distance_unit);
+    if (answers.week_start) userStorage.setItem("gym-week-start", answers.week_start === "sunday" ? "0" : "1");
     if (answers.daily_calories) {
-      localStorage.setItem("gym-macro-calories", String(answers.daily_calories));
-      localStorage.setItem("gym-macro-protein", String(answers.daily_protein || 0));
-      localStorage.setItem("gym-macro-carbs", String(answers.daily_carbs || 0));
-      localStorage.setItem("gym-macro-fat", String(answers.daily_fat || 0));
+      userStorage.setItem("gym-macro-calories", String(answers.daily_calories));
+      userStorage.setItem("gym-macro-protein", String(answers.daily_protein || 0));
+      userStorage.setItem("gym-macro-carbs", String(answers.daily_carbs || 0));
+      userStorage.setItem("gym-macro-fat", String(answers.daily_fat || 0));
     }
-    if (answers.goal_weight_kg) localStorage.setItem("gym-goal-weight", String(answers.goal_weight_kg));
-    if (answers.goal_timeline_weeks) localStorage.setItem("gym-goal-weeks", String(answers.goal_timeline_weeks));
+    if (answers.goal_weight_kg) userStorage.setItem("gym-goal-weight", String(answers.goal_weight_kg));
+    if (answers.goal_timeline_weeks) userStorage.setItem("gym-goal-weeks", String(answers.goal_timeline_weeks));
 
     // Create initial body records
     if (answers.weight_kg) {
