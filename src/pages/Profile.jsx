@@ -150,9 +150,9 @@ export default function Profile() {
     base44.auth.me().then(u => {
       setUser(u);
       // Sync goal weight from profile if not already in localStorage
-      if (u?.goal_weight_kg && !localStorage.getItem("gym-goal-weight")) {
+      if (u?.goal_weight_kg && !userStorage.getItem("gym-goal-weight")) {
         setGoalWeight(u.goal_weight_kg);
-        localStorage.setItem("gym-goal-weight", String(u.goal_weight_kg));
+        userStorage.setItem("gym-goal-weight", String(u.goal_weight_kg));
       }
     }).catch(() => {});
     const saved = localStorage.getItem("gym-dark-mode");
