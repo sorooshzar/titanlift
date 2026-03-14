@@ -270,7 +270,7 @@ function ExercisesTab() {
     "other": "--",
   };
 
-  const useGroups = !filters.sort || filters.sort === "name";
+  const useGroups = !filters.sort || filters.sort === "name" || filters.sort === "favourites";
   const grouped = {};
   filtered.forEach(ex => {
     const key = useGroups ? (ex.name[0]?.toUpperCase() || "#") : "Results";
