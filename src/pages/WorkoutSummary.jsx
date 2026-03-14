@@ -72,17 +72,21 @@ export default function WorkoutSummary() {
   let workingSetCounter = {};
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-5 pb-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="max-w-lg mx-auto px-4 pt-5 pb-8"
+    >
       {/* Header row */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-muted-foreground text-sm">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-muted-foreground text-sm active:opacity-60 transition-opacity">
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
-        <button onClick={handleDone} className="text-sm font-semibold text-primary">Done</button>
+        <button onClick={handleDone} className="text-sm font-semibold text-primary active:opacity-60 transition-opacity">Done</button>
       </div>
 
       {/* Congrats header */}
-      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6">
+      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 300, damping: 25 }} className="text-center mb-6">
         <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-2" />
         <h1 className="text-2xl font-bold">{logToDisplay.name}</h1>
         <p className="text-sm text-muted-foreground mt-1">Workout Complete</p>

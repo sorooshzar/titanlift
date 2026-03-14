@@ -216,7 +216,7 @@ export default function ActiveWorkoutSheet() {
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
-          transition={{ type: "spring", damping: 30, stiffness: 300 }}
+          transition={{ type: "spring", damping: 32, stiffness: 320 }}
           className="fixed inset-0 z-50 bg-background flex flex-col"
         >
           {/* Drag handle */}
