@@ -377,7 +377,7 @@ export default function Profile() {
 
         {/* Add Tracker bar */}
         <button onClick={() => setShowAddTracker(true)}
-          className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-blue-400 text-white font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-primary/20">
+          className="w-full h-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-primary/15">
           <Plus className="w-4 h-4" /> Add Tracker
         </button>
           </motion.div>
