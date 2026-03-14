@@ -164,6 +164,9 @@ function GoalWeightPanel({ isImperial }) {
     setGoalKg(kg);
     localStorage.setItem("gym-goal-weight", String(kg));
     localStorage.setItem("gym-goal-weeks", String(weeks));
+    // Also update user profile so macros recalculate
+    base44.auth.updateMe({ goal_weight_kg: kg, goal_timeline_weeks: weeks }).catch(() => {});
+    window.dispatchEvent(new CustomEvent("goalWeightChanged", { detail: { goalWeightKg: kg, weeks } }));
     setEditing(false);
     setGoalInput("");
   };
