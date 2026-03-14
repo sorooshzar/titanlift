@@ -430,25 +430,20 @@ export default function Lifts() {
      <div className="max-w-lg mx-auto pb-4" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
        {/* Sticky Header */}
        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-3 border-b border-border/30">
-         <div className="flex items-center">
-           {/* Left spacer — same width as right icons so toggle is truly centered */}
-           <div className="flex items-center gap-1 invisible">
-             <Button variant="ghost" size="icon" className="h-10 w-10"><Calculator className="w-6 h-6" /></Button>
-             <Button variant="ghost" size="icon" className="h-10 w-10"><History className="w-6 h-6" /></Button>
+         <div className="flex items-center justify-center gap-4">
+           {/* Toggle — truly centered */}
+           <div className="flex bg-secondary rounded-xl p-1 shrink-0">
+             <button onClick={() => setTab(TABS.WORKOUTS)}
+               className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === TABS.WORKOUTS ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+               Workouts
+             </button>
+             <button onClick={() => setTab(TABS.EXERCISES)}
+               className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === TABS.EXERCISES ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+               Exercises
+             </button>
            </div>
-           <div className="flex-1 flex justify-center">
-             <div className="flex bg-secondary rounded-xl p-1">
-               <button onClick={() => setTab(TABS.WORKOUTS)}
-                 className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === TABS.WORKOUTS ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-                 Workouts
-               </button>
-               <button onClick={() => setTab(TABS.EXERCISES)}
-                 className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === TABS.EXERCISES ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
-                 Exercises
-               </button>
-             </div>
-           </div>
-           <div className="flex items-center gap-1">
+           {/* Right icons */}
+           <div className="flex items-center gap-1 ml-auto">
              <Link to={createPageUrl("Calculator")}>
                <Button variant="ghost" size="icon" className="h-10 w-10">
                  <Calculator className="w-6 h-6" />
