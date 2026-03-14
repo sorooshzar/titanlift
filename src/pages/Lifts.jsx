@@ -408,9 +408,10 @@ export default function Lifts() {
              <button onClick={() => setTab(TABS.EXERCISES)}
                className={`px-6 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === TABS.EXERCISES ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
                Exercises
-             </button>
-           </div>
-          <div className="flex items-center gap-1">
+               </button>
+               </div>
+               </div>
+               <div className="flex items-center gap-1">
             <Link to={createPageUrl("Calculator")}>
               <Button variant="ghost" size="icon" className="h-10 w-10">
                 <Calculator className="w-6 h-6" />
