@@ -18,7 +18,7 @@ const THEME_PRIMARY = {
   crimson: "0 72% 51%",
   forest: "142 71% 45%",
   fairy: "330 81% 60%",
-  gold: "38 92% 50%",
+  gold: "48 96% 48%",
 };
 
 export function applyTheme(themeId) {
