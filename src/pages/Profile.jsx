@@ -70,7 +70,7 @@ function LogWeightModal({ onClose }) {
   );
 }
 
-function ProfileInfoPanel({ user, onClose }) {
+function ProfileInfoPanel({ user, onClose, bodyWeights, workoutLogs, latestWeightDisplay, weightUnit, nutritionStreak }) {
   const handleSignOut = () => {
     base44.auth.logout();
   };
