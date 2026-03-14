@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Clock, Dumbbell, ChevronRight, BarChart3 } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Dumbbell, ChevronRight, BarChart3, Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,7 +19,7 @@ function formatDuration(mins) {
 function CalendarView({ logs, onSelectDay }) {
   const [month, setMonth] = useState(new Date());
   const days = eachDayOfInterval({ start: startOfMonth(month), end: endOfMonth(month) });
-  const firstDayOffset = getDay(startOfMonth(month)); // 0=Sun
+  const firstDayOffset = getDay(startOfMonth(month));
 
   const logsByDay = {};
   logs.forEach((log) => {
@@ -31,21 +31,16 @@ function CalendarView({ logs, onSelectDay }) {
 
   return (
     <div className="bg-card rounded-xl border border-border p-4">
-      {/* Month nav */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1))} className="text-muted-foreground px-2 text-sm font-medium">‹</button>
         <span className="text-sm font-bold">{format(month, "MMMM yyyy")}</span>
         <button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1))} className="text-muted-foreground px-2 text-sm font-medium">›</button>
       </div>
-
-      {/* Day headers */}
       <div className="grid grid-cols-7 mb-2">
         {["Su","Mo","Tu","We","Th","Fr","Sa"].map((d) => (
           <div key={d} className="text-center text-[10px] font-semibold text-muted-foreground py-1">{d}</div>
         ))}
       </div>
-
-      {/* Days grid */}
       <div className="grid grid-cols-7 gap-1">
         {Array(firstDayOffset).fill(null).map((_, i) => <div key={`e-${i}`} />)}
         {days.map((day) => {
@@ -54,13 +49,10 @@ function CalendarView({ logs, onSelectDay }) {
           const hasLog = dayLogs.length > 0;
           const isToday = isSameDay(day, new Date());
           return (
-            <button
-              key={key}
-              onClick={() => hasLog && onSelectDay(day, dayLogs)}
+            <button key={key} onClick={() => hasLog && onSelectDay(day, dayLogs)}
               className={`aspect-square rounded-lg flex items-center justify-center text-xs font-semibold relative transition-all
                 ${isToday ? "ring-1 ring-primary" : ""}
-                ${hasLog ? "bg-primary/20 text-primary" : "text-foreground hover:bg-secondary"}`}
-            >
+                ${hasLog ? "bg-primary/20 text-primary" : "text-foreground hover:bg-secondary"}`}>
               {format(day, "d")}
               {hasLog && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />}
             </button>
@@ -71,9 +63,12 @@ function CalendarView({ logs, onSelectDay }) {
   );
 }
 
-function WorkoutDetailModal({ log, onClose }) {
+function WorkoutDetailModal({ log, onClose, onDelete, onEdit }) {
   const { unit: weightUnit, toDisplay } = useWeightUnit();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   if (!log) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -92,7 +87,11 @@ function WorkoutDetailModal({ log, onClose }) {
               {log.started_at ? format(new Date(log.started_at), "EEEE, MMM d yyyy · h:mm a") : ""}
             </p>
           </div>
+          <Button variant="ghost" size="icon" className="rounded-full text-destructive" onClick={() => setConfirmDelete(true)}>
+            <Trash2 className="w-4 h-4" />
+          </Button>
         </div>
+
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
             { label: "Duration", value: formatDuration(log.duration_minutes) },
@@ -105,6 +104,7 @@ function WorkoutDetailModal({ log, onClose }) {
             </div>
           ))}
         </div>
+
         <div className="space-y-3">
           {log.exercises?.map((ex, i) => (
             <div key={i} className="bg-card rounded-xl border border-border p-4"
@@ -154,12 +154,33 @@ function WorkoutDetailModal({ log, onClose }) {
           ))}
         </div>
       </div>
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-60 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 sm:items-center"
+          onClick={() => setConfirmDelete(false)}>
+          <div className="bg-card w-full max-w-sm rounded-2xl border border-border p-5 space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <div>
+              <h3 className="font-bold text-base">Delete this workout?</h3>
+              <p className="text-sm text-muted-foreground mt-1">"{log.name}" will be permanently removed from your history. This cannot be undone.</p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setConfirmDelete(false)}
+                className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">Cancel</button>
+              <button onClick={() => { setConfirmDelete(false); onDelete(log.id); }}
+                className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
 
 export default function WorkoutHistory() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { unit: weightUnit, toDisplay } = useWeightUnit();
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
@@ -176,6 +197,12 @@ export default function WorkoutHistory() {
     } else {
       setDayLogs({ day, logs: dayLogsArr });
     }
+  };
+
+  const handleDelete = async (id) => {
+    await base44.entities.WorkoutLog.delete(id);
+    queryClient.invalidateQueries({ queryKey: ["workoutLogs"] });
+    setSelectedLog(null);
   };
 
   return (
@@ -200,7 +227,6 @@ export default function WorkoutHistory() {
         <CalendarView logs={logs} onSelectDay={handleSelectDay} />
       )}
 
-      {/* Day drill-down */}
       {dayLogs && (
         <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-center justify-between mb-3">
@@ -218,7 +244,6 @@ export default function WorkoutHistory() {
         </div>
       )}
 
-      {/* Workout list */}
       {logs.length === 0 ? (
         <div className="text-center py-16">
           <Dumbbell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" />
@@ -227,33 +252,43 @@ export default function WorkoutHistory() {
       ) : (
         <div className="space-y-2">
           {logs.map((log) => (
-            <button
-              key={log.id}
-              onClick={() => setSelectedLog(log)}
-              className="w-full bg-card rounded-xl border border-border p-4 flex items-center gap-3 text-left hover:border-primary/40 transition-colors"
-            >
-              <div className="flex-1 min-w-0">
+            <div key={log.id}
+              className="w-full bg-card rounded-xl border border-border p-4 flex items-center gap-3 hover:border-primary/40 transition-colors">
+              <button className="flex-1 min-w-0 text-left" onClick={() => setSelectedLog(log)}>
                 <p className="text-sm font-semibold truncate">{log.name}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {log.started_at ? format(new Date(log.started_at), "EEE, MMM d") : ""}
                   {log.duration_minutes ? ` · ${formatDuration(log.duration_minutes)}` : ""}
                 </p>
-              </div>
+              </button>
               <div className="text-right flex-shrink-0">
                 {log.total_volume > 0 && (
                   <p className="text-sm font-bold text-primary">{toDisplay(log.total_volume)?.toLocaleString()} {weightUnit}</p>
                 )}
                 <p className="text-[10px] text-muted-foreground">{log.total_sets || 0} sets</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            </button>
+              <button onClick={() => setSelectedLog(log)} className="text-muted-foreground hover:text-foreground">
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+              </button>
+              <button onClick={async () => {
+                if (window.confirm(`Delete "${log.name}"?`)) {
+                  await handleDelete(log.id);
+                }
+              }} className="text-muted-foreground hover:text-destructive transition-colors ml-1">
+                <Trash2 className="w-3.5 h-3.5 flex-shrink-0" />
+              </button>
+            </div>
           ))}
         </div>
       )}
 
       <AnimatePresence>
         {selectedLog && (
-          <WorkoutDetailModal log={selectedLog} onClose={() => setSelectedLog(null)} />
+          <WorkoutDetailModal
+            log={selectedLog}
+            onClose={() => setSelectedLog(null)}
+            onDelete={handleDelete}
+          />
         )}
       </AnimatePresence>
     </div>
