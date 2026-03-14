@@ -367,7 +367,25 @@ function ExercisesTab() {
         </div>
       )}
       <CreateExerciseModal open={showCreate} onClose={() => setShowCreate(false)} />
-      <ExerciseDetailModal exercise={selectedExercise} isOpen={!!selectedExercise} onClose={() => setSelectedExercise(null)} workoutLogs={workoutLogs} />
+      <ExerciseDetailModal exercise={selectedExercise} isOpen={!!selectedExercise} onClose={() => setSelectedExercise(null)} workoutLogs={workoutLogs} onDelete={(ex) => setExerciseToDelete(ex)} />
+
+      {/* Delete exercise confirmation */}
+      {exerciseToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 sm:items-center"
+          onClick={() => setExerciseToDelete(null)}>
+          <div className="bg-card w-full max-w-sm rounded-2xl border border-border p-5 space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <div>
+              <h3 className="font-bold text-base">Delete "{exerciseToDelete.name}"?</h3>
+              <p className="text-sm text-muted-foreground mt-1">This will permanently delete this exercise and cannot be undone.</p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setExerciseToDelete(null)} className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">Cancel</button>
+              <button onClick={handleDeleteExercise} className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
