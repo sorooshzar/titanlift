@@ -77,6 +77,10 @@ export default function OnboardingGate({ children }) {
         // Initialize user-scoped storage as soon as we know who this is
         initUserStorage(user.id);
 
+        // Re-apply this user's saved theme
+        const savedTheme = userStorage.getItem("gym-theme");
+        if (savedTheme) applyTheme(savedTheme);
+
         if (user?.onboarding_completed) {
           setStatus("done");
           return;
