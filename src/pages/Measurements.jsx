@@ -269,12 +269,18 @@ export default function Measurements() {
 
   const { data: bodyWeights = [] } = useQuery({
     queryKey: ["bodyWeights"],
-    queryFn: () => base44.entities.BodyWeight.list("-created_date", 50),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.BodyWeight.filter({ created_by: user.email }, "-created_date", 50);
+    },
   });
 
   const { data: bodyMeasurements = [] } = useQuery({
     queryKey: ["bodyMeasurements"],
-    queryFn: () => base44.entities.BodyMeasurement.list("-date", 500),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.BodyMeasurement.filter({ created_by: user.email }, "-date", 500);
+    },
   });
 
   const latestByPart = {};

@@ -176,29 +176,44 @@ export default function Profile() {
 
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-finished_at", 100),
+    queryFn: async () => {
+      const u = await base44.auth.me();
+      return base44.entities.WorkoutLog.filter({ created_by: u.email }, "-finished_at", 100);
+    },
   });
 
   const { data: bodyWeights = [] } = useQuery({
     queryKey: ["bodyWeights"],
-    queryFn: () => base44.entities.BodyWeight.list("-created_date", 50),
+    queryFn: async () => {
+      const u = await base44.auth.me();
+      return base44.entities.BodyWeight.filter({ created_by: u.email }, "-created_date", 50);
+    },
   });
 
   // For nutrition rank — fetch all macro + water entries to compute streak
   const { data: allMacroEntries = [] } = useQuery({
     queryKey: ["profileAllMacroEntries"],
-    queryFn: () => base44.entities.MacroEntry.list("-date", 500),
+    queryFn: async () => {
+      const u = await base44.auth.me();
+      return base44.entities.MacroEntry.filter({ created_by: u.email }, "-date", 500);
+    },
   });
   const { data: allWaterLogs = [] } = useQuery({
     queryKey: ["profileAllWaterLogs"],
-    queryFn: () => base44.entities.WaterLog.list("-date", 500),
+    queryFn: async () => {
+      const u = await base44.auth.me();
+      return base44.entities.WaterLog.filter({ created_by: u.email }, "-date", 500);
+    },
   });
   const nutritionStreak = computeNutritionStreak(allMacroEntries, allWaterLogs);
 
   const refetchTrackers = () => queryClient.invalidateQueries({ queryKey: ["userTrackers"] });
   const { data: userTrackers = [] } = useQuery({
     queryKey: ["userTrackers"],
-    queryFn: () => base44.entities.UserTracker.list("order", 50),
+    queryFn: async () => {
+      const u = await base44.auth.me();
+      return base44.entities.UserTracker.filter({ created_by: u.email }, "order", 50);
+    },
   });
 
   const removeTracker = async (id) => {
