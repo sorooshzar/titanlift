@@ -56,22 +56,10 @@ export default function BottomNav() {
             return (
               <Link key={tab.name} to={createPageUrl(tab.page)}
                 className="flex flex-col items-center gap-1 py-2 px-3 min-w-[56px] relative">
-                <motion.div
-                  animate={{ scale: active ? 1.1 : 1, y: active ? -1 : 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
-                  <Icon className={`w-5 h-5 transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`} />
-                </motion.div>
-                <span className={`text-[10px] font-medium transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`}>
+                <Icon className={`w-5 h-5 transition-colors duration-150 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                <span className={`text-[10px] font-medium transition-colors duration-150 ${active ? "text-primary" : "text-muted-foreground"}`}>
                   {tab.name}
                 </span>
-                {active && (
-                  <motion.div
-                    layoutId="nav-indicator"
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-primary rounded-full"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
               </Link>
             );
           })}
