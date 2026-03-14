@@ -89,11 +89,66 @@ export default function OnboardingFlow({ onComplete }) {
   };
 
   const handleFinish = async () => {
-    // Save all onboarding answers to localStorage so OnboardingGate can
-    // persist them after OAuth completes (user isn't logged in yet).
-    localStorage.setItem(PENDING_KEY, JSON.stringify(answers));
-    // Redirect to OAuth sign-up — after login, OnboardingGate picks up PENDING_KEY
-    base44.auth.redirectToLogin();
+    setSaving(true);
+    try {
+      // Check if already authenticated — if so, save directly
+      const isAuth = await base44.auth.isAuthenticated();
+      if (isAuth) {
+        const { initUserStorage, userStorage } = await import("@/components/utils/userStorage");
+        const user = await base44.auth.me();
+        initUserStorage(user.id);
+        await base44.auth.updateMe({
+          onboarding_completed: true,
+          goal: answers.goal,
+          goal_weight_kg: answers.goal_weight_kg,
+          goal_timeline_weeks: answers.goal_timeline_weeks,
+          experience_level: answers.experience_level,
+          sex: answers.sex,
+          age: answers.age,
+          height_cm: answers.height_cm,
+          weight_kg: answers.weight_kg,
+          body_fat_pct: answers.body_fat_pct,
+          activity_level: answers.activity_level,
+          workout_days_per_week: answers.workout_days_per_week,
+          nutrition_tracking: answers.nutrition_tracking,
+          daily_calories: answers.daily_calories,
+          daily_protein: answers.daily_protein,
+          daily_carbs: answers.daily_carbs,
+          daily_fat: answers.daily_fat,
+          weight_unit: answers.weight_unit,
+          week_start: answers.week_start,
+          workout_style: answers.workout_style,
+        });
+        if (answers.weight_unit) userStorage.setItem("gym-weight-unit", answers.weight_unit);
+        if (answers.distance_unit) userStorage.setItem("gym-distance-unit", answers.distance_unit);
+        if (answers.week_start) userStorage.setItem("gym-week-start", answers.week_start === "sunday" ? "0" : "1");
+        if (answers.daily_calories) {
+          userStorage.setItem("gym-macro-calories", String(answers.daily_calories));
+          userStorage.setItem("gym-macro-protein", String(answers.daily_protein || 0));
+          userStorage.setItem("gym-macro-carbs", String(answers.daily_carbs || 0));
+          userStorage.setItem("gym-macro-fat", String(answers.daily_fat || 0));
+        }
+        if (answers.goal_weight_kg) userStorage.setItem("gym-goal-weight", String(answers.goal_weight_kg));
+        if (answers.goal_timeline_weeks) userStorage.setItem("gym-goal-weeks", String(answers.goal_timeline_weeks));
+        if (answers.weight_kg) {
+          await base44.entities.BodyWeight.create({ weight: answers.weight_kg, unit: "kg", date: new Date().toISOString().split("T")[0] });
+        }
+        if (answers.height_cm) {
+          await base44.entities.BodyMeasurement.create({ body_part: "Height", value: answers.height_cm, unit: "cm", date: new Date().toISOString().split("T")[0] });
+        }
+        onComplete();
+      } else {
+        // Not logged in — save to localStorage and redirect to login/signup
+        localStorage.setItem(PENDING_KEY, JSON.stringify(answers));
+        base44.auth.redirectToLogin();
+      }
+    } catch (e) {
+      console.error("handleFinish error:", e);
+      localStorage.setItem(PENDING_KEY, JSON.stringify(answers));
+      base44.auth.redirectToLogin();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const variants = {
