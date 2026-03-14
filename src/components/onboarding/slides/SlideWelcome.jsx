@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Dumbbell, Zap, BarChart2, Apple, Moon, Sun } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
-export default function SlideWelcome({ onNext }) {
+export default function SlideWelcome({ onNext, onLoginRequested }) {
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("gym-dark-mode");
     return saved === null ? true : saved === "true";
@@ -18,7 +18,11 @@ export default function SlideWelcome({ onNext }) {
   };
 
   const handleLogin = () => {
-    base44.auth.redirectToLogin();
+    if (onLoginRequested) {
+      onLoginRequested();
+    } else {
+      base44.auth.redirectToLogin();
+    }
   };
 
   return (
@@ -80,16 +84,18 @@ export default function SlideWelcome({ onNext }) {
         >
           Already have an account? Log In
         </button>
-        {/* Dark mode toggle */}
-        <div className="flex items-center justify-center gap-2 pt-1">
+
+        {/* Dark mode toggle — fixed layout */}
+        <div className="flex items-center justify-center gap-3 pt-1">
           <Sun className="w-3.5 h-3.5 text-muted-foreground" />
           <button
             onClick={toggleDark}
-            className={`relative w-10 h-5.5 rounded-full transition-colors ${darkMode ? "bg-primary" : "bg-secondary"}`}
-            style={{ height: "22px" }}
+            className={`relative flex-shrink-0 rounded-full transition-colors duration-200 ${darkMode ? "bg-primary" : "bg-muted"}`}
+            style={{ width: 44, height: 24 }}
           >
             <span
-              className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${darkMode ? "translate-x-5" : "translate-x-0.5"}`}
+              className="absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"
+              style={{ left: 4, transform: darkMode ? "translateX(20px)" : "translateX(0px)" }}
             />
           </button>
           <Moon className="w-3.5 h-3.5 text-muted-foreground" />
