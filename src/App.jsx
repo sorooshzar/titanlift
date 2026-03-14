@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import OnboardingGate from '@/components/onboarding/OnboardingGate';
 import SignIn from '@/pages/SignIn';
+import FoodPreview from '@/pages/FoodPreview';
 import { AnimatePresence, motion } from 'framer-motion'
 import { Navigate } from 'react-router-dom';
 import { TabStateProvider } from '@/components/mobile/TabStateManager';
@@ -83,6 +84,13 @@ const AuthenticatedApp = () => {
           <Route path="/SignIn" element={
             <RouteContent pageKey="/SignIn">
               <SignIn />
+            </RouteContent>
+          } />
+          <Route path="/FoodPreview" element={
+            <RouteContent pageKey="/FoodPreview">
+              <LayoutWrapper currentPageName="FoodPreview">
+                <FoodPreview />
+              </LayoutWrapper>
             </RouteContent>
           } />
           <Route path="*" element={
