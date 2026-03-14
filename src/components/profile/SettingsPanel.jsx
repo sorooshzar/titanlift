@@ -26,7 +26,7 @@ export function applyTheme(themeId) {
   document.documentElement.style.setProperty("--primary", hsl);
   document.documentElement.style.setProperty("--accent", hsl);
   document.documentElement.style.setProperty("--ring", hsl);
-  localStorage.setItem("gym-theme", themeId);
+  userStorage.setItem("gym-theme", themeId);
   window.dispatchEvent(new CustomEvent("themeChanged", { detail: themeId }));
 }
 
