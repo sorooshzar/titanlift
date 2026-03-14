@@ -66,8 +66,9 @@ export default function MacrosDashboard({ date, macroGoals }) {
   const { data: weekRaw } = useQuery({
     queryKey: ["macroWeek", date],
     queryFn: async () => {
+      const user = await base44.auth.me();
       const results = await Promise.all(
-        dates.map(d => base44.entities.MacroEntry.filter({ date: d }, "-created_date", 200))
+        dates.map(d => base44.entities.MacroEntry.filter({ date: d, created_by: user.email }, "-created_date", 200))
       );
       return results;
     },
@@ -77,8 +78,9 @@ export default function MacrosDashboard({ date, macroGoals }) {
   const { data: waterRaw } = useQuery({
     queryKey: ["waterWeek", date],
     queryFn: async () => {
+      const user = await base44.auth.me();
       const results = await Promise.all(
-        dates.map(d => base44.entities.WaterLog.filter({ date: d }, "-created_date", 50))
+        dates.map(d => base44.entities.WaterLog.filter({ date: d, created_by: user.email }, "-created_date", 50))
       );
       return results;
     },

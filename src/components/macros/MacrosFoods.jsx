@@ -153,7 +153,10 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
 
   const { data: foods = [] } = useQuery({
     queryKey: ["foods"],
-    queryFn: () => base44.entities.Food.list("name", 200),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.Food.filter({ created_by: user.email }, "name", 200);
+    },
   });
 
   const filtered = foods.filter(f => !search || f.name.toLowerCase().includes(search.toLowerCase()));
