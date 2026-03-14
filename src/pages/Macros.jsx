@@ -111,10 +111,6 @@ function useMacroGoals() {
 
   React.useEffect(() => {
     recalculate();
-    // Re-run when goal weight changes
-    const handler = () => recalculate();
-    window.addEventListener("goalWeightChanged", handler);
-    return () => window.removeEventListener("goalWeightChanged", handler);
   }, [recalculate]);
 
   return goals;
