@@ -73,6 +73,9 @@ export default function OnboardingGate({ children }) {
   useEffect(() => {
     base44.auth.me()
       .then(async user => {
+        // Initialize user-scoped storage as soon as we know who this is
+        initUserStorage(user.id);
+
         if (user?.onboarding_completed) {
           setStatus("done");
           return;
