@@ -160,11 +160,24 @@ export default function Profile() {
   const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    base44.auth.me().then(u => {
+      setUser(u);
+      // Sync goal weight from profile if not already in localStorage
+      if (u?.goal_weight_kg && !localStorage.getItem("gym-goal-weight")) {
+        setGoalWeight(u.goal_weight_kg);
+        localStorage.setItem("gym-goal-weight", String(u.goal_weight_kg));
+      }
+    }).catch(() => {});
     const saved = localStorage.getItem("gym-dark-mode");
     setDarkMode(saved === null ? true : saved === "true");
     const savedTheme = localStorage.getItem("gym-theme");
     if (savedTheme) applyTheme(savedTheme);
+    const handler = (e) => {
+      const kg = e.detail?.goalWeightKg || parseFloat(localStorage.getItem("gym-goal-weight")) || null;
+      setGoalWeight(kg);
+    };
+    window.addEventListener("goalWeightChanged", handler);
+    return () => window.removeEventListener("goalWeightChanged", handler);
   }, []);
 
   const toggleDark = (v) => {
