@@ -37,6 +37,7 @@ const SLIDES = [
 
 export default function OnboardingFlow({ onComplete }) {
   const [step, setStep] = useState(0);
+  const [showLogin, setShowLogin] = useState(false);
   const [direction, setDirection] = useState(1);
   const [saving, setSaving] = useState(false);
   const [answers, setAnswers] = useState({
@@ -193,6 +194,7 @@ export default function OnboardingFlow({ onComplete }) {
               updateMany={updateMany}
               onNext={goNext}
               onFinish={isLast ? handleFinish : isSummary ? goNext : undefined}
+              onLoginRequested={isFirst ? () => setShowLogin(true) : undefined}
               saving={saving}
             />
           </motion.div>
