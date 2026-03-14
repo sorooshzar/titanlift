@@ -179,7 +179,7 @@ export default function Settings() {
       {/* Timers */}
        <Section icon={Timer} title="Timers" color="#ec4899">
          <SettingRow label="Warm-up rest time" description="Rest between warm-up sets">
-           <input type="number" value={warmupRestTime} onChange={e => { setWarmupRestTime(parseInt(e.target.value)); localStorage.setItem("gym-warmup-rest", String(e.target.value)); }}
+           <input type="number" value={warmupRestTime} onChange={e => { setWarmupRestTime(parseInt(e.target.value)); userStorage.setItem("gym-warmup-rest", String(e.target.value)); }}
              className="w-20 text-xs text-center bg-secondary border-0 rounded-lg px-2 py-1" />
            <span className="text-xs text-muted-foreground ml-1">s</span>
          </SettingRow>
