@@ -249,18 +249,19 @@ export default function Profile() {
 
   // XP / Level calculation based on total volume
   function getLevelData(volume) {
-    // Each level requires more XP: level^1.5 * 500 base
+    if (!volume || volume <= 0) return { level: 1, xpIntoLevel: 0, xpNeeded: 500, progress: 0 };
     let level = 1;
     let xpUsed = 0;
-    while (true) {
+    while (level <= 999) {
       const xpNeeded = Math.floor(Math.pow(level, 1.5) * 500);
+      if (xpNeeded <= 0) break;
       if (xpUsed + xpNeeded > volume) {
-        return { level, xpIntoLevel: volume - xpUsed, xpNeeded, progress: (volume - xpUsed) / xpNeeded };
+        return { level, xpIntoLevel: volume - xpUsed, xpNeeded, progress: Math.min((volume - xpUsed) / xpNeeded, 1) };
       }
       xpUsed += xpNeeded;
       level++;
-      if (level > 999) return { level: 999, xpIntoLevel: 0, xpNeeded: 1, progress: 1 };
     }
+    return { level: 999, xpIntoLevel: 0, xpNeeded: 1, progress: 1 };
   }
   const xp = getLevelData(totalVolume);
 
