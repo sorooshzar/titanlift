@@ -37,10 +37,8 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
   };
 
   const handleSelectColor = async (color) => {
-    try {
-      await base44.entities.WorkoutTemplate.update(template.id, { color });
-      queryClient?.invalidateQueries({ queryKey: ["templates"] });
-    } catch (e) {}
+    await base44.entities.WorkoutTemplate.update(template.id, { color: color || null });
+    queryClient?.invalidateQueries({ queryKey: ["templates"] });
   };
 
   return (
