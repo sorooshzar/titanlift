@@ -346,11 +346,11 @@ export default function Profile() {
                   <Button size="sm" className="h-8 px-3 text-xs" onClick={() => {
                     const val = parseFloat(goalWeightInput);
                     // Store goal in kg
-                    if (val) { const kgVal = toKg(val); setGoalWeight(kgVal); localStorage.setItem("gym-goal-weight", String(kgVal)); }
+                    if (val) { const kgVal = toKg(val); setGoalWeight(kgVal); userStorage.setItem("gym-goal-weight", String(kgVal)); }
                     setShowGoalInput(false); setGoalWeightInput("");
                   }}>Set</Button>
                   {goalWeight && <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-destructive" onClick={() => {
-                    setGoalWeight(null); localStorage.removeItem("gym-goal-weight"); setShowGoalInput(false);
+                    setGoalWeight(null); userStorage.removeItem("gym-goal-weight"); setShowGoalInput(false);
                   }}>Clear</Button>}
                 </div>
               </motion.div>
