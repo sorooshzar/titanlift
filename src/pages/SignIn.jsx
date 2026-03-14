@@ -1,35 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Mail, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPass, setShowPass] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleGoogle = () => {
-    base44.auth.redirectToLogin({ provider: "google" });
-  };
-
-  const handleApple = () => {
-    base44.auth.redirectToLogin({ provider: "apple" });
-  };
-
-  const handleEmailLogin = () => {
-    setError("");
-    if (!email || !password) { setError("Please fill in all fields."); return; }
-    setLoading(true);
+  const handleOAuth = () => {
     base44.auth.redirectToLogin();
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col px-6 py-10">
-      {/* Back button */}
       <motion.button
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
@@ -41,19 +24,13 @@ export default function SignIn() {
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-3xl font-black mb-1">Welcome back 👋</h1>
-        <p className="text-muted-foreground text-sm mb-8">Log in to access your IronLog data.</p>
+        <p className="text-muted-foreground text-sm mb-8">Sign in to access your IronLog data.</p>
       </motion.div>
 
-      {/* OAuth buttons */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="space-y-3 mb-6"
-      >
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-3">
         <button
-          onClick={handleGoogle}
-          className="w-full flex items-center justify-center gap-3 rounded-2xl border-2 border-border bg-card py-3.5 font-semibold text-sm hover:bg-secondary transition-colors active:scale-[0.98]"
+          onClick={handleOAuth}
+          className="w-full flex items-center justify-center gap-3 rounded-2xl border-2 border-border bg-card py-4 font-semibold text-sm hover:bg-secondary transition-colors active:scale-[0.98]"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -65,65 +42,25 @@ export default function SignIn() {
         </button>
 
         <button
-          onClick={handleApple}
-          className="w-full flex items-center justify-center gap-3 rounded-2xl border-2 border-border bg-card py-3.5 font-semibold text-sm hover:bg-secondary transition-colors active:scale-[0.98]"
+          onClick={handleOAuth}
+          className="w-full flex items-center justify-center gap-3 rounded-2xl border-2 border-border bg-card py-4 font-semibold text-sm hover:bg-secondary transition-colors active:scale-[0.98]"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
             <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
           </svg>
           Continue with Apple
         </button>
-      </motion.div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex-1 h-px bg-border" />
-        <span className="text-xs text-muted-foreground">or log in with email</span>
-        <div className="flex-1 h-px bg-border" />
-      </div>
-
-      {/* Email form */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="space-y-3"
-      >
-        <div className="flex items-center bg-secondary rounded-2xl px-4 gap-3">
-          <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
-          <input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="flex-1 bg-transparent py-3.5 text-sm font-medium focus:outline-none"
-          />
+        <div className="bg-secondary/50 rounded-2xl p-4 text-center mt-2">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            🔒 IronLog uses secure OAuth sign-in. No passwords stored.
+          </p>
         </div>
 
-        <div className="flex items-center bg-secondary rounded-2xl px-4 gap-3">
-          <button onClick={() => setShowPass(v => !v)} className="shrink-0">
-            {showPass
-              ? <EyeOff className="w-4 h-4 text-muted-foreground" />
-              : <Eye className="w-4 h-4 text-muted-foreground" />}
-          </button>
-          <input
-            type={showPass ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="flex-1 bg-transparent py-3.5 text-sm font-medium focus:outline-none"
-          />
-        </div>
-
-        {error && <p className="text-xs text-destructive px-1">{error}</p>}
-
-        <button
-          onClick={handleEmailLogin}
-          disabled={loading}
-          className="w-full rounded-2xl bg-primary text-white font-bold text-sm py-3.5 mt-2 disabled:opacity-60"
-        >
-          {loading ? "..." : "Log In →"}
-        </button>
+        <p className="text-center text-xs text-muted-foreground pt-2">
+          Don't have an account?{" "}
+          <button onClick={() => navigate(-1)} className="text-primary font-semibold">Get Started</button>
+        </p>
       </motion.div>
     </div>
   );
