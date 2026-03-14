@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getFoodIcon } from "./foodIcons";
 import FoodDetailModal from "./FoodDetailModal";
-import ScanFoodModal from "./ScanFoodModal";
+import ScanFoodModalNew from "./ScanFoodModalNew";
 import { motion, AnimatePresence } from "framer-motion";
 
 const PROTEIN_COLOR = "#FF0055";
@@ -304,9 +304,8 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
 
       {/* Scan modal */}
       {showScan && (
-        <ScanFoodModal
+        <ScanFoodModalNew
           onClose={() => setShowScan(false)}
-          onFoodFound={handleScanResult}
         />
       )}
     </div>
