@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight, Archive, Calculator } from "lucide-react";
+import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight, Archive, Calculator, Star } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useActiveWorkout } from "../components/workout/ActiveWorkoutContext";
