@@ -178,8 +178,6 @@ export default function WorkoutSummary() {
           );
         })}
       </div>
-
-
-    </div>
+    </motion.div>
   );
 }

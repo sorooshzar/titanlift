@@ -291,7 +291,7 @@ export default function Profile() {
       <div className="space-y-4">
         {/* Profile info bar — clickable, smaller */}
         <button onClick={() => setShowProfileInfo(true)}
-          className="w-full flex items-center gap-3 bg-card rounded-2xl border border-border px-3 py-3 text-left active:scale-[0.99] transition-transform">
+          className="w-full flex items-center gap-3 bg-card rounded-2xl border border-border px-3 py-3 text-left active:scale-[0.98] transition-all duration-150">
           <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border shrink-0">
             <span className="text-base font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
           </div>
