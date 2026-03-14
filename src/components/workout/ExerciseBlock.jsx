@@ -34,7 +34,7 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
 
   return (
     <div
-      className="bg-card rounded-xl border border-border overflow-hidden"
+      className="bg-card rounded-xl border border-border overflow-hidden transition-shadow"
       style={{ borderLeftWidth: "3px", borderLeftColor: borderColor }}
     >
       {/* Exercise Header */}

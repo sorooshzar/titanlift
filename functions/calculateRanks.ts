@@ -237,19 +237,14 @@ Deno.serve(async (req) => {
 
     // Save muscle ranks to UserMuscleRank entity (overwrite existing)
     if (user) {
-      // Delete old muscle rank entries for this user
+      // Delete old entries and create new ones in parallel for speed
       const existing = await base44.asServiceRole.entities.UserMuscleRank.filter({ created_by: user.email }, null, 1000);
-      for (const entry of existing) {
-        await base44.asServiceRole.entities.UserMuscleRank.delete(entry.id);
-      }
+      await Promise.all(existing.map(entry => base44.asServiceRole.entities.UserMuscleRank.delete(entry.id)));
       
-      // Create new entries with latest ranks
-      for (const [muscle, rank] of Object.entries(muscleRanks)) {
-        await base44.asServiceRole.entities.UserMuscleRank.create({
-          muscle,
-          rank
-        });
-      }
+      // Create new entries in parallel
+      await Promise.all(Object.entries(muscleRanks).map(([muscle, rank]) =>
+        base44.asServiceRole.entities.UserMuscleRank.create({ muscle, rank })
+      ));
     }
 
     return Response.json({ 
