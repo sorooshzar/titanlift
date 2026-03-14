@@ -29,15 +29,15 @@ export default function BottomNav() {
     <>
       <QuickActionMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border user-select-none">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2" style={{ paddingBottom: 'var(--safe-area-inset-bottom)' }}>
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border">
+        <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
           {tabs.map((tab) => {
             if (tab.name === "plus") {
               return (
                 <button key="plus" onClick={() => setMenuOpen(!menuOpen)} className="relative -mt-6">
                   <motion.div
-                    animate={{ rotate: menuOpen ? 45 : 0 }}
-                    transition={{ duration: 0.2 }}
+                    animate={{ rotate: menuOpen ? 45 : 0, scale: menuOpen ? 1.05 : 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
                   >
                     {menuOpen ? (
@@ -55,11 +55,23 @@ export default function BottomNav() {
 
             return (
               <Link key={tab.name} to={createPageUrl(tab.page)}
-                className="flex flex-col items-center gap-1 py-2 px-3 min-w-[56px]">
-                <Icon className={`w-5 h-5 transition-colors ${active ? "text-primary" : "text-muted-foreground"}`} />
-                <span className={`text-[10px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}>
+                className="flex flex-col items-center gap-1 py-2 px-3 min-w-[56px] relative">
+                <motion.div
+                  animate={{ scale: active ? 1.1 : 1, y: active ? -1 : 0 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                >
+                  <Icon className={`w-5 h-5 transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`} />
+                </motion.div>
+                <span className={`text-[10px] font-medium transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`}>
                   {tab.name}
                 </span>
+                {active && (
+                  <motion.div
+                    layoutId="nav-indicator"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-primary rounded-full"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
               </Link>
             );
           })}

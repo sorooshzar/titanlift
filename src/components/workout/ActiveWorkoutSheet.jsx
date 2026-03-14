@@ -184,13 +184,15 @@ export default function ActiveWorkoutSheet() {
   if (minimized) {
     return (
       <motion.div
-        initial={{ y: 80 }}
-        animate={{ y: 0 }}
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 80, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 30 }}
         className="fixed bottom-20 left-0 right-0 z-50 px-3"
       >
         <button
           onClick={expand}
-          className="w-full bg-primary text-primary-foreground rounded-2xl px-4 py-3 flex items-center gap-3 shadow-2xl"
+          className="w-full bg-primary text-primary-foreground rounded-2xl px-4 py-3 flex items-center gap-3 shadow-2xl active:scale-[0.98] transition-transform"
         >
           <div className="flex-1 text-left">
             <p className="text-sm font-bold truncate">{workout.name}</p>
