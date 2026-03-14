@@ -201,6 +201,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
 function ExercisesTab() {
   const [search, setSearch] = useState("");
   const location = useLocation();
+  const [exerciseToDelete, setExerciseToDelete] = useState(null);
 
   // Read ?submuscle= param set by MuscleModel — pre-filters to exact sub-muscle
   const urlParams = new URLSearchParams(location.search);
@@ -226,10 +227,22 @@ function ExercisesTab() {
     });
   });
 
-  const toggleFavourite = async (e, ex) => {
+  // Optimistic star toggle — update cache immediately, then persist
+  const toggleFavourite = (e, ex) => {
     e.stopPropagation();
-    await base44.entities.Exercise.update(ex.id, { is_favourite: !ex.is_favourite });
+    // Optimistic update
+    queryClient.setQueryData(["exercises"], (old) =>
+      old ? old.map(x => x.id === ex.id ? { ...x, is_favourite: !x.is_favourite } : x) : old
+    );
+    base44.entities.Exercise.update(ex.id, { is_favourite: !ex.is_favourite });
+  };
+
+  const handleDeleteExercise = async () => {
+    if (!exerciseToDelete) return;
+    await base44.entities.Exercise.delete(exerciseToDelete.id);
     queryClient.invalidateQueries({ queryKey: ["exercises"] });
+    setExerciseToDelete(null);
+    setSelectedExercise(null);
   };
 
   let filtered = exercises.filter(ex => {
