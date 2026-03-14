@@ -188,7 +188,10 @@ export default function WorkoutHistory() {
 
   const { data: logs = [] } = useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 200),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.WorkoutLog.filter({ created_by: user.email }, "-created_date", 200);
+    },
   });
 
   const handleSelectDay = (day, dayLogsArr) => {

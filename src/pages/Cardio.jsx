@@ -116,7 +116,10 @@ export default function Cardio() {
 
   const { data: logs = [] } = useQuery({
     queryKey: ["cardioLogs"],
-    queryFn: () => base44.entities.CardioLog.list("-created_date", 50),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.CardioLog.filter({ created_by: user.email }, "-created_date", 50);
+    },
   });
 
   const handleFinish = async (data) => {

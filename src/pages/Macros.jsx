@@ -165,7 +165,10 @@ export default function Macros() {
 
   const { data: entries = [] } = useQuery({
     queryKey: ["macroEntries", date],
-    queryFn: () => base44.entities.MacroEntry.filter({ date }, "-created_date", 100),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.MacroEntry.filter({ date, created_by: user.email }, "-created_date", 100);
+    },
   });
 
   const dailyTotals = entries.reduce(

@@ -141,7 +141,10 @@ function GoalWeightPanel({ isImperial }) {
 
   const { data: bodyWeights = [] } = useQuery({
     queryKey: ["bodyWeights"],
-    queryFn: () => base44.entities.BodyWeight.list("-created_date", 1),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.BodyWeight.filter({ created_by: user.email }, "-created_date", 1);
+    },
   });
 
   const currentKg = bodyWeights[0]?.weight;
