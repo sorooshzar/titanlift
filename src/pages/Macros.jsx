@@ -114,12 +114,12 @@ function useMacroGoals() {
           fat: user.daily_fat || 65,
         };
       } else {
-        const cal = parseInt(localStorage.getItem("gym-macro-calories"));
+        const cal = parseInt(userStorage.getItem("gym-macro-calories"));
         if (cal) base = {
           calories: cal,
-          protein: parseInt(localStorage.getItem("gym-macro-protein")) || 150,
-          carbs: parseInt(localStorage.getItem("gym-macro-carbs")) || 200,
-          fat: parseInt(localStorage.getItem("gym-macro-fat")) || 65,
+          protein: parseInt(userStorage.getItem("gym-macro-protein")) || 150,
+          carbs: parseInt(userStorage.getItem("gym-macro-carbs")) || 200,
+          fat: parseInt(userStorage.getItem("gym-macro-fat")) || 65,
         };
       }
 
