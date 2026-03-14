@@ -93,7 +93,7 @@ export default function WorkoutSummary() {
       </motion.div>
 
       {/* Stats row */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, type: "spring", stiffness: 300, damping: 25 }}
         className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-card rounded-xl p-3 text-center border border-border">
           <Clock className="w-4 h-4 text-primary mx-auto mb-1" />
@@ -111,6 +111,15 @@ export default function WorkoutSummary() {
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sets</p>
         </div>
       </motion.div>
+
+      {loading && (
+        <div className="text-center py-4">
+          <div className="inline-flex items-center gap-2 text-xs text-muted-foreground bg-secondary rounded-full px-4 py-2">
+            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            Calculating ranks...
+          </div>
+        </div>
+      )}
 
       {/* Exercise breakdown */}
       <div className="space-y-3">
