@@ -215,6 +215,7 @@ function ExercisesTab() {
   const [showCreate, setShowCreate] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
 
+  const queryClient = useQueryClient();
   const { data: exercises = [], isLoading } = useExercises();
   const { data: workoutLogs = [] } = useWorkoutLogs();
 
@@ -225,8 +226,15 @@ function ExercisesTab() {
     });
   });
 
+  const toggleFavourite = async (e, ex) => {
+    e.stopPropagation();
+    await base44.entities.Exercise.update(ex.id, { is_favourite: !ex.is_favourite });
+    queryClient.invalidateQueries({ queryKey: ["exercises"] });
+  };
+
   let filtered = exercises.filter(ex => {
     if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (filters.sort === "favourites" && !ex.is_favourite) return false;
     // Direct sub-muscle filter from muscle map click — exact match only
     if (filters.subMuscle) {
       const primary = ex.primary_muscle?.toLowerCase().trim() || "";
