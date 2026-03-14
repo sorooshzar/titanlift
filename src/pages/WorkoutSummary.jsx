@@ -20,6 +20,7 @@ function formatDuration(minutes) {
 }
 
 export default function WorkoutSummary() {
+
   const navigate = useNavigate();
   const { completedLog, clearCompletedLog } = useActiveWorkout();
   const { unit: weightUnit, toDisplay } = useWeightUnit();
