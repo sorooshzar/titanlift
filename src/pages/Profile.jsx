@@ -134,7 +134,7 @@ export default function Profile() {
   const [goalWeightInput, setGoalWeightInput] = useState("");
   // goalWeight is stored in kg (base unit)
   const [goalWeight, setGoalWeight] = useState(() => {
-    const saved = localStorage.getItem("gym-goal-weight");
+    const saved = userStorage.getItem("gym-goal-weight");
     return saved ? parseFloat(saved) : null;
   });
 
