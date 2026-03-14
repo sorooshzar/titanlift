@@ -121,7 +121,6 @@ export default function Settings() {
   const handleWeightUnitChange = (newUnit) => {
     if (weightUnit === newUnit) return;
     // We only change the display preference — all weights are stored in kg (base unit).
-    // Converting stored data causes rounding drift and XP fluctuation, so we never touch the DB here.
     save("gym-weight-unit", newUnit, setWeightUnit);
     window.dispatchEvent(new CustomEvent("weightUnitChanged", { detail: { unit: newUnit } }));
   };
