@@ -80,34 +80,34 @@ function ProfileInfoPanel({ user, onClose, bodyWeights, workoutLogs, latestWeigh
       <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border p-6 space-y-4"
         onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <h2 className="font-bold text-lg">Profile Info</h2>
+          <h2 className="font-bold text-lg">Account</h2>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="space-y-3">
-          {(() => {
-            const heightCm = user?.height_cm;
-            const weightKg = bodyWeights[0]?.weight;
-            const bmi = heightCm && weightKg ? (weightKg / Math.pow(heightCm / 100, 2)) : null;
-            const displayWeight = latestWeightDisplay ? `${latestWeightDisplay}${weightUnit}` : "—";
-            return (
-              <>
-                <div className="bg-secondary rounded-xl px-4 py-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Current Weight</p>
-                  <p className="text-sm font-medium">{displayWeight}</p>
-                </div>
-                <div className="bg-secondary rounded-xl px-4 py-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Total Workouts</p>
-                  <p className="text-sm font-medium">{workoutLogs.length}</p>
-                </div>
-                <div className="bg-secondary rounded-xl px-4 py-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Nutrition Level</p>
-                  <p className="text-sm font-medium">{nutritionStreak.level || "—"}</p>
-                </div>
-              </>
-            );
-          })()}
+        {/* User identity */}
+        <div className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3.5">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <span className="text-lg font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            {user?.full_name && <p className="text-sm font-bold truncate">{user.full_name}</p>}
+            {user?.email && <p className="text-xs text-muted-foreground truncate">{user.email}</p>}
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="bg-secondary rounded-xl px-4 py-3">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Total Workouts</p>
+            <p className="text-sm font-medium">{workoutLogs.length}</p>
+          </div>
+          <div className="bg-secondary rounded-xl px-4 py-3">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Current Weight</p>
+            <p className="text-sm font-medium">{latestWeightDisplay ? `${latestWeightDisplay}${weightUnit}` : "—"}</p>
+          </div>
+          <div className="bg-secondary rounded-xl px-4 py-3">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Nutrition Level</p>
+            <p className="text-sm font-medium">{nutritionStreak.level || "—"}</p>
+          </div>
         </div>
         <div className="flex gap-3 pt-2">
           <Link to={createPageUrl("Settings")} onClick={onClose} className="flex-1">
