@@ -160,7 +160,7 @@ export default function Profile() {
     const savedTheme = localStorage.getItem("gym-theme");
     if (savedTheme) applyTheme(savedTheme);
     const handler = (e) => {
-      const kg = e.detail?.goalWeightKg || parseFloat(localStorage.getItem("gym-goal-weight")) || null;
+      const kg = e.detail?.goalWeightKg || parseFloat(userStorage.getItem("gym-goal-weight")) || null;
       setGoalWeight(kg);
     };
     window.addEventListener("goalWeightChanged", handler);
