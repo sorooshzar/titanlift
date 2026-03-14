@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Activity, Bike, MapPin, Play, Pause, Square, ChevronRight, Flame, Clock, Footprints, Route } from "lucide-react";
+import { Activity, Bike, MapPin, Play, Pause, ChevronRight, Flame, Clock, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
