@@ -167,6 +167,32 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
 
       <CreateDialog open={!!createType} onClose={() => setCreateType(null)} type={createType}
         folders={folders} onSubmit={createType === "folder" ? handleCreateFolder : handleCreateWorkout} />
+
+      {/* Folder delete confirmation */}
+      {folderToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 sm:items-center"
+          onClick={() => setFolderToDelete(null)}>
+          <div className="bg-card w-full max-w-sm rounded-2xl border border-border p-5 space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <div>
+              <h3 className="font-bold text-base">Delete "{folderToDelete.name}"?</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                This will permanently delete the folder and all {templates.filter(t => t.folder_id === folderToDelete.id).length} workout(s) inside it. This cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setFolderToDelete(null)}
+                className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">
+                Cancel
+              </button>
+              <button onClick={confirmDeleteFolder}
+                className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold">
+                Delete All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
