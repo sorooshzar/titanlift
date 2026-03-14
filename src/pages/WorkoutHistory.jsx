@@ -265,12 +265,12 @@ export default function WorkoutHistory() {
                   {log.duration_minutes ? ` · ${formatDuration(log.duration_minutes)}` : ""}
                 </p>
               </button>
-              <div className="text-right flex-shrink-0">
+              <button className="text-right flex-shrink-0" onClick={() => setSelectedLog(log)}>
                 {log.total_volume > 0 && (
                   <p className="text-sm font-bold text-primary">{toDisplay(log.total_volume)?.toLocaleString()} {weightUnit}</p>
                 )}
                 <p className="text-[10px] text-muted-foreground">{log.total_sets || 0} sets</p>
-              </div>
+              </button>
               <button onClick={() => setSelectedLog(log)} className="text-muted-foreground hover:text-foreground">
                 <ChevronRight className="w-4 h-4 flex-shrink-0" />
               </button>

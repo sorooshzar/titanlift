@@ -161,16 +161,16 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
       {/* Add buttons — compact single row */}
       <div className="flex gap-1 pt-1 px-1">
         <Button variant="ghost" size="sm" className="text-xs h-6 px-1.5 text-muted-foreground" onClick={() => addSet("working")}>
-          <Plus className="w-2.5 h-2.5 mr-0.5" /> Working Set
+          <Plus className="w-2.5 h-2.5 mr-0.5" /> Add Set
         </Button>
         <Button variant="ghost" size="sm" className="text-xs h-6 px-1.5 text-amber-500" onClick={() => addSet("warmup")}>
-          <Flame className="w-2.5 h-2.5 mr-0.5" /> Warm-up
+          <Flame className="w-2.5 h-2.5 mr-0.5" /> Warm
         </Button>
         <Button variant="ghost" size="sm" className="text-xs h-6 px-1.5 text-destructive" onClick={() => addSet("failure")}>
-          <Flame className="w-2.5 h-2.5 mr-0.5" /> Failure
+          <Flame className="w-2.5 h-2.5 mr-0.5" /> Fail
         </Button>
         <Button variant="ghost" size="sm" className="text-xs h-6 px-1.5 text-purple-400" onClick={() => addSet("dropset")}>
-          <ChevronDown className="w-2.5 h-2.5 mr-0.5" /> Drop Set
+          <ChevronDown className="w-2.5 h-2.5 mr-0.5" /> Drop
         </Button>
       </div>
     </div>
