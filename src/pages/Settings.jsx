@@ -116,7 +116,7 @@ export default function Settings() {
     applyTheme(id);
   };
 
-  const save = (key, val, setter) => { setter(val); localStorage.setItem(key, String(val)); };
+  const save = (key, val, setter) => { setter(val); userStorage.setItem(key, String(val)); };
 
   const handleWeightUnitChange = (newUnit) => {
     if (weightUnit === newUnit) return;
