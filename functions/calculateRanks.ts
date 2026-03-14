@@ -104,6 +104,7 @@ function getRankFromScore(score, muscleName) {
 }
 
 function calculateImpressionessScore(e1rm, bodyweightKg, exerciseName, userGender) {
+   if (!e1rm || !bodyweightKg || bodyweightKg <= 0 || e1rm <= 0) return 0;
    let factors = IMPRESSIVENESS_FACTORS[exerciseName];
 
    // If not found, try matching partial name (remove brackets for matching)
@@ -148,9 +149,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Workout not found' }, { status: 404 });
     }
 
-    // Get latest body weight
+    // Get latest body weight — default to 80kg if none logged
     const bodyWeights = await base44.entities.BodyWeight.filter({ created_by: user.email }, "-date", 1);
-    const bodyweightKg = bodyWeights[0]?.weight || 80;
+    const rawBW = bodyWeights[0]?.weight;
+    const bodyweightKg = (rawBW && rawBW > 0) ? rawBW : 80;
 
     // Calculate impressiveness score for each exercise
     const updatedExercises = workoutLog.exercises?.map(ex => {
