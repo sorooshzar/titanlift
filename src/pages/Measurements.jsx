@@ -234,7 +234,7 @@ function GoalWeightPanel({ isImperial }) {
             <Button size="sm" className="flex-1" onClick={handleSave} disabled={!goalInput}>Save</Button>
             {goalKg && (
               <Button size="sm" variant="ghost" className="text-destructive"
-                onClick={() => { setGoalKg(null); localStorage.removeItem("gym-goal-weight"); base44.auth.updateMe({ goal_weight_kg: null }).catch(() => {}); window.dispatchEvent(new CustomEvent("goalWeightChanged")); setEditing(false); }}>
+                onClick={() => { setGoalKg(null); userStorage.removeItem("gym-goal-weight"); base44.auth.updateMe({ goal_weight_kg: null }).catch(() => {}); window.dispatchEvent(new CustomEvent("goalWeightChanged")); setEditing(false); }}>
                 Clear
               </Button>
             )}
