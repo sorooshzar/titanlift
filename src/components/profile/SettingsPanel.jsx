@@ -9,7 +9,7 @@ const THEMES = [
   { id: "crimson", label: "Crimson", color: "#dc2626" },
   { id: "forest", label: "Forest", color: "#16a34a" },
   { id: "fairy", label: "Fairy", color: "#ec4899" },
-  { id: "gold", label: "Gold", color: "#d97706" },
+  { id: "gold", label: "Gold", color: "#eab308" },
 ];
 
 const THEME_PRIMARY = {
