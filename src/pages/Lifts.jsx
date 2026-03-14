@@ -415,11 +415,11 @@ export default function Lifts() {
       <div className="px-4">
         <AnimatePresence mode="wait">
           {tab === TABS.WORKOUTS ? (
-            <motion.div key="workouts" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 12 }} transition={{ type: "spring", stiffness: 400, damping: 35 }}>
+            <motion.div key="workouts" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 12 }} transition={{ type: "spring", stiffness: 400, damping: 35 }} className="pt-3">
               <WorkoutsTab folders={folders} templates={templates} queryClient={queryClient} navigate={navigate} startWorkout={startWorkout} />
             </motion.div>
           ) : (
-            <motion.div key="exercises" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ type: "spring", stiffness: 400, damping: 35 }}>
+            <motion.div key="exercises" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ type: "spring", stiffness: 400, damping: 35 }} className="pt-3">
               <ExercisesTab />
             </motion.div>
           )}
