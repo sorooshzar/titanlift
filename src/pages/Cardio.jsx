@@ -408,7 +408,7 @@ export default function Cardio() {
         {[
           { label: "Sessions", value: totalSessions, icon: Activity },
           { label: "Total Time", value: totalMins > 0 ? formatTotalMins(totalMins) : "0m", icon: Clock },
-          { label: "Distance", value: `${totalDist.toFixed(1)} km`, icon: Route },
+          { label: "Distance", value: `${totalDist.toFixed(1)} km`, icon: TrendingUp },
           { label: "Calories", value: totalCal > 0 ? `${totalCal.toLocaleString()} kcal` : "—", icon: Flame },
         ].map(({ label, value, icon: Icon }) => (
           <div key={label} className="bg-card rounded-xl border border-border p-4 flex items-center gap-3">
