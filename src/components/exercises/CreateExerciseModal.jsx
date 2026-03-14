@@ -3,14 +3,14 @@ import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Check } from "lucide-react";
-import { MUSCLE_HIERARCHY, getSubsectionsForMain } from "@/components/utils/muscleHierarchy";
+import { X, Check, ChevronDown } from "lucide-react";
+import { getAllSubSections } from "@/components/utils/muscleHierarchy";
 
-const CATEGORIES = ["barbell", "dumbbell", "machine", "cable", "bodyweight", "band", "other"];
+const CATEGORIES = ["barbell", "dumbbell", "machine", "smith_machine", "cable", "bodyweight", "other"];
 
 export default function CreateExerciseModal({ open, onClose }) {
   const [name, setName] = useState("");
-  const [primaryMuscles, setPrimaryMuscles] = useState([]);
+  const [primaryMuscle, setPrimaryMuscle] = useState("");
   const [secondaryMuscles, setSecondaryMuscles] = useState([]);
   const [category, setCategory] = useState("");
   const [saving, setSaving] = useState(false);
@@ -18,31 +18,33 @@ export default function CreateExerciseModal({ open, onClose }) {
 
   if (!open) return null;
 
+  const allMuscles = getAllSubSections();
+
   const handleSave = async () => {
-    if (!name.trim() || primaryMuscles.length === 0) return;
+    if (!name.trim() || !primaryMuscle) return;
     setSaving(true);
     await base44.entities.Exercise.create({
       name: name.trim(),
-      primary_muscle: primaryMuscles[0],
-      secondary_muscles: primaryMuscles.length > 1 ? primaryMuscles.slice(1).concat(secondaryMuscles) : secondaryMuscles,
+      primary_muscle: primaryMuscle,
+      secondary_muscles: secondaryMuscles,
       category: category || "other",
     });
     queryClient.invalidateQueries({ queryKey: ["exercises"] });
     setSaving(false);
     setName("");
-    setPrimaryMuscles([]);
+    setPrimaryMuscle("");
     setSecondaryMuscles([]);
     setCategory("");
     onClose();
   };
 
-  const toggleSecondaryMuscle = (muscle) => {
+  const toggleSecondary = (muscle) => {
     setSecondaryMuscles((prev) =>
       prev.includes(muscle) ? prev.filter((m) => m !== muscle) : [...prev, muscle]
     );
   };
 
-  const canSave = name.trim() && primaryMuscles.length > 0;
+  const canSave = name.trim() && primaryMuscle;
 
   return (
     <div
@@ -53,12 +55,9 @@ export default function CreateExerciseModal({ open, onClose }) {
         className="bg-card w-full max-w-md rounded-2xl border border-border p-5 space-y-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between sticky top-0 bg-card z-10">
+        <div className="flex items-center justify-between sticky top-0 bg-card z-10 pb-1">
           <h2 className="text-lg font-bold">New Exercise</h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary"
-          >
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -66,9 +65,7 @@ export default function CreateExerciseModal({ open, onClose }) {
         <div className="space-y-4">
           {/* Exercise Name */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1 block">
-              Exercise Name *
-            </label>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Exercise Name *</label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -77,88 +74,67 @@ export default function CreateExerciseModal({ open, onClose }) {
             />
           </div>
 
-          {/* Primary Muscles Selection (Multi-select) */}
+          {/* Primary Muscle — single dropdown */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-2 block">
-              Primary Muscles * (select one or more)
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {Object.values(MUSCLE_HIERARCHY)
-                .flatMap((subs) => subs)
-                .filter((sub, idx, arr) => arr.indexOf(sub) === idx)
-                .map((sub) => (
-                  <button
-                    key={sub}
-                    onClick={() => {
-                      setPrimaryMuscles((prev) =>
-                        prev.includes(sub)
-                          ? prev.filter((m) => m !== sub)
-                          : [...prev, sub]
-                      );
-                    }}
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
-                      primaryMuscles.includes(sub)
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-muted-foreground hover:bg-secondary/70"
-                    }`}
-                  >
-                    {sub}
-                    {primaryMuscles.includes(sub) && (
-                      <Check className="w-3 h-3" />
-                    )}
-                  </button>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Primary Muscle *</label>
+            <div className="relative">
+              <select
+                value={primaryMuscle}
+                onChange={(e) => {
+                  setPrimaryMuscle(e.target.value);
+                  setSecondaryMuscles((prev) => prev.filter((m) => m !== e.target.value));
+                }}
+                className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm font-medium appearance-none pr-9 focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="">Select primary muscle…</option>
+                {allMuscles.map((m) => (
+                  <option key={m} value={m}>{m}</option>
                 ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
           </div>
 
-          {/* Secondary Muscles */}
-          {primaryMuscles.length > 0 && (
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                Secondary Muscles (Optional, multi-select)
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {Object.values(MUSCLE_HIERARCHY)
-                  .flatMap((subs) => subs)
-                  .filter((sub, idx, arr) => arr.indexOf(sub) === idx)
-                  .filter((sub) => !primaryMuscles.includes(sub))
-                  .map((sub) => (
-                    <button
-                      key={sub}
-                      onClick={() => toggleSecondaryMuscle(sub)}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
-                        secondaryMuscles.includes(sub)
-                          ? "bg-accent text-accent-foreground"
-                          : "bg-secondary text-muted-foreground hover:bg-secondary/70"
-                      }`}
-                    >
-                      {sub}
-                      {secondaryMuscles.includes(sub) && <Check className="w-3 h-3" />}
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* Equipment */}
+          {/* Equipment — single dropdown */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Equipment
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Equipment *</label>
+            <div className="relative">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full bg-secondary border-0 rounded-lg px-3 py-2.5 text-sm font-medium capitalize appearance-none pr-9 focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="">Select equipment…</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>{c.replace("_", " ")}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Secondary Muscles — multi-select chips */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-2 block">
+              Secondary Muscles <span className="opacity-60">(optional, select any)</span>
             </label>
             <div className="flex flex-wrap gap-1.5">
-              {CATEGORIES.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setCategory(c)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize transition-all ${
-                    category === c
-                      ? "bg-primary text-white"
-                      : "bg-secondary text-muted-foreground hover:bg-secondary/70"
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
+              {allMuscles
+                .filter((m) => m !== primaryMuscle)
+                .map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => toggleSecondary(m)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
+                      secondaryMuscles.includes(m)
+                        ? "bg-primary/20 text-primary border border-primary/40"
+                        : "bg-secondary text-muted-foreground hover:bg-secondary/70"
+                    }`}
+                  >
+                    {m}
+                    {secondaryMuscles.includes(m) && <Check className="w-3 h-3" />}
+                  </button>
+                ))}
             </div>
           </div>
         </div>
