@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { userStorage } from "@/components/utils/userStorage";
-import { ChevronLeft, ChevronRight, Moon, Sun, Palette, Ruler, Sliders, Zap, Timer, Apple } from "lucide-react";
+import { ChevronLeft, ChevronRight, Moon, Sun, Palette, Ruler, Sliders, Zap, Timer, Apple, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Switch } from "@/components/ui/switch";
 import { applyTheme } from "../components/profile/SettingsPanel";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 const THEMES = [
   { id: "default", label: "Default", color: "#2563eb" },
