@@ -107,52 +107,51 @@ function WorkoutDetailModal({ log, onClose, onDelete, onEdit }) {
         </div>
 
         <div className="space-y-3">
-          {log.exercises?.map((ex, i) => (
-            <div key={i} className="bg-card rounded-xl border border-border p-4"
-              style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
-              <div className="flex items-center gap-2 mb-2">
-                {ex.rank && RANKS.find(r => r.name === ex.rank) ? (
-                  (() => {
-                    const rankInfo = RANKS.find(r => r.name === ex.rank);
-                    return (
-                      <div className="w-5 h-5 flex-shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-                        style={{ backgroundColor: rankInfo.color }}>
+          {log.exercises?.map((ex, i) => {
+            const rankInfo = ex.rank ? RANKS.find(r => r.name === ex.rank) : null;
+            return (
+              <div key={i} className="bg-card rounded-xl border border-border p-4"
+                style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
+                <div className="flex items-start gap-2 mb-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold">{ex.exercise_name}</p>
+                    {ex.muscle_group && (
+                      <p className="text-xs text-muted-foreground">{ex.muscle_group}</p>
+                    )}
+                  </div>
+                  {rankInfo && (
+                    <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
+                      <div
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black shadow-sm"
+                        style={{ backgroundColor: rankInfo.color, color: rankInfo.textColor }}
+                      >
                         {rankInfo.label[0]}
                       </div>
-                    );
-                  })()
-                ) : (
-                  <div className="w-5 h-5 flex-shrink-0" />
-                )}
-                <div className="flex-1">
-                  <p className="text-sm font-semibold">{ex.exercise_name}</p>
-                  {ex.impressiveness_score > 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      {ex.rank ? RANKS.find(r => r.name === ex.rank)?.label : "—"} • {ex.impressiveness_score.toFixed(1)}
-                    </p>
+                      <span className="text-[9px] font-semibold" style={{ color: rankInfo.color }}>{rankInfo.label}</span>
+                    </div>
                   )}
                 </div>
+                <div className="space-y-1">
+                  {ex.sets?.filter(s => s.completed).map((s, j) => {
+                    const isEmpty = !s.weight && !s.reps;
+                    return (
+                      <div key={j} className="flex gap-4 text-xs text-muted-foreground">
+                        <span className={`font-medium w-6 ${s.type === "dropset" ? "text-purple-400" : s.type === "failure" ? "text-destructive" : "text-foreground"}`}>{j + 1}</span>
+                        {isEmpty ? (
+                          <span className="text-muted-foreground/50 italic">Incomplete</span>
+                        ) : (
+                          <span className={s.type === "dropset" ? "text-purple-400" : ""}>{toDisplay(s.weight) || 0} {weightUnit} × {s.reps || 0}</span>
+                        )}
+                        {!isEmpty && s.rir != null && <span>RIR {s.rir}</span>}
+                        {s.type === "failure" && <span className="text-destructive font-semibold">Failure</span>}
+                        {s.type === "dropset" && <span className="text-purple-400 font-semibold">Drop</span>}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="space-y-1">
-                {ex.sets?.filter(s => s.completed).map((s, j) => {
-                  const isEmpty = !s.weight && !s.reps;
-                  return (
-                    <div key={j} className="flex gap-4 text-xs text-muted-foreground">
-                      <span className={`font-medium w-6 ${s.type === "dropset" ? "text-purple-400" : s.type === "failure" ? "text-destructive" : "text-foreground"}`}>{j + 1}</span>
-                      {isEmpty ? (
-                        <span className="text-muted-foreground/50 italic">Incomplete</span>
-                      ) : (
-                        <span className={s.type === "dropset" ? "text-purple-400" : ""}>{toDisplay(s.weight) || 0} {weightUnit} × {s.reps || 0}</span>
-                      )}
-                      {!isEmpty && s.rir != null && <span>RIR {s.rir}</span>}
-                      {s.type === "failure" && <span className="text-destructive font-semibold">Failure</span>}
-                      {s.type === "dropset" && <span className="text-purple-400 font-semibold">Drop</span>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
