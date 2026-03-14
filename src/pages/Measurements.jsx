@@ -132,11 +132,11 @@ function HeightLogInput({ value, onChange, isImperial }) {
 function GoalWeightPanel({ isImperial }) {
   const queryClient = useQueryClient();
   const [goalKg, setGoalKg] = useState(() => {
-    const s = localStorage.getItem("gym-goal-weight");
+    const s = userStorage.getItem("gym-goal-weight");
     return s ? parseFloat(s) : null;
   });
   const [goalInput, setGoalInput] = useState("");
-  const [weeks, setWeeks] = useState(() => parseInt(localStorage.getItem("gym-goal-weeks") || "12"));
+  const [weeks, setWeeks] = useState(() => parseInt(userStorage.getItem("gym-goal-weeks") || "12"));
   const [editing, setEditing] = useState(false);
 
   const { data: bodyWeights = [] } = useQuery({
