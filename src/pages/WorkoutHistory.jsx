@@ -71,10 +71,11 @@ function WorkoutDetailModal({ log, onClose, onDelete, onEdit }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 30 }}
-      className="fixed inset-0 z-50 bg-background/95 overflow-y-auto"
+    initial={{ opacity: 0, y: 24 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 24 }}
+    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+    className="fixed inset-0 z-50 bg-background overflow-y-auto"
     >
       <div className="max-w-lg mx-auto px-4 pt-5 pb-8">
         <div className="flex items-center gap-3 mb-5">
@@ -273,11 +274,8 @@ export default function WorkoutHistory() {
               <button onClick={() => setSelectedLog(log)} className="text-muted-foreground hover:text-foreground">
                 <ChevronRight className="w-4 h-4 flex-shrink-0" />
               </button>
-              <button onClick={async () => {
-                if (window.confirm(`Delete "${log.name}"?`)) {
-                  await handleDelete(log.id);
-                }
-              }} className="text-muted-foreground hover:text-destructive transition-colors ml-1">
+              <button onClick={() => { setSelectedLog(log); }}
+                className="text-muted-foreground hover:text-destructive transition-colors ml-1">
                 <Trash2 className="w-3.5 h-3.5 flex-shrink-0" />
               </button>
             </div>
