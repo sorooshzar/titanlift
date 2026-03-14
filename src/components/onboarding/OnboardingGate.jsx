@@ -11,6 +11,7 @@ export default function OnboardingGate({ children }) {
         if (user?.onboarding_completed) {
           setStatus("done");
         } else {
+          // User may be authenticated (e.g. via Google OAuth) but hasn't finished onboarding
           setStatus("show_onboarding");
         }
       })
