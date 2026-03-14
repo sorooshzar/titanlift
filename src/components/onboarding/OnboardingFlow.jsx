@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { PENDING_KEY } from "./OnboardingGate";
 
 import SlideWelcome from "./slides/SlideWelcome";
 import SlideGoal from "./slides/SlideGoal";
