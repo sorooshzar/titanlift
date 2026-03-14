@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
+import { userStorage } from "@/components/utils/userStorage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, addDays, subDays } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
