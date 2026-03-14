@@ -184,7 +184,7 @@ export default function Settings() {
            <span className="text-xs text-muted-foreground ml-1">s</span>
          </SettingRow>
          <SettingRow label="Compound rest time" description="Rest for compound movements">
-           <input type="number" value={compoundRestTime} onChange={e => { setCompoundRestTime(parseInt(e.target.value)); localStorage.setItem("gym-compound-rest", String(e.target.value)); }}
+           <input type="number" value={compoundRestTime} onChange={e => { setCompoundRestTime(parseInt(e.target.value)); userStorage.setItem("gym-compound-rest", String(e.target.value)); }}
              className="w-20 text-xs text-center bg-secondary border-0 rounded-lg px-2 py-1" />
            <span className="text-xs text-muted-foreground ml-1">s</span>
          </SettingRow>
