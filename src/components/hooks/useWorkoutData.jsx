@@ -1,17 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
+async function getMyEmail() {
+  const user = await base44.auth.me();
+  return user?.email;
+}
+
 export function useWorkoutFolders() {
   return useQuery({
     queryKey: ["folders"],
-    queryFn: () => base44.entities.WorkoutFolder.list("order", 100),
+    queryFn: async () => {
+      const email = await getMyEmail();
+      return base44.entities.WorkoutFolder.filter({ created_by: email }, "order", 100);
+    },
   });
 }
 
 export function useWorkoutTemplates() {
   return useQuery({
     queryKey: ["templates"],
-    queryFn: () => base44.entities.WorkoutTemplate.list("order", 100),
+    queryFn: async () => {
+      const email = await getMyEmail();
+      return base44.entities.WorkoutTemplate.filter({ created_by: email }, "order", 100);
+    },
   });
 }
 
@@ -25,6 +36,9 @@ export function useExercises() {
 export function useWorkoutLogs() {
   return useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 200),
+    queryFn: async () => {
+      const email = await getMyEmail();
+      return base44.entities.WorkoutLog.filter({ created_by: email }, "-created_date", 200);
+    },
   });
 }
