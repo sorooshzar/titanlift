@@ -89,65 +89,11 @@ export default function OnboardingFlow({ onComplete }) {
   };
 
   const handleFinish = async () => {
-    setSaving(true);
-    try {
-      localStorage.setItem("gym-weight-unit", answers.weight_unit);
-      localStorage.setItem("gym-distance-unit", answers.distance_unit);
-      localStorage.setItem("gym-length-unit", answers.length_unit);
-      const weekStartVal = answers.week_start === "sunday" ? "0" : "1";
-      localStorage.setItem("gym-week-start", weekStartVal);
-
-      await base44.auth.updateMe({
-        onboarding_completed: true,
-        goal: answers.goal,
-        goal_weight_kg: answers.goal_weight_kg,
-        goal_timeline_weeks: answers.goal_timeline_weeks,
-        experience_level: answers.experience_level,
-        sex: answers.sex,
-        age: answers.age,
-        height_cm: answers.height_cm,
-        weight_kg: answers.weight_kg,
-        body_fat_pct: answers.body_fat_pct,
-        activity_level: answers.activity_level,
-        workout_days_per_week: answers.workout_days_per_week,
-        nutrition_tracking: answers.nutrition_tracking,
-        daily_calories: answers.daily_calories,
-        daily_protein: answers.daily_protein,
-        daily_carbs: answers.daily_carbs,
-        daily_fat: answers.daily_fat,
-        weight_unit: answers.weight_unit,
-        week_start: answers.week_start,
-        workout_style: answers.workout_style,
-      });
-
-      if (answers.weight_kg) {
-        await base44.entities.BodyWeight.create({
-          weight: answers.weight_kg,
-          unit: "kg",
-          date: new Date().toISOString().split("T")[0],
-        });
-      }
-
-      if (answers.height_cm) {
-        await base44.entities.BodyMeasurement.create({
-          body_part: "Height",
-          value: answers.height_cm,
-          unit: "cm",
-          date: new Date().toISOString().split("T")[0],
-        });
-      }
-
-      if (answers.daily_calories) {
-        localStorage.setItem("gym-macro-calories", String(answers.daily_calories));
-        localStorage.setItem("gym-macro-protein", String(answers.daily_protein || 0));
-        localStorage.setItem("gym-macro-carbs", String(answers.daily_carbs || 0));
-        localStorage.setItem("gym-macro-fat", String(answers.daily_fat || 0));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    setSaving(false);
-    onComplete();
+    // Save all onboarding answers to localStorage so OnboardingGate can
+    // persist them after OAuth completes (user isn't logged in yet).
+    localStorage.setItem(PENDING_KEY, JSON.stringify(answers));
+    // Redirect to OAuth — after login, OnboardingGate picks up PENDING_KEY
+    base44.auth.redirectToLogin();
   };
 
   const variants = {
