@@ -110,6 +110,10 @@ export default function Settings() {
     setWarmupRestTime(parseInt(userStorage.getItem("gym-warmup-rest") || "60"));
     setCompoundRestTime(parseInt(userStorage.getItem("gym-compound-rest") || "180"));
     setIsolationRestTime(parseInt(userStorage.getItem("gym-isolation-rest") || "90"));
+    setMacroCalories(parseInt(userStorage.getItem("gym-macro-calories") || "2000"));
+    setMacroProtein(parseInt(userStorage.getItem("gym-macro-protein") || "150"));
+    setMacroCarbs(parseInt(userStorage.getItem("gym-macro-carbs") || "225"));
+    setMacroFat(parseInt(userStorage.getItem("gym-macro-fat") || "67"));
   }, []);
 
   const toggleDark = (v) => {
