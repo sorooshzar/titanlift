@@ -13,7 +13,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-export default function ExerciseDetailModal({ exercise, isOpen, onClose, workoutLogs = [] }) {
+export default function ExerciseDetailModal({ exercise, isOpen, onClose, workoutLogs = [], onDelete }) {
   const [tab, setTab] = useState("learn");
   const [graphMode, setGraphMode] = useState("volume");
   const { unit: weightUnit, toDisplay } = useWeightUnit();
