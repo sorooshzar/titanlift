@@ -84,7 +84,7 @@ function HistoryPanel({ part, measurements, isImperial, onClose }) {
               <>
                 <span className="text-xs font-medium flex-1">{displayVal(m)}</span>
                 <button onClick={() => { setEditingId(m.id); setEditValue(String(m.value)); }} className="text-[10px] text-primary px-1">Edit</button>
-                <button onClick={() => { if (window.confirm("Delete this measurement?")) deleteEntry(m); }} className="text-[10px] text-destructive px-1">Del</button>
+                <button onClick={() => deleteEntry(m)} className="text-[10px] text-destructive px-1 active:opacity-60 transition-opacity">Del</button>
               </>
             )}
           </div>
@@ -389,19 +389,20 @@ export default function Measurements() {
 
             return (
               <div key={part}>
-                <div className="flex items-center py-2.5 gap-3">
+                <div className="flex items-center py-3 gap-3">
                   <div className="flex-1">
                     <span className="text-sm font-medium">{part}</span>
-                    <span className="text-xs text-muted-foreground ml-2">{displayLatest(part, latest)}</span>
+                    {latest && <span className="text-xs text-muted-foreground ml-2 font-medium">{displayLatest(part, latest)}</span>}
+                    {!latest && <span className="text-xs text-muted-foreground/50 ml-2">—</span>}
                   </div>
                   <button
                     onClick={() => setHistoryPart(isHistory ? null : part)}
-                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isHistory ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"}`}>
+                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isHistory ? "bg-primary/20 text-primary scale-110" : "bg-secondary text-muted-foreground"}`}>
                     <History className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => { setAddingPart(isAdding ? null : part); setHistoryPart(null); setNewValue(""); setNewFt(""); setNewIn(""); }}
-                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isAdding ? "bg-primary text-white" : "bg-secondary text-primary"}`}>
+                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isAdding ? "bg-primary text-white scale-110" : "bg-secondary text-primary"}`}>
                     <Plus className="w-3.5 h-3.5" />
                   </button>
                 </div>
