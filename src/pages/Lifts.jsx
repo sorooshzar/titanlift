@@ -42,11 +42,20 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
 
-  const handleDeleteFolder = async (folder) => {
-    await base44.entities.WorkoutFolder.delete(folder.id);
+  const [folderToDelete, setFolderToDelete] = useState(null);
+
+  const handleDeleteFolder = (folder) => {
+    setFolderToDelete(folder);
+  };
+
+  const confirmDeleteFolder = async () => {
+    const folder = folderToDelete;
+    setFolderToDelete(null);
     const ft = templates.filter((t) => t.folder_id === folder.id);
-    for (const t of ft) await base44.entities.WorkoutTemplate.update(t.id, { folder_id: null });
-    queryClient.invalidateQueries({ queryKey: ["folders", "templates"] });
+    await Promise.all(ft.map(t => base44.entities.WorkoutTemplate.delete(t.id)));
+    await base44.entities.WorkoutFolder.delete(folder.id);
+    queryClient.invalidateQueries({ queryKey: ["folders"] });
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
 
   const handleRenameFolder = async (folder) => {
