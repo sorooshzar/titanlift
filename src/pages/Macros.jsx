@@ -72,28 +72,68 @@ function MiniCalendar({ date, onSelect, onClose }) {
   );
 }
 
+function applyGoalAdjustment(baseCal, baseProtein, baseCarbs, baseFat, user) {
+  // Read goal weight + timeline — prefer user profile, fall back to localStorage
+  const goalWeightKg = user?.goal_weight_kg || parseFloat(localStorage.getItem("gym-goal-weight")) || null;
+  const currentWeightKg = user?.weight_kg || null;
+  const weeks = user?.goal_timeline_weeks || parseInt(localStorage.getItem("gym-goal-weeks")) || null;
+
+  if (!goalWeightKg || !currentWeightKg || !weeks || weeks <= 0) {
+    return { calories: baseCal, protein: baseProtein, carbs: baseCarbs, fat: baseFat };
+  }
+
+  const diffKg = goalWeightKg - currentWeightKg;
+  const days = weeks * 7;
+  const dailyAdjust = Math.round((diffKg * 7700) / days);
+  const adjustedCal = Math.max(1200, baseCal + dailyAdjust);
+
+  // Scale macros proportionally to new calories
+  if (baseCal <= 0) return { calories: adjustedCal, protein: baseProtein, carbs: baseCarbs, fat: baseFat };
+  const ratio = adjustedCal / baseCal;
+  return {
+    calories: adjustedCal,
+    protein: Math.round(baseProtein * ratio),
+    carbs: Math.round(baseCarbs * ratio),
+    fat: Math.round(baseFat * ratio),
+  };
+}
+
 function useMacroGoals() {
   const [goals, setGoals] = React.useState({ calories: 2000, protein: 150, carbs: 200, fat: 65 });
-  React.useEffect(() => {
+
+  const recalculate = React.useCallback(() => {
     base44.auth.me().then(user => {
+      let base = { calories: 2000, protein: 150, carbs: 200, fat: 65 };
+
       if (user?.daily_calories) {
-        setGoals({
-          calories: user.daily_calories || 2000,
+        base = {
+          calories: user.daily_calories,
           protein: user.daily_protein || 150,
           carbs: user.daily_carbs || 200,
           fat: user.daily_fat || 65,
-        });
+        };
       } else {
         const cal = parseInt(localStorage.getItem("gym-macro-calories"));
-        if (cal) setGoals({
+        if (cal) base = {
           calories: cal,
           protein: parseInt(localStorage.getItem("gym-macro-protein")) || 150,
           carbs: parseInt(localStorage.getItem("gym-macro-carbs")) || 200,
           fat: parseInt(localStorage.getItem("gym-macro-fat")) || 65,
-        });
+        };
       }
+
+      setGoals(applyGoalAdjustment(base.calories, base.protein, base.carbs, base.fat, user));
     }).catch(() => {});
   }, []);
+
+  React.useEffect(() => {
+    recalculate();
+    // Re-run when goal weight changes
+    const handler = () => recalculate();
+    window.addEventListener("goalWeightChanged", handler);
+    return () => window.removeEventListener("goalWeightChanged", handler);
+  }, [recalculate]);
+
   return goals;
 }
 
