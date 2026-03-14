@@ -81,6 +81,14 @@ export default function ExerciseDetailModal({ exercise, isOpen, onClose, workout
                 {exercise.primary_muscle?.replace(/_/g, " ")} • {exercise.category}
               </p>
             </div>
+            {onDelete && (
+              <button
+                onClick={() => { onClose(); onDelete(exercise); }}
+                className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </DialogHeader>
 
