@@ -14,7 +14,7 @@ const THEMES = [
   { id: "crimson", label: "Crimson", color: "#dc2626" },
   { id: "forest", label: "Forest", color: "#16a34a" },
   { id: "fairy", label: "Fairy", color: "#ec4899" },
-  { id: "gold", label: "Gold", color: "#d97706" },
+  { id: "gold", label: "Gold", color: "#eab308" },
   { id: "ocean", label: "Ocean", color: "#0891b2" },
   { id: "violet", label: "Violet", color: "#7c3aed" },
 ];
