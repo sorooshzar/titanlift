@@ -208,12 +208,81 @@ export default function Settings() {
 
        {/* Macros */}
        <Section icon={Apple} title="Macros" color="#f59e0b">
-         <SettingRow label="Calorie Goal" description="Your daily target">
-           <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">2000 kcal</span>
-         </SettingRow>
-         <SettingRow label="Protein Goal" description="Daily protein target">
-           <span className="text-xs text-muted-foreground font-medium bg-secondary px-2.5 py-1 rounded-lg">150 g</span>
-         </SettingRow>
+         <div className="px-4 py-4 space-y-4">
+           <p className="text-xs text-muted-foreground">Changing grams updates percentages &amp; calories. Changing percentages updates grams. Changing calories scales all grams.</p>
+
+           {/* Calories */}
+           <div>
+             <div className="flex items-center justify-between mb-1.5">
+               <span className="text-sm font-semibold">Calories</span>
+               <span className="text-xs text-muted-foreground">{macroCalories} kcal/day</span>
+             </div>
+             <input type="number" value={macroCalories}
+               onChange={e => {
+                 const cal = Math.max(500, parseInt(e.target.value) || 0);
+                 setMacroCalories(cal);
+                 // Scale grams proportionally
+                 const pPct = macroProtein * 4 / macroCalories;
+                 const cPct = macroCarbs * 4 / macroCalories;
+                 const fPct = macroFat * 9 / macroCalories;
+                 setMacroProtein(Math.round((pPct * cal) / 4));
+                 setMacroCarbs(Math.round((cPct * cal) / 4));
+                 setMacroFat(Math.round((fPct * cal) / 9));
+                 setMacroDirty(true);
+               }}
+               className="w-full text-center text-xl font-bold bg-secondary border-0 rounded-xl py-2.5"
+             />
+           </div>
+
+           {/* Macro grid */}
+           <div className="grid grid-cols-3 gap-3">
+             {[
+               { label: "Protein", val: macroProtein, setVal: setMacroProtein, cal: 4, color: "text-blue-400" },
+               { label: "Carbs", val: macroCarbs, setVal: setMacroCarbs, cal: 4, color: "text-amber-400" },
+               { label: "Fat", val: macroFat, setVal: setMacroFat, cal: 9, color: "text-pink-400" },
+             ].map(({ label, val, setVal, cal, color }) => {
+               const pct = macroCalories > 0 ? Math.round((val * cal / macroCalories) * 100) : 0;
+               return (
+                 <div key={label} className="bg-secondary rounded-xl p-3 space-y-2">
+                   <div className="flex items-center justify-between">
+                     <span className={`text-xs font-semibold ${color}`}>{label}</span>
+                     <span className="text-[10px] text-muted-foreground">{pct}%</span>
+                   </div>
+                   <input type="number" value={val}
+                     onChange={e => {
+                       const g = Math.max(0, parseInt(e.target.value) || 0);
+                       setVal(g);
+                       // Recalculate calories from all macros
+                       const newCal = g * cal + (label === "Protein" ? macroCarbs * 4 + macroFat * 9 : label === "Carbs" ? macroProtein * 4 + macroFat * 9 : macroProtein * 4 + macroCarbs * 4);
+                       setMacroCalories(newCal);
+                       setMacroDirty(true);
+                     }}
+                     className="w-full text-center text-base font-bold bg-card border-0 rounded-lg py-1.5"
+                   />
+                   <p className="text-[10px] text-muted-foreground text-center">{val * cal} kcal</p>
+                 </div>
+               );
+             })}
+           </div>
+
+           {/* Confirm button */}
+           <AnimatePresence>
+             {macroDirty && (
+               <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}>
+                 <Button className="w-full gap-2" onClick={() => {
+                   userStorage.setItem("gym-macro-calories", String(macroCalories));
+                   userStorage.setItem("gym-macro-protein", String(macroProtein));
+                   userStorage.setItem("gym-macro-carbs", String(macroCarbs));
+                   userStorage.setItem("gym-macro-fat", String(macroFat));
+                   window.dispatchEvent(new CustomEvent("macroGoalsChanged", { detail: { calories: macroCalories, protein: macroProtein, carbs: macroCarbs, fat: macroFat } }));
+                   setMacroDirty(false);
+                 }}>
+                   <Check className="w-4 h-4" /> Confirm Macro Goals
+                 </Button>
+               </motion.div>
+             )}
+           </AnimatePresence>
+         </div>
        </Section>
 
        {/* Preferences */}
