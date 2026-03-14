@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import { createPageUrl } from "@/utils";
 import { Mail, Eye, EyeOff, User } from "lucide-react";
 
 export default function SlideAccount({ answers, update, onFinish, saving }) {
@@ -13,7 +14,8 @@ export default function SlideAccount({ answers, update, onFinish, saving }) {
   const [loading, setLoading] = useState(false);
 
   const handleOAuth = () => {
-    base44.auth.redirectToLogin();
+    // After OAuth, land back on Profile (OnboardingGate will handle incomplete onboarding)
+    base44.auth.redirectToLogin(createPageUrl("Profile"));
   };
 
   const handleEmailSubmit = async () => {
@@ -22,7 +24,7 @@ export default function SlideAccount({ answers, update, onFinish, saving }) {
     if (mode === "signup" && !name) { setError("Please enter your name."); return; }
     setLoading(true);
     try {
-      base44.auth.redirectToLogin();
+      base44.auth.redirectToLogin(createPageUrl("Profile"));
     } catch (e) {
       setError(e.message || "Something went wrong.");
     }
