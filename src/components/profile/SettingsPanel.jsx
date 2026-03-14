@@ -31,10 +31,10 @@ export function applyTheme(themeId) {
 }
 
 export default function SettingsPanel({ darkMode, onToggleDark }) {
-  const [theme, setTheme] = useState(() => localStorage.getItem("gym-theme") || "default");
-  const [weightUnit, setWeightUnit] = useState(() => localStorage.getItem("gym-weight-unit") || "kg");
-  const [distanceUnit, setDistanceUnit] = useState(() => localStorage.getItem("gym-distance-unit") || "metric");
-  const [weekStart, setWeekStart] = useState(() => localStorage.getItem("gym-week-start") || "monday");
+  const [theme, setTheme] = useState(() => userStorage.getItem("gym-theme") || "default");
+  const [weightUnit, setWeightUnit] = useState(() => userStorage.getItem("gym-weight-unit") || "kg");
+  const [distanceUnit, setDistanceUnit] = useState(() => userStorage.getItem("gym-distance-unit") || "metric");
+  const [weekStart, setWeekStart] = useState(() => userStorage.getItem("gym-week-start") || "monday");
 
   const handleTheme = (id) => {
     setTheme(id);
