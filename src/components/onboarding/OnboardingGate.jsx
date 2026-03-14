@@ -94,7 +94,10 @@ export default function OnboardingGate({ children }) {
           setStatus("show_onboarding");
         }
       })
-      .catch(() => setStatus("show_onboarding"));
+      .catch(() => {
+        // Not authenticated — redirect to login
+        base44.auth.redirectToLogin();
+      });
   }, []);
 
   if (status === "loading") {
