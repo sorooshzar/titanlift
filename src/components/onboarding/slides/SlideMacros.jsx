@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ACTIVITY_MULTIPLIERS = {
   sedentary: 1.2,
@@ -19,113 +19,172 @@ const GOAL_ADJUSTMENTS = {
 };
 
 const TIMELINES = [
-  { id: "4", label: "4 weeks", weeks: 4 },
-  { id: "8", label: "8 weeks", weeks: 8 },
-  { id: "12", label: "12 weeks", weeks: 12 },
-  { id: "16", label: "16 weeks", weeks: 16 },
-  { id: "24", label: "6 months", weeks: 24 },
-  { id: "52", label: "1 year", weeks: 52 },
+  { id: 4,  label: "4 weeks" },
+  { id: 8,  label: "8 weeks" },
+  { id: 12, label: "12 weeks" },
+  { id: 16, label: "16 weeks" },
+  { id: 24, label: "6 months" },
+  { id: 52, label: "1 year" },
 ];
 
-function calcMacros(answers) {
+function calcBase(answers) {
   const { sex, age, height_cm, weight_kg, activity_level, goal } = answers;
   if (!sex || !age || !height_cm || !weight_kg) return null;
-
-  let bmr;
-  if (sex === "male") {
-    bmr = 10 * weight_kg + 6.25 * height_cm - 5 * age + 5;
-  } else {
-    bmr = 10 * weight_kg + 6.25 * height_cm - 5 * age - 161;
-  }
-
-  const multiplier = ACTIVITY_MULTIPLIERS[activity_level] || 1.375;
-  const tdee = Math.round(bmr * multiplier);
+  const bmr = sex === "male"
+    ? 10 * weight_kg + 6.25 * height_cm - 5 * age + 5
+    : 10 * weight_kg + 6.25 * height_cm - 5 * age - 161;
+  const tdee = Math.round(bmr * (ACTIVITY_MULTIPLIERS[activity_level] || 1.375));
   const adjustment = GOAL_ADJUSTMENTS[goal] || 0;
-  const calories = tdee + adjustment;
-
-  const protein = Math.round((calories * 0.30) / 4);
-  const fat = Math.round((calories * 0.25) / 9);
-  const carbs = Math.round((calories * 0.45) / 4);
-
-  return { calories, protein, fat, carbs, tdee };
+  return { tdee, calories: tdee + adjustment };
 }
 
-function calcTimelineAdvice(answers) {
-  if (!answers.goal_weight_kg || !answers.weight_kg || !answers.goal_timeline_weeks) return null;
-  const diffKg = answers.goal_weight_kg - answers.weight_kg;
-  const weeks = parseInt(answers.goal_timeline_weeks);
-  if (!weeks || diffKg === 0) return null;
-
-  // ~7700 kcal per kg of fat
-  const totalCalDiff = diffKg * 7700;
-  const dailyAdjust = Math.round(totalCalDiff / (weeks * 7));
-
-  const isImperial = answers.weight_unit === "lbs";
-  const diffDisplay = isImperial
-    ? `${(Math.abs(diffKg) * 2.20462).toFixed(1)} lbs`
-    : `${Math.abs(diffKg).toFixed(1)} kg`;
-  const goalDisplay = isImperial
-    ? `${(answers.goal_weight_kg * 2.20462).toFixed(1)} lbs`
-    : `${answers.goal_weight_kg} kg`;
-
+function macrosFromCaloriesAndPcts(calories, pPct, cPct, fPct) {
   return {
-    dailyAdjust,
-    direction: diffKg > 0 ? "surplus" : "deficit",
-    diffDisplay,
-    goalDisplay,
-    weeks,
+    protein: Math.round((calories * pPct / 100) / 4),
+    carbs: Math.round((calories * cPct / 100) / 4),
+    fat: Math.round((calories * fPct / 100) / 9),
   };
+}
+
+function calFromGrams(p, c, f) {
+  return Math.round(p * 4 + c * 4 + f * 9);
+}
+
+// Custom macro editor with reactive gram/pct/calorie logic
+function CustomEditor({ initial, onSave, onCancel }) {
+  const [calories, setCalories] = useState(initial.calories);
+  const [protein, setProtein] = useState(initial.protein);
+  const [carbs, setCarbs] = useState(initial.carbs);
+  const [fat, setFat] = useState(initial.fat);
+
+  // Derived percentages (always computed from grams + calories)
+  const totalCal = calFromGrams(protein, carbs, fat);
+  const pPct = totalCal > 0 ? Math.round((protein * 4 / totalCal) * 100) : 0;
+  const cPct = totalCal > 0 ? Math.round((carbs * 4 / totalCal) * 100) : 0;
+  const fPct = totalCal > 0 ? Math.round((fat * 9 / totalCal) * 100) : 0;
+  const totalPct = pPct + cPct + fPct;
+
+  // When user changes grams → update calories to match
+  const handleGramChange = (macro, val) => {
+    const v = Math.max(0, parseInt(val) || 0);
+    if (macro === "protein") { setProtein(v); setCalories(calFromGrams(v, carbs, fat)); }
+    if (macro === "carbs")   { setCarbs(v);   setCalories(calFromGrams(protein, v, fat)); }
+    if (macro === "fat")     { setFat(v);     setCalories(calFromGrams(protein, carbs, v)); }
+  };
+
+  // When user changes calories → keep pcts, scale grams
+  const handleCalorieChange = (val) => {
+    const c = Math.max(0, parseInt(val) || 0);
+    setCalories(c);
+    if (totalCal > 0) {
+      setProtein(Math.round((protein / totalCal) * c / 4) * 4 / 4); // keep ratio
+      const newP = Math.round((pPct / 100) * c / 4);
+      const newC = Math.round((cPct / 100) * c / 4);
+      const newF = Math.round((fPct / 100) * c / 9);
+      setProtein(newP);
+      setCarbs(newC);
+      setFat(newF);
+    }
+  };
+
+  const macros = [
+    { key: "protein", label: "Protein", g: protein, pct: pPct, color: "#ef4444", cal: 4 },
+    { key: "carbs",   label: "Carbs",   g: carbs,   pct: cPct, color: "#eab308", cal: 4 },
+    { key: "fat",     label: "Fat",     g: fat,     pct: fPct, color: "#3b82f6", cal: 9 },
+  ];
+
+  const pctOk = totalPct === 100;
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+      {/* Calories */}
+      <div>
+        <p className="text-xs font-semibold text-muted-foreground mb-1.5">🔥 Total Daily Calories</p>
+        <input
+          type="number"
+          value={calories}
+          onChange={e => handleCalorieChange(e.target.value)}
+          className="w-full h-12 rounded-xl bg-secondary px-4 text-xl font-black text-center focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <p className="text-xs text-muted-foreground mt-1 text-center">Changing calories scales grams proportionally</p>
+      </div>
+
+      {/* Macros */}
+      {macros.map(m => (
+        <div key={m.key} className="bg-secondary/60 rounded-2xl p-4 space-y-2" style={{ borderLeft: `3px solid ${m.color}` }}>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold" style={{ color: m.color }}>{m.label}</p>
+            <span className="text-xs font-semibold text-muted-foreground">{m.pct}% of calories</span>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <p className="text-[10px] text-muted-foreground mb-1">Grams</p>
+              <input
+                type="number" min="0"
+                value={m.g}
+                onChange={e => handleGramChange(m.key, e.target.value)}
+                className="w-full h-10 rounded-lg bg-secondary px-3 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] text-muted-foreground mb-1">Calories from {m.label}</p>
+              <div className="h-10 rounded-lg bg-secondary/50 px-3 flex items-center">
+                <span className="text-sm font-medium text-muted-foreground">{Math.round(m.g * m.cal)} kcal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {/* Percentage check */}
+      <div className={`rounded-xl px-4 py-2.5 text-center text-xs font-semibold ${pctOk ? "bg-green-500/10 text-green-500" : "bg-orange-500/10 text-orange-400"}`}>
+        {pctOk
+          ? "✓ Macro split adds up to 100%"
+          : `⚠ Currently ${totalPct}% — must equal 100% to save (adjust grams to fix)`}
+      </div>
+
+      <div className="flex gap-3">
+        <button onClick={onCancel} className="flex-1 h-12 rounded-2xl bg-secondary font-semibold text-sm">
+          Cancel
+        </button>
+        <button
+          disabled={!pctOk}
+          onClick={() => onSave({ calories, protein, carbs, fat })}
+          className="flex-1 h-12 rounded-2xl bg-primary text-white font-bold disabled:opacity-40"
+        >
+          Save Custom
+        </button>
+      </div>
+    </motion.div>
+  );
 }
 
 export default function SlideMacros({ answers, updateMany, onNext }) {
   const [editing, setEditing] = useState(false);
-  const [custom, setCustom] = useState({ calories: "", protein: "", carbs: "", fat: "" });
   const [showTimeline, setShowTimeline] = useState(false);
 
-  const calculated = calcMacros(answers);
-  const hasGoalWeight = !!answers.goal_weight_kg && (answers.goal === "lose_fat" || answers.goal === "build_muscle");
-  const timelineAdvice = calcTimelineAdvice(answers);
+  const base = calcBase(answers);
 
-  // Adjust calculated calories based on timeline if set
-  const timelineCalories = calculated && timelineAdvice
-    ? calculated.tdee + timelineAdvice.dailyAdjust
-    : null;
+  // Compute timeline-adjusted calories
+  const getTimelineCalories = () => {
+    if (!base || !answers.goal_weight_kg || !answers.weight_kg || !answers.goal_timeline_weeks) return null;
+    const diffKg = answers.goal_weight_kg - answers.weight_kg;
+    const days = answers.goal_timeline_weeks * 7;
+    // 7700 kcal per kg
+    const dailyAdjust = Math.round((diffKg * 7700) / days);
+    return base.tdee + dailyAdjust;
+  };
 
+  const timelineCal = getTimelineCalories();
+  const effectiveCalories = timelineCal || base?.calories;
+
+  // Initialize answers.daily_calories on first render
   useEffect(() => {
-    if (calculated && !answers.daily_calories) {
-      updateMany({
-        daily_calories: timelineCalories || calculated.calories,
-        daily_protein: calculated.protein,
-        daily_carbs: calculated.carbs,
-        daily_fat: calculated.fat,
-      });
+    if (base && !answers.daily_calories && effectiveCalories) {
+      const { protein, carbs, fat } = macrosFromCaloriesAndPcts(effectiveCalories, 30, 45, 25);
+      updateMany({ daily_calories: effectiveCalories, daily_protein: protein, daily_carbs: carbs, daily_fat: fat });
     }
   }, []);
-
-  const handleAccept = () => {
-    const finalCalories = timelineCalories || calculated?.calories || answers.daily_calories;
-    if (calculated) {
-      const ratio = finalCalories / calculated.calories;
-      updateMany({
-        daily_calories: finalCalories,
-        daily_protein: Math.round(calculated.protein * ratio),
-        daily_carbs: Math.round(calculated.carbs * ratio),
-        daily_fat: Math.round(calculated.fat * ratio),
-      });
-    }
-    setEditing(false);
-    onNext?.();
-  };
-
-  const handleSaveCustom = () => {
-    updateMany({
-      daily_calories: parseInt(custom.calories) || answers.daily_calories,
-      daily_protein: parseInt(custom.protein) || answers.daily_protein,
-      daily_carbs: parseInt(custom.carbs) || answers.daily_carbs,
-      daily_fat: parseInt(custom.fat) || answers.daily_fat,
-    });
-    setEditing(false);
-  };
 
   if (answers.nutrition_tracking === "none") {
     return (
@@ -137,7 +196,7 @@ export default function SlideMacros({ answers, updateMany, onNext }) {
     );
   }
 
-  if (!calculated) {
+  if (!base) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 py-10 text-center">
         <span className="text-5xl mb-4">⚠️</span>
@@ -147,47 +206,66 @@ export default function SlideMacros({ answers, updateMany, onNext }) {
     );
   }
 
-  const finalCalories = timelineCalories || calculated.calories;
-  const display = answers.daily_calories ? {
-    calories: finalCalories,
-    protein: calculated.protein,
-    carbs: calculated.carbs,
-    fat: calculated.fat,
-  } : { calories: finalCalories, ...calculated };
+  const displayCal = answers.daily_calories || effectiveCalories;
+  const displayP   = answers.daily_protein  || macrosFromCaloriesAndPcts(displayCal, 30, 45, 25).protein;
+  const displayC   = answers.daily_carbs    || macrosFromCaloriesAndPcts(displayCal, 30, 45, 25).carbs;
+  const displayF   = answers.daily_fat      || macrosFromCaloriesAndPcts(displayCal, 30, 45, 25).fat;
+
+  const hasGoalWeight = !!(answers.goal_weight_kg && (answers.goal === "lose_fat" || answers.goal === "build_muscle"));
+
+  const handleAccept = () => {
+    if (!answers.daily_calories) {
+      const { protein, carbs, fat } = macrosFromCaloriesAndPcts(effectiveCalories, 30, 45, 25);
+      updateMany({ daily_calories: effectiveCalories, daily_protein: protein, daily_carbs: carbs, daily_fat: fat });
+    }
+    onNext?.();
+  };
+
+  const handleSaveCustom = ({ calories, protein, carbs, fat }) => {
+    updateMany({ daily_calories: calories, daily_protein: protein, daily_carbs: carbs, daily_fat: fat });
+    setEditing(false);
+  };
+
+  // Timeline advice
+  const timelineAdvice = (() => {
+    if (!hasGoalWeight || !answers.goal_timeline_weeks) return null;
+    const diffKg = answers.goal_weight_kg - answers.weight_kg;
+    const days = answers.goal_timeline_weeks * 7;
+    const dailyAdjust = Math.round((diffKg * 7700) / days);
+    const isImperial = answers.weight_unit === "lbs";
+    const goalDisplay = isImperial
+      ? `${(answers.goal_weight_kg * 2.20462).toFixed(1)} lbs`
+      : `${answers.goal_weight_kg} kg`;
+    return { dailyAdjust, direction: diffKg > 0 ? "surplus" : "deficit", goalDisplay, weeks: answers.goal_timeline_weeks };
+  })();
 
   return (
     <div className="min-h-screen flex flex-col px-6 py-10">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-2">Step 8</p>
         <h2 className="text-3xl font-black mb-1">Your macro targets 🧮</h2>
-        <p className="text-muted-foreground text-sm mb-2">Calculated using Mifflin-St Jeor + your goal.</p>
-        <p className="text-xs text-muted-foreground mb-4">TDEE: <span className="font-semibold text-foreground">{calculated.tdee} kcal</span></p>
+        <p className="text-muted-foreground text-sm mb-1">Mifflin-St Jeor formula, adjusted for your goal.</p>
+        <p className="text-xs text-muted-foreground mb-4">TDEE: <span className="font-semibold text-foreground">{base.tdee} kcal/day</span></p>
       </motion.div>
 
-      {/* Timeline selector — only if goal weight was set */}
+      {/* Timeline selector */}
       {hasGoalWeight && !editing && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
           <button
             onClick={() => setShowTimeline(v => !v)}
             className="w-full flex items-center justify-between bg-secondary rounded-2xl px-4 py-3 text-sm font-semibold"
           >
             <span>⏱ Goal timeline</span>
             <span className="text-primary text-xs">
-              {answers.goal_timeline_weeks ? `${answers.goal_timeline_weeks} weeks` : "Set timeline"} {showTimeline ? "▲" : "▼"}
+              {answers.goal_timeline_weeks ? `${answers.goal_timeline_weeks} wks` : "Set timeline"} {showTimeline ? "▲" : "▼"}
             </span>
           </button>
           {showTimeline && (
             <div className="grid grid-cols-3 gap-2 mt-2">
               {TIMELINES.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => { updateMany({ goal_timeline_weeks: t.weeks }); setShowTimeline(false); }}
-                  className={`py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                    answers.goal_timeline_weeks === t.weeks
-                      ? "bg-primary text-white"
-                      : "bg-secondary text-foreground"
-                  }`}
-                >
+                <button key={t.id}
+                  onClick={() => { updateMany({ goal_timeline_weeks: t.id }); setShowTimeline(false); }}
+                  className={`py-2.5 rounded-xl text-xs font-semibold transition-all ${answers.goal_timeline_weeks === t.id ? "bg-primary text-white" : "bg-secondary"}`}>
                   {t.label}
                 </button>
               ))}
@@ -198,85 +276,57 @@ export default function SlideMacros({ answers, updateMany, onNext }) {
 
       {/* Timeline advice banner */}
       {timelineAdvice && !editing && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`mb-4 rounded-2xl px-4 py-3 border text-sm ${
-            timelineAdvice.direction === "deficit"
-              ? "bg-orange-500/10 border-orange-500/30 text-orange-400"
-              : "bg-green-500/10 border-green-500/30 text-green-400"
-          }`}
-        >
-          <p className="font-bold mb-0.5">
-            {timelineAdvice.direction === "deficit" ? "🔥 Fat loss plan" : "💪 Muscle gain plan"}
-          </p>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          className={`mb-4 rounded-2xl px-4 py-3 border text-sm ${timelineAdvice.direction === "deficit" ? "bg-orange-500/10 border-orange-500/30 text-orange-400" : "bg-green-500/10 border-green-500/30 text-green-400"}`}>
+          <p className="font-bold mb-0.5">{timelineAdvice.direction === "deficit" ? "🔥 Fat loss plan" : "💪 Muscle gain plan"}</p>
           <p className="text-xs opacity-90">
-            To reach {timelineAdvice.goalDisplay} in {timelineAdvice.weeks} weeks, you need a daily{" "}
-            <strong>{timelineAdvice.direction}</strong> of{" "}
-            <strong>{Math.abs(timelineAdvice.dailyAdjust)} kcal</strong>.
+            To reach {timelineAdvice.goalDisplay} in {timelineAdvice.weeks} weeks: daily {timelineAdvice.direction} of <strong>{Math.abs(timelineAdvice.dailyAdjust)} kcal</strong>
           </p>
         </motion.div>
       )}
 
-      {!editing ? (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-4">
-          <div className="bg-primary/10 rounded-3xl p-6 text-center border border-primary/20">
-            <p className="text-5xl font-black text-primary">{display.calories}</p>
-            <p className="text-sm text-muted-foreground mt-1 font-medium">Daily Calories</p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { label: "Protein", value: display.protein, unit: "g", color: "#ef4444", emoji: "🥩" },
-              { label: "Carbs",   value: display.carbs,   unit: "g", color: "#eab308", emoji: "🍚" },
-              { label: "Fat",     value: display.fat,     unit: "g", color: "#3b82f6", emoji: "🥑" },
-            ].map(m => (
-              <div key={m.label} className="rounded-2xl p-4 text-center" style={{ background: m.color + "18", border: `1px solid ${m.color}33` }}>
-                <p className="text-lg mb-1">{m.emoji}</p>
-                <p className="text-xl font-black" style={{ color: m.color }}>{m.value}g</p>
-                <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{m.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button onClick={handleAccept} className="flex-1 h-12 rounded-2xl bg-primary text-white font-bold">
-              ✓ Accept
-            </button>
-            <button
-              onClick={() => {
-                setCustom({ calories: display.calories, protein: display.protein, carbs: display.carbs, fat: display.fat });
-                setEditing(true);
-              }}
-              className="flex-1 h-12 rounded-2xl bg-secondary font-semibold text-sm"
-            >
-              ✏️ Customize
-            </button>
-          </div>
-        </motion.div>
-      ) : (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-          {[
-            { key: "calories", label: "Calories (kcal)" },
-            { key: "protein",  label: "Protein (g)" },
-            { key: "carbs",    label: "Carbs (g)" },
-            { key: "fat",      label: "Fat (g)" },
-          ].map(f => (
-            <div key={f.key}>
-              <p className="text-xs font-semibold text-muted-foreground mb-1.5">{f.label}</p>
-              <input
-                type="number"
-                value={custom[f.key]}
-                onChange={e => setCustom(p => ({ ...p, [f.key]: e.target.value }))}
-                className="w-full h-12 rounded-xl bg-secondary px-4 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+      <AnimatePresence mode="wait">
+        {!editing ? (
+          <motion.div key="display" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
+            <div className="bg-primary/10 rounded-3xl p-6 text-center border border-primary/20">
+              <p className="text-5xl font-black text-primary">{displayCal}</p>
+              <p className="text-sm text-muted-foreground mt-1 font-medium">Daily Calories</p>
             </div>
-          ))}
-          <button onClick={handleSaveCustom} className="w-full h-12 rounded-2xl bg-primary text-white font-bold mt-2">
-            Save Custom
-          </button>
-        </motion.div>
-      )}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Protein", value: displayP, color: "#ef4444", emoji: "🥩" },
+                { label: "Carbs",   value: displayC, color: "#eab308", emoji: "🍚" },
+                { label: "Fat",     value: displayF, color: "#3b82f6", emoji: "🥑" },
+              ].map(m => (
+                <div key={m.label} className="rounded-2xl p-4 text-center" style={{ background: m.color + "18", border: `1px solid ${m.color}33` }}>
+                  <p className="text-lg mb-1">{m.emoji}</p>
+                  <p className="text-xl font-black" style={{ color: m.color }}>{m.value}g</p>
+                  <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{m.label}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={handleAccept} className="flex-1 h-12 rounded-2xl bg-primary text-white font-bold">
+                ✓ Accept
+              </button>
+              <button
+                onClick={() => setEditing(true)}
+                className="flex-1 h-12 rounded-2xl bg-secondary font-semibold text-sm"
+              >
+                ✏️ Customize
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div key="edit" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <CustomEditor
+              initial={{ calories: displayCal, protein: displayP, carbs: displayC, fat: displayF }}
+              onSave={handleSaveCustom}
+              onCancel={() => setEditing(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
