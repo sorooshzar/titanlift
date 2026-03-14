@@ -75,9 +75,9 @@ function MiniCalendar({ date, onSelect, onClose }) {
 
 function applyGoalAdjustment(baseCal, baseProtein, baseCarbs, baseFat, user) {
   // Read goal weight + timeline — prefer user profile, fall back to localStorage
-  const goalWeightKg = user?.goal_weight_kg || parseFloat(localStorage.getItem("gym-goal-weight")) || null;
+  const goalWeightKg = user?.goal_weight_kg || parseFloat(userStorage.getItem("gym-goal-weight")) || null;
   const currentWeightKg = user?.weight_kg || null;
-  const weeks = user?.goal_timeline_weeks || parseInt(localStorage.getItem("gym-goal-weeks")) || null;
+  const weeks = user?.goal_timeline_weeks || parseInt(userStorage.getItem("gym-goal-weeks")) || null;
 
   if (!goalWeightKg || !currentWeightKg || !weeks || weeks <= 0) {
     return { calories: baseCal, protein: baseProtein, carbs: baseCarbs, fat: baseFat };
