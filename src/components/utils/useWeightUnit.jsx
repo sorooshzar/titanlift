@@ -4,10 +4,10 @@ import { userStorage } from "@/components/utils/userStorage";
 // All weights in DB are stored in KG (base unit).
 // This hook returns the current display unit and a converter.
 export function useWeightUnit() {
-  const [unit, setUnit] = useState(() => localStorage.getItem("gym-weight-unit") || "kg");
+  const [unit, setUnit] = useState(() => userStorage.getItem("gym-weight-unit") || "kg");
 
   useEffect(() => {
-    const handler = () => setUnit(localStorage.getItem("gym-weight-unit") || "kg");
+    const handler = () => setUnit(userStorage.getItem("gym-weight-unit") || "kg");
     window.addEventListener("weightUnitChanged", handler);
     return () => window.removeEventListener("weightUnitChanged", handler);
   }, []);
