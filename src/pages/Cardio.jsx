@@ -258,7 +258,7 @@ function MobileSession({ activity, userWeightKg, onSave, onCancel }) {
       {/* Live metrics */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Distance", value: `${distance.toFixed(2)} km`, icon: Route },
+          { label: "Distance", value: `${distance.toFixed(2)} km`, icon: TrendingUp },
           { label: "Pace", value: `${pace} min/km`, icon: Activity },
           { label: "Calories", value: `${calories} kcal`, icon: Flame },
         ].map(({ label, value, icon: Icon }) => (
