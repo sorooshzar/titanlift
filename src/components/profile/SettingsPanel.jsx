@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Moon, Sun } from "lucide-react";
+import { userStorage } from "@/components/utils/userStorage";
 
 const THEMES = [
   { id: "default", label: "Default", color: "#2563eb" },
