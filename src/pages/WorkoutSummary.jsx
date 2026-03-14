@@ -28,8 +28,9 @@ export default function WorkoutSummary() {
   const [displayLog, setDisplayLog] = useState(null);
 
   useEffect(() => {
-    if (!completedLog) navigate(createPageUrl("Lifts"), { replace: true });
-  }, [completedLog]);
+    // Only redirect if we truly have no log AND haven't loaded yet
+    if (!completedLog && !displayLog) navigate(createPageUrl("Lifts"), { replace: true });
+  }, [completedLog, displayLog]);
 
   useEffect(() => {
     const fetchUserAndCalculate = async () => {
