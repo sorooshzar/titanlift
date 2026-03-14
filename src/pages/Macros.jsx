@@ -73,30 +73,12 @@ function MiniCalendar({ date, onSelect, onClose }) {
   );
 }
 
-function applyGoalAdjustment(baseCal, baseProtein, baseCarbs, baseFat, user) {
-  // Read goal weight + timeline — prefer user profile, fall back to localStorage
-  const goalWeightKg = user?.goal_weight_kg || parseFloat(userStorage.getItem("gym-goal-weight")) || null;
-  const currentWeightKg = user?.weight_kg || null;
-  const weeks = user?.goal_timeline_weeks || parseInt(userStorage.getItem("gym-goal-weeks")) || null;
-
-  if (!goalWeightKg || !currentWeightKg || !weeks || weeks <= 0) {
-    return { calories: baseCal, protein: baseProtein, carbs: baseCarbs, fat: baseFat };
-  }
-
-  const diffKg = goalWeightKg - currentWeightKg;
-  const days = weeks * 7;
-  const dailyAdjust = Math.round((diffKg * 7700) / days);
-  const adjustedCal = Math.max(1200, baseCal + dailyAdjust);
-
-  // Scale macros proportionally to new calories
-  if (baseCal <= 0) return { calories: adjustedCal, protein: baseProtein, carbs: baseCarbs, fat: baseFat };
-  const ratio = adjustedCal / baseCal;
-  return {
-    calories: adjustedCal,
-    protein: Math.round(baseProtein * ratio),
-    carbs: Math.round(baseCarbs * ratio),
-    fat: Math.round(baseFat * ratio),
-  };
+// NOTE: daily_calories saved on the user already reflects the onboarding goal deficit/surplus.
+// applyGoalAdjustment is intentionally a no-op here — the single source of truth is daily_calories.
+// The Goal Weight panel in Profile/Measurements can update daily_calories directly when the user
+// changes their goal, preventing any double-counting.
+function applyGoalAdjustment(baseCal, baseProtein, baseCarbs, baseFat, _user) {
+  return { calories: baseCal, protein: baseProtein, carbs: baseCarbs, fat: baseFat };
 }
 
 function useMacroGoals() {
