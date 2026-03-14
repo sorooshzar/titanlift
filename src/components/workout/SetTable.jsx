@@ -105,8 +105,8 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
             <div className={`grid gap-1 px-1 items-center rounded-lg transition-colors ${isActive ? GRID_ACTIVE : GRID} ${getRowBg(set)}`}>
               {isActive && (
                 <button onClick={() => toggleComplete(index)}
-                  className={`w-5 h-5 rounded flex items-center justify-center transition-all flex-shrink-0 ${
-                    set.completed ? "bg-primary text-white" : "bg-secondary text-muted-foreground"
+                  className={`w-5 h-5 rounded flex items-center justify-center transition-all duration-150 flex-shrink-0 active:scale-90 ${
+                    set.completed ? "bg-primary text-white scale-105" : "bg-secondary text-muted-foreground"
                   }`}>
                   <Check className="w-3 h-3" />
                 </button>
