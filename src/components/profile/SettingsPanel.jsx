@@ -43,17 +43,17 @@ export default function SettingsPanel({ darkMode, onToggleDark }) {
 
   const handleWeightUnit = (u) => {
     setWeightUnit(u);
-    localStorage.setItem("gym-weight-unit", u);
+    userStorage.setItem("gym-weight-unit", u);
   };
 
   const handleDistanceUnit = (u) => {
     setDistanceUnit(u);
-    localStorage.setItem("gym-distance-unit", u);
+    userStorage.setItem("gym-distance-unit", u);
   };
 
   const handleWeekStart = (d) => {
     setWeekStart(d);
-    localStorage.setItem("gym-week-start", d);
+    userStorage.setItem("gym-week-start", d);
   };
 
   return (
