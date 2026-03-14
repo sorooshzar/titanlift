@@ -89,6 +89,13 @@ export default function Settings() {
   const [compoundRestTime, setCompoundRestTime] = useState(180);
   const [isolationRestTime, setIsolationRestTime] = useState(90);
 
+  // Macro goals
+  const [macroCalories, setMacroCalories] = useState(2000);
+  const [macroProtein, setMacroProtein] = useState(150);
+  const [macroCarbs, setMacroCarbs] = useState(225);
+  const [macroFat, setMacroFat] = useState(67);
+  const [macroDirty, setMacroDirty] = useState(false);
+
   useEffect(() => {
     const saved = localStorage.getItem("gym-dark-mode"); // dark mode is device-global (fine)
     setDarkMode(saved === null ? true : saved === "true");
