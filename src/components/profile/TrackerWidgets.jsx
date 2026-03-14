@@ -18,7 +18,10 @@ export function MeasurementTracker({ tracker, onRemove }) {
   const bodyPart = tracker.config?.body_part;
   const { data: measurements = [] } = useQuery({
     queryKey: ["bodyMeasurements"],
-    queryFn: () => base44.entities.BodyMeasurement.list("-date", 500),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.BodyMeasurement.filter({ created_by: user.email }, "-date", 500);
+    },
   });
   const filtered = measurements.filter(m => m.body_part === bodyPart).slice(0, 12).reverse();
 
@@ -48,7 +51,10 @@ export function ExerciseTracker({ tracker, onRemove }) {
   const { unit: weightUnit, toDisplay } = useWeightUnit();
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 100),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.WorkoutLog.filter({ created_by: user.email }, "-created_date", 100);
+    },
   });
 
   const points = [];
@@ -99,15 +105,24 @@ export function HabitsTracker({ tracker, onRemove }) {
 
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 20),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.WorkoutLog.filter({ created_by: user.email }, "-created_date", 20);
+    },
   });
   const { data: bodyWeights = [] } = useQuery({
     queryKey: ["bodyWeights"],
-    queryFn: () => base44.entities.BodyWeight.list("-date", 20),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.BodyWeight.filter({ created_by: user.email }, "-date", 20);
+    },
   });
   const { data: macroEntries = [] } = useQuery({
     queryKey: ["macroEntriesHabits"],
-    queryFn: () => base44.entities.MacroEntry.list("-date", 100),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.MacroEntry.filter({ created_by: user.email }, "-date", 100);
+    },
   });
 
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
@@ -161,7 +176,10 @@ export function HabitsTracker({ tracker, onRemove }) {
 export function MacrosTracker({ tracker, onRemove }) {
   const { data: macroEntries = [] } = useQuery({
     queryKey: ["macroEntries"],
-    queryFn: () => base44.entities.MacroEntry.list("-date", 500),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.MacroEntry.filter({ created_by: user.email }, "-date", 500);
+    },
   });
 
   const days = Array.from({ length: 7 }, (_, i) => {
