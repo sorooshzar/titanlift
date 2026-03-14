@@ -176,44 +176,34 @@ export default function Profile() {
 
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: async () => {
-      const u = await base44.auth.me();
-      return base44.entities.WorkoutLog.filter({ created_by: u.email }, "-finished_at", 100);
-    },
+    queryFn: () => base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 100),
+    enabled: !!user,
   });
 
   const { data: bodyWeights = [] } = useQuery({
     queryKey: ["bodyWeights"],
-    queryFn: async () => {
-      const u = await base44.auth.me();
-      return base44.entities.BodyWeight.filter({ created_by: u.email }, "-created_date", 50);
-    },
+    queryFn: () => base44.entities.BodyWeight.filter({ created_by: user.email }, "-created_date", 50),
+    enabled: !!user,
   });
 
   // For nutrition rank — fetch all macro + water entries to compute streak
   const { data: allMacroEntries = [] } = useQuery({
     queryKey: ["profileAllMacroEntries"],
-    queryFn: async () => {
-      const u = await base44.auth.me();
-      return base44.entities.MacroEntry.filter({ created_by: u.email }, "-date", 500);
-    },
+    queryFn: () => base44.entities.MacroEntry.filter({ created_by: user.email }, "-date", 500),
+    enabled: !!user,
   });
   const { data: allWaterLogs = [] } = useQuery({
     queryKey: ["profileAllWaterLogs"],
-    queryFn: async () => {
-      const u = await base44.auth.me();
-      return base44.entities.WaterLog.filter({ created_by: u.email }, "-date", 500);
-    },
+    queryFn: () => base44.entities.WaterLog.filter({ created_by: user.email }, "-date", 500),
+    enabled: !!user,
   });
   const nutritionStreak = computeNutritionStreak(allMacroEntries, allWaterLogs);
 
   const refetchTrackers = () => queryClient.invalidateQueries({ queryKey: ["userTrackers"] });
   const { data: userTrackers = [] } = useQuery({
     queryKey: ["userTrackers"],
-    queryFn: async () => {
-      const u = await base44.auth.me();
-      return base44.entities.UserTracker.filter({ created_by: u.email }, "order", 50);
-    },
+    queryFn: () => base44.entities.UserTracker.filter({ created_by: user.email }, "order", 50),
+    enabled: !!user,
   });
 
   const removeTracker = async (id) => {
