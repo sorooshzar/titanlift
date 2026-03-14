@@ -5,6 +5,7 @@ import { User, Dumbbell, Plus, X, Activity, Apple } from "lucide-react";
 import { motion } from "framer-motion";
 import QuickActionMenu from "./QuickActionMenu";
 
+
 export default function BottomNav() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
