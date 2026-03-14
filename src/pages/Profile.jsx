@@ -137,21 +137,7 @@ export default function Profile() {
     return saved ? parseFloat(saved) : null;
   });
 
-  // Sync goal weight from user profile on load
-  useEffect(() => {
-    base44.auth.me().then(u => {
-      if (u?.goal_weight_kg && !localStorage.getItem("gym-goal-weight")) {
-        setGoalWeight(u.goal_weight_kg);
-        localStorage.setItem("gym-goal-weight", String(u.goal_weight_kg));
-      }
-    }).catch(() => {});
-    const handler = (e) => {
-      const kg = e.detail?.goalWeightKg || parseFloat(localStorage.getItem("gym-goal-weight")) || null;
-      setGoalWeight(kg);
-    };
-    window.addEventListener("goalWeightChanged", handler);
-    return () => window.removeEventListener("goalWeightChanged", handler);
-  }, []);
+
   const [activeTab, setActiveTab] = useState("rank");
   const [showAddTracker, setShowAddTracker] = useState(false);
   const [user, setUser] = useState(null);
