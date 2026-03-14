@@ -315,7 +315,7 @@ export default function Profile() {
 
         <AnimatePresence mode="wait">
         {activeTab === "stats" ? (
-          <motion.div key="stats" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ type: "spring", stiffness: 350, damping: 30 }} className="space-y-4">
+          <motion.div key="stats" initial={{ opacity: 0, x: 5 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -5 }} transition={{ duration: 0.12, ease: "easeOut" }} className="space-y-4">
 
         {/* Weight Progress */}
         <div className="bg-card rounded-2xl border border-border p-4">
