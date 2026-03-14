@@ -280,41 +280,24 @@ export default function Profile() {
       </div>
 
       <div className="space-y-4">
-        {/* Profile info bar — clickable, smaller */}
+        {/* Profile info bar — minimalist, clickable */}
         <button onClick={() => setShowProfileInfo(true)}
-          className="w-full flex items-center gap-3 bg-card rounded-2xl border border-border px-3 py-3 text-left active:scale-[0.98] transition-all duration-150">
-          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border shrink-0">
-            <span className="text-base font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
+          className="w-full flex items-center gap-3 bg-card rounded-2xl border border-border px-3 py-2.5 text-left active:scale-[0.98] transition-all duration-150">
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center ring-2 ring-border shrink-0">
+            <span className="text-sm font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
           </div>
           <div className="flex-1 min-w-0">
-            {user?.full_name && (
-              <p className="text-sm font-bold truncate leading-tight">{user.full_name}</p>
-            )}
-            {user?.email && (
-              <p className="text-[11px] text-muted-foreground truncate leading-tight mb-1">{user.email}</p>
-            )}
-            <div className="flex items-center gap-3 mb-1.5">
-              <div className="flex gap-3 shrink-0 flex-wrap">
-                {(() => {
-                  const heightCm = user?.height_cm;
-                  const weightKg = latestWeightKg;
-                  const bmi = heightCm && weightKg ? (weightKg / Math.pow(heightCm / 100, 2)) : null;
-                  return bmi ? (
-                    <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{Math.round(bmi)}</span> BMI</span>
-                  ) : null;
-                })()}
-                <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{workoutLogs.length}</span> workouts</span>
-                <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{latestWeightDisplay ? `${latestWeightDisplay}${weightUnit}` : "--"}</span> weight</span>
-              </div>
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{workoutLogs.length}</span> workouts</span>
+              <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{latestWeightDisplay ? `${latestWeightDisplay}${weightUnit}` : "--"}</span> weight</span>
+              <span className="text-xs font-bold text-primary">Lv {xp.level}</span>
             </div>
             {/* XP Bar */}
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-primary shrink-0">Lv {xp.level}</span>
-              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+              <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
                 <div className="h-full bg-primary rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(xp.progress * 100, 100)}%` }} />
               </div>
-              <span className="text-[10px] text-muted-foreground shrink-0">{xp.level + 1}</span>
             </div>
           </div>
           <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
