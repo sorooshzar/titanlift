@@ -388,21 +388,21 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            {/* Muscle model — left */}
-            <div className="shrink-0" style={{ width: 290 }}>
+          <div className="flex items-center">
+            {/* Muscle model — pushed left, given less width so legend fits */}
+            <div className="shrink-0 -ml-4" style={{ width: 230 }}>
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
-            {/* Legend — next to model, vertically centered */}
-            <div className="flex flex-col items-start justify-center">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mb-3">
-                {showRecovery ? "Recovery" : "Muscle Rank"}
+            {/* Legend — right of model, vertically centered */}
+            <div className="flex flex-col items-start justify-center ml-2">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
+                {showRecovery ? "Recovery" : "Rank"}
               </p>
               {!showRecovery ? (
                 <RankLegend />
               ) : (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2.5">
                   {[
                     { name: "Ready", color: "#22c55e" },
                     { name: "Light", color: "#84cc16" },
@@ -410,9 +410,9 @@ export default function Profile() {
                     { name: "Heavy", color: "#f97316" },
                     { name: "Sore", color: "#ef4444" },
                   ].map(r => (
-                    <div key={r.name} className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
-                      <span className="text-xs font-semibold whitespace-nowrap" style={{ color: r.color }}>{r.name}</span>
+                    <div key={r.name} className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: r.color }} />
+                      <span className="text-[11px] font-semibold whitespace-nowrap" style={{ color: r.color }}>{r.name}</span>
                     </div>
                   ))}
                 </div>
