@@ -13,6 +13,7 @@ const SORT_OPTIONS = [
   { id: "name", label: "Name (A–Z)" },
   { id: "frequency", label: "Most Performed" },
   { id: "recency", label: "Most Recent" },
+  { id: "favourites", label: "Favourites" },
 ];
 
 export default function ExerciseFilters({ filters, onFiltersChange }) {
