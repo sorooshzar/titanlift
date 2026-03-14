@@ -41,6 +41,8 @@ export default function OnboardingFlow({ onComplete }) {
   const [saving, setSaving] = useState(false);
   const [answers, setAnswers] = useState({
     goal: null,
+    goal_weight_kg: null,
+    goal_timeline_weeks: null,
     experience_level: null,
     sex: null,
     age: null,
@@ -96,6 +98,8 @@ export default function OnboardingFlow({ onComplete }) {
       await base44.auth.updateMe({
         onboarding_completed: true,
         goal: answers.goal,
+        goal_weight_kg: answers.goal_weight_kg,
+        goal_timeline_weeks: answers.goal_timeline_weeks,
         experience_level: answers.experience_level,
         sex: answers.sex,
         age: answers.age,
