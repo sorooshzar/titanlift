@@ -430,7 +430,7 @@ export default function Profile() {
       </div>
 
       {showLogWeight && <LogWeightModal onClose={() => setShowLogWeight(false)} />}
-      {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} />}
+      {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} bodyWeights={bodyWeights} workoutLogs={workoutLogs} latestWeightDisplay={latestWeightDisplay} weightUnit={weightUnit} nutritionStreak={nutritionStreak} />}
       {showAddTracker && <AddTrackerModal onClose={() => setShowAddTracker(false)} onAdded={refetchTrackers} />}
       {rankModalMuscle && (
         <MuscleRankModal
