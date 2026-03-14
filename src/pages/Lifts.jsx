@@ -329,10 +329,16 @@ function ExercisesTab() {
                       {freqMap[ex.id] ? ` · ${freqMap[ex.id]}×` : ""}
                     </p>
                   </div>
-                  <div className="ml-auto">
+                  <div className="flex items-center gap-2 ml-auto">
                     <span className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded-md">
                       {equipmentAbbr}
                     </span>
+                    <button
+                      onClick={(e) => toggleFavourite(e, ex)}
+                      className="p-1 rounded-lg hover:bg-secondary transition-colors flex-shrink-0"
+                    >
+                      <Star className={`w-4 h-4 ${ex.is_favourite ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`} />
+                    </button>
                   </div>
                 </button>
                 );
