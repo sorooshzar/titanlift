@@ -122,7 +122,7 @@ export default function WorkoutSummary() {
       )}
 
       {/* Exercise breakdown */}
-      <div className="space-y-3">
+      <div className="space-y-3 mt-2">
         {logToDisplay.exercises?.map((ex, exIdx) => {
           if (!workingSetCounter[exIdx]) workingSetCounter[exIdx] = 0;
           const completedSets = ex.sets?.filter(s => s.completed) || [];
@@ -130,7 +130,7 @@ export default function WorkoutSummary() {
 
           const rankInfo = ex.rank ? RANKS.find(r => r.name === ex.rank) : null;
           return (
-            <motion.div key={exIdx} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + exIdx * 0.05 }}
+            <motion.div key={exIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 + exIdx * 0.04, type: "spring", stiffness: 300, damping: 25 }}
               className="bg-card rounded-xl border border-border overflow-hidden"
               style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
               <div className="px-4 py-3 border-b border-border flex items-center gap-2">
