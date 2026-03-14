@@ -131,7 +131,10 @@ export default function WaterTracker({ date }) {
 
   const { data: logs = [] } = useQuery({
     queryKey: ["waterLogs", date],
-    queryFn: () => base44.entities.WaterLog.filter({ date }, "-created_date", 50),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.WaterLog.filter({ date, created_by: user.email }, "-created_date", 50);
+    },
   });
 
   const totalMl = logs.reduce((sum, log) => sum + (log.amount_ml || 0), 0);
