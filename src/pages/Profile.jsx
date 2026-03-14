@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import AddTrackerModal from "../components/profile/AddTrackerModal";
 import { MeasurementTracker, ExerciseTracker, HabitsTracker, MacrosTracker } from "../components/profile/TrackerWidgets";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
+import { userStorage } from "@/components/utils/userStorage";
 import { computeRecovery } from "@/components/utils/recoveryEngine";
 import { computeMuscleRanks } from "@/components/utils/rankEngine";
 import { calculateMuscleRanks } from "@/components/utils/muscleRankCalculator";
