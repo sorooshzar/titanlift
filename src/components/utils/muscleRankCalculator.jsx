@@ -1,7 +1,9 @@
 import { base44 } from "@/api/base44Client";
 
 export async function calculateMuscleRanks() {
-  const logs = await base44.entities.WorkoutLog.list("-finished_at", 30);
+  const user = await base44.auth.me();
+  if (!user) return {};
+  const logs = await base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 30);
   const muscleRanks = {};
 
   logs.forEach(log => {

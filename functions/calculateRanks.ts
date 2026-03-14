@@ -149,7 +149,7 @@ Deno.serve(async (req) => {
     }
 
     // Get latest body weight
-    const bodyWeights = await base44.entities.BodyWeight.list("-date", 1);
+    const bodyWeights = await base44.entities.BodyWeight.filter({ created_by: user.email }, "-date", 1);
     const bodyweightKg = bodyWeights[0]?.weight || 80;
 
     // Calculate impressiveness score for each exercise
@@ -187,7 +187,7 @@ Deno.serve(async (req) => {
     // Pool: last 15 exercises affecting each muscle (primary or secondary)
     // Weight: Primary = 1.0x, Secondary = 0.5x
     // Rank: Average of top 5 weighted scores in the pool
-    const allLogs = await base44.entities.WorkoutLog.list("-finished_at", 100);
+    const allLogs = await base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 100);
     const musclePools = {};
 
     allLogs.forEach(log => {

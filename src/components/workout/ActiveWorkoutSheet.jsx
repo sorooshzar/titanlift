@@ -42,7 +42,10 @@ export default function ActiveWorkoutSheet() {
   // Load recent workout logs for previous-set data
   const { data: workoutLogs = [] } = useQuery({
     queryKey: ["workoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list("-created_date", 100),
+    queryFn: async () => {
+      const u = await base44.auth.me();
+      return base44.entities.WorkoutLog.filter({ created_by: u.email }, "-created_date", 100);
+    },
     enabled: !!workout,
   });
 
