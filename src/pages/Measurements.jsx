@@ -254,7 +254,7 @@ export default function Measurements() {
   const [newFt, setNewFt] = useState("");
   const [newIn, setNewIn] = useState("");
   const [unit, setUnit] = useState(() => {
-    const saved = localStorage.getItem("gym-weight-unit");
+    const saved = userStorage.getItem("gym-weight-unit");
     return saved === "lbs" ? "in" : "cm";
   });
   const [weightInput, setWeightInput] = useState("");
