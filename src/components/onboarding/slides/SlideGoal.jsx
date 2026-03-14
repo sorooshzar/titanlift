@@ -2,8 +2,8 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const GOALS = [
-  { id: "build_muscle",       label: "Build Muscle",        emoji: "💪", desc: "Add size and strength" },
-  { id: "lose_fat",           label: "Lose Fat",            emoji: "🔥", desc: "Cut body fat and lean out" },
+  { id: "build_muscle",       label: "Build Muscle",        emoji: "💪", desc: "Add size and strength", hasTargetWeight: true },
+  { id: "lose_fat",           label: "Lose Fat",            emoji: "🔥", desc: "Cut body fat and lean out", hasTargetWeight: true },
   { id: "maintain",           label: "Maintain Weight",     emoji: "⚖️", desc: "Stay lean and consistent" },
   { id: "improve_strength",   label: "Improve Strength",    emoji: "🏋️", desc: "Hit new PRs" },
   { id: "improve_endurance",  label: "Improve Endurance",   emoji: "🏃", desc: "Build cardiovascular fitness" },
@@ -11,6 +11,21 @@ const GOALS = [
 ];
 
 export default function SlideGoal({ answers, update }) {
+  const selectedGoal = GOALS.find(g => g.id === answers.goal);
+  const isImperial = answers.weight_unit === "lbs";
+
+  const displayGoalWeight = answers.goal_weight_kg
+    ? isImperial
+      ? +(answers.goal_weight_kg * 2.20462).toFixed(1)
+      : answers.goal_weight_kg
+    : "";
+
+  const handleGoalWeightChange = (val) => {
+    if (!val) { update("goal_weight_kg", null); return; }
+    const kg = isImperial ? +(parseFloat(val) / 2.20462).toFixed(2) : parseFloat(val);
+    update("goal_weight_kg", kg);
+  };
+
   return (
     <div className="min-h-screen flex flex-col px-6 py-10">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
@@ -45,6 +60,31 @@ export default function SlideGoal({ answers, update }) {
           </motion.button>
         ))}
       </div>
+
+      {/* Goal weight input — shown for muscle/fat goals */}
+      {selectedGoal?.hasTargetWeight && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-6 bg-card border border-border rounded-2xl p-4 space-y-2"
+        >
+          <p className="text-sm font-semibold">
+            {answers.goal === "lose_fat" ? "🏁 What's your goal weight?" : "🏁 What's your target weight?"}
+          </p>
+          <div className="flex items-center bg-secondary rounded-xl overflow-hidden">
+            <input
+              type="number"
+              step="0.5"
+              placeholder={isImperial ? "155" : "70"}
+              value={displayGoalWeight}
+              onChange={e => handleGoalWeightChange(e.target.value)}
+              className="flex-1 h-12 bg-transparent px-4 text-base font-semibold focus:outline-none"
+            />
+            <span className="px-4 text-sm text-muted-foreground font-medium">{isImperial ? "lbs" : "kg"}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">Optional — enables personalised calorie timeline advice.</p>
+        </motion.div>
+      )}
     </div>
   );
 }

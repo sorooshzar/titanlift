@@ -20,29 +20,58 @@ function NumInput({ label, placeholder, value, onChange, unit, emoji }) {
   );
 }
 
-export default function SlideMeasurements({ answers, update }) {
+export default function SlideMeasurements({ answers, update, updateMany }) {
   const isImperial = answers.weight_unit === "lbs";
+
+  // Display values converted for UI
+  const displayHeight = answers.height_cm
+    ? isImperial
+      ? +(answers.height_cm / 2.54).toFixed(1) // cm → inches
+      : answers.height_cm
+    : null;
+
+  const displayWeight = answers.weight_kg
+    ? isImperial
+      ? +(answers.weight_kg * 2.20462).toFixed(1) // kg → lbs
+      : answers.weight_kg
+    : null;
+
+  // Store always in metric internally
+  const handleHeightChange = (val) => {
+    if (!val) { update("height_cm", null); return; }
+    const cm = isImperial ? +(val * 2.54).toFixed(1) : val;
+    update("height_cm", cm);
+  };
+
+  const handleWeightChange = (val) => {
+    if (!val) { update("weight_kg", null); return; }
+    const kg = isImperial ? +(val / 2.20462).toFixed(2) : val;
+    update("weight_kg", kg);
+  };
 
   return (
     <div className="min-h-screen flex flex-col px-6 py-10">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-2">Step 4</p>
         <h2 className="text-3xl font-black mb-1">Body measurements 📏</h2>
-        <p className="text-muted-foreground text-sm mb-8">Used for macro calculation and progress tracking. Always stored in metric internally.</p>
+        <p className="text-muted-foreground text-sm mb-2">Used for macro calculation and progress tracking.</p>
+        <p className="text-xs text-primary/80 font-medium mb-8">
+          Entering in {isImperial ? "Imperial (in / lbs)" : "Metric (cm / kg)"}
+        </p>
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-4">
         <NumInput
-          label="Height" placeholder="175" emoji="📐"
-          unit="cm"
-          value={answers.height_cm}
-          onChange={v => update("height_cm", v)}
+          label="Height" placeholder={isImperial ? "69" : "175"} emoji="📐"
+          unit={isImperial ? "in" : "cm"}
+          value={displayHeight}
+          onChange={handleHeightChange}
         />
         <NumInput
-          label="Weight" placeholder="75" emoji="⚖️"
-          unit="kg"
-          value={answers.weight_kg}
-          onChange={v => update("weight_kg", v)}
+          label="Weight" placeholder={isImperial ? "165" : "75"} emoji="⚖️"
+          unit={isImperial ? "lbs" : "kg"}
+          value={displayWeight}
+          onChange={handleWeightChange}
         />
 
         <div className="pt-2 border-t border-border">
