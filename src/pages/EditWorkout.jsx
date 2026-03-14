@@ -127,13 +127,12 @@ export default function EditWorkout() {
             placeholder="Workout Name"
           />
           <Button
-            size="sm"
             onClick={handleSave}
             disabled={saving}
-            className="h-8 px-3 rounded-lg text-xs font-semibold"
+            className="h-10 px-5 rounded-xl text-sm font-semibold"
           >
-            <Save className="w-3.5 h-3.5 mr-1" />
-            {saving ? "..." : "Save"}
+            <Save className="w-4 h-4 mr-1.5" />
+            {saving ? "Saving..." : "Save"}
           </Button>
         </div>
       </div>
