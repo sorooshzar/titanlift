@@ -165,10 +165,15 @@ export default function ActiveWorkoutSheet() {
     const createdLog = await base44.entities.WorkoutLog.create(logData);
     queryClient.invalidateQueries({ queryKey: ["workoutLogs"] });
 
+    // Set completed log BEFORE navigating so WorkoutSummary can read it
+    endWorkout({ ...logData, id: createdLog.id });
+
+    // Small delay so React can flush state update before navigation
+    await new Promise(r => setTimeout(r, 50));
+
     // Confetti
     confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, ticks: 120 });
 
-    endWorkout({ ...logData, id: createdLog.id });
     navigate(createPageUrl("WorkoutSummary"));
   };
 
