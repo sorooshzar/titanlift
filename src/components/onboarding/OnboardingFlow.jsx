@@ -92,7 +92,7 @@ export default function OnboardingFlow({ onComplete }) {
     // Save all onboarding answers to localStorage so OnboardingGate can
     // persist them after OAuth completes (user isn't logged in yet).
     localStorage.setItem(PENDING_KEY, JSON.stringify(answers));
-    // Redirect to OAuth — after login, OnboardingGate picks up PENDING_KEY
+    // Redirect to OAuth sign-up — after login, OnboardingGate picks up PENDING_KEY
     base44.auth.redirectToLogin();
   };
 
