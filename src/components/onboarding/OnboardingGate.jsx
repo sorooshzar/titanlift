@@ -95,12 +95,16 @@ export default function OnboardingGate({ children }) {
         }
       })
       .catch(() => {
-        // Not authenticated — redirect to login
-        base44.auth.redirectToLogin();
+        // Not authenticated — redirect to login once (guard against loop with token param check)
+        if (!window.location.search.includes("token=")) {
+          base44.auth.redirectToLogin();
+        } else {
+          setStatus("not_authed");
+        }
       });
   }, []);
 
-  if (status === "loading") {
+  if (status === "loading" || status === "not_authed") {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
