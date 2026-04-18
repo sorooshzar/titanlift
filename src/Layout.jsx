@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import BottomNav from "./components/layout/BottomNav";
-import { ActiveWorkoutProvider } from "./components/workout/ActiveWorkoutContext";
+import { ActiveWorkoutProvider, useActiveWorkout } from "./components/workout/ActiveWorkoutContext";
 import ActiveWorkoutSheet from "./components/workout/ActiveWorkoutSheet";
 
 const HIDDEN_NAV_PAGES = ["ActiveWorkout", "EditWorkout", "WorkoutHistory", "Measurements", "Settings"];
@@ -34,13 +34,22 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <ActiveWorkoutProvider>
-      <div className="min-h-screen bg-background">
-        <div className={hideNav ? "" : "pb-20"}>
-          {children}
-        </div>
-        {!hideNav && <BottomNav />}
-        <ActiveWorkoutSheet />
-      </div>
+      <InnerLayout hideNav={hideNav}>{children}</InnerLayout>
     </ActiveWorkoutProvider>
+  );
+}
+
+function InnerLayout({ children, hideNav }) {
+  const { minimized, workout } = useActiveWorkout();
+  const showMiniBar = !!workout && minimized;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className={hideNav ? "" : showMiniBar ? "pb-36" : "pb-20"}>
+        {children}
+      </div>
+      {!hideNav && <BottomNav />}
+      <ActiveWorkoutSheet />
+    </div>
   );
 }

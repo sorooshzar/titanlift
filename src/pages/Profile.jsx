@@ -10,7 +10,7 @@ import WeightChart from "../components/profile/WeightChart";
 import RankLegend from "../components/profile/RankLegend";
 import SettingsPanel, { applyTheme } from "../components/profile/SettingsPanel";
 import { Switch } from "@/components/ui/switch";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import AddTrackerModal from "../components/profile/AddTrackerModal";
@@ -23,7 +23,7 @@ import { calculateMuscleRanks } from "@/components/utils/muscleRankCalculator";
 import MuscleRankModal from "../components/profile/MuscleRankModal";
 import NutritionRankCard from "../components/macros/NutritionRank";
 import { computeNutritionStreak } from "../components/macros/NutritionRank";
-import { subDays, format as fmtDate } from "date-fns";
+
 
 
 function LogWeightModal({ onClose }) {
@@ -327,9 +327,9 @@ export default function Profile() {
            ))}
          </div>
 
-        <AnimatePresence mode="wait">
+        <>
         {activeTab === "stats" ? (
-          <motion.div key="stats" initial={{ opacity: 0, x: 5 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -5 }} transition={{ duration: 0.12, ease: "easeOut" }} className="space-y-4">
+          <div className="space-y-4">
 
         {/* Weight Progress */}
         <div className="bg-card rounded-2xl border border-border p-4">
@@ -344,27 +344,24 @@ export default function Profile() {
               </Button>
             </div>
           </div>
-          <AnimatePresence>
-            {showGoalInput && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-3">
-                <div className="flex gap-2 items-center">
-                   <Input type="number" step="0.1"
-                    placeholder={goalWeight ? `Current: ${toDisplay(goalWeight)}${weightUnit}` : `Goal weight (${weightUnit})`}
-                    value={goalWeightInput} onChange={e => setGoalWeightInput(e.target.value)}
-                    className="h-8 text-sm bg-secondary border-0 flex-1" />
-                  <Button size="sm" className="h-8 px-3 text-xs" onClick={() => {
-                    const val = parseFloat(goalWeightInput);
-                    // Store goal in kg
-                    if (val) { const kgVal = toKg(val); setGoalWeight(kgVal); userStorage.setItem("gym-goal-weight", String(kgVal)); }
-                    setShowGoalInput(false); setGoalWeightInput("");
-                  }}>Set</Button>
-                  {goalWeight && <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-destructive" onClick={() => {
-                    setGoalWeight(null); userStorage.removeItem("gym-goal-weight"); setShowGoalInput(false);
-                  }}>Clear</Button>}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {showGoalInput && (
+            <div className="mb-3">
+              <div className="flex gap-2 items-center">
+                <Input type="number" step="0.1"
+                  placeholder={goalWeight ? `Current: ${toDisplay(goalWeight)}${weightUnit}` : `Goal weight (${weightUnit})`}
+                  value={goalWeightInput} onChange={e => setGoalWeightInput(e.target.value)}
+                  className="h-8 text-sm bg-secondary border-0 flex-1" />
+                <Button size="sm" className="h-8 px-3 text-xs" onClick={() => {
+                  const val = parseFloat(goalWeightInput);
+                  if (val) { const kgVal = toKg(val); setGoalWeight(kgVal); userStorage.setItem("gym-goal-weight", String(kgVal)); }
+                  setShowGoalInput(false); setGoalWeightInput("");
+                }}>Set</Button>
+                {goalWeight && <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-destructive" onClick={() => {
+                  setGoalWeight(null); userStorage.removeItem("gym-goal-weight"); setShowGoalInput(false);
+                }}>Clear</Button>}
+              </div>
+            </div>
+          )}
           <WeightChart data={bodyWeights} goalWeight={goalWeight} />
         </div>
 
@@ -383,9 +380,9 @@ export default function Profile() {
           className="w-full h-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-primary/15">
           <Plus className="w-4 h-4" /> Add Tracker
         </button>
-          </motion.div>
+          </div>
         ) : (
-          <motion.div key="rank" initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 5 }} transition={{ duration: 0.12, ease: "easeOut" }} className="space-y-4">
+          <div className="space-y-4">
 
         {/* Muscle Model Card — map left, legend right */}
         <div className="bg-card rounded-2xl border border-border p-4">
@@ -432,9 +429,9 @@ export default function Profile() {
 
         {/* Nutrition Rank Card */}
         <NutritionRankCard streak={nutritionStreak} />
-          </motion.div>
+          </div>
         )}
-        </AnimatePresence>
+        </>
 
       </div>
 

@@ -2,12 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { X, Plus, Check, Timer, ChevronDown } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { X, Plus, Check, Timer, ChevronUp } from "lucide-react";
 import ExerciseBlock from "./ExerciseBlock";
 import ExercisePicker from "./ExercisePicker";
 import { useActiveWorkout } from "@/components/workout/ActiveWorkoutContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import confetti from "canvas-confetti";
 
@@ -32,12 +31,14 @@ export default function ActiveWorkoutSheet() {
   const { workout, setWorkout, minimized, minimize, expand, endWorkout } = useActiveWorkout();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPicker, setShowPicker] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef(null);
   const dragStartY = useRef(null);
+  const sheetRef = useRef(null);
 
   // Load recent workout logs for previous-set data
   const { data: workoutLogs = [] } = useQuery({
@@ -177,60 +178,78 @@ export default function ActiveWorkoutSheet() {
     navigate(createPageUrl("WorkoutSummary"));
   };
 
+  const handleMinimize = () => {
+    minimize();
+    navigate(createPageUrl("Lifts"));
+  };
+
+  const handleExpand = () => {
+    expand();
+    navigate(createPageUrl("ActiveWorkout"));
+  };
+
   const handleDragHandleTouchStart = (e) => {
     dragStartY.current = e.touches[0].clientY;
   };
 
   const handleDragHandleTouchEnd = (e) => {
     const diff = e.changedTouches[0].clientY - (dragStartY.current || 0);
-    if (diff > 60) minimize();
+    if (diff > 60) handleMinimize();
+  };
+
+  // Swipe up on minimized bar to expand
+  const miniBarDragStart = useRef(null);
+  const handleMiniBarTouchStart = (e) => { miniBarDragStart.current = e.touches[0].clientY; };
+  const handleMiniBarTouchEnd = (e) => {
+    const diff = miniBarDragStart.current - e.changedTouches[0].clientY;
+    if (diff > 40) handleExpand();
   };
 
   if (minimized) {
     return (
-      <motion.div
-        initial={{ y: 80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 80, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      <div
         className="fixed bottom-20 left-0 right-0 z-50 px-3"
+        onTouchStart={handleMiniBarTouchStart}
+        onTouchEnd={handleMiniBarTouchEnd}
       >
+        {/* Swipe indicator */}
+        <div className="flex justify-center mb-1.5">
+          <div className="w-8 h-1 bg-muted-foreground/25 rounded-full" />
+        </div>
         <button
-          onClick={expand}
+          onClick={handleExpand}
           className="w-full bg-primary text-primary-foreground rounded-2xl px-4 py-3 flex items-center gap-3 shadow-2xl active:scale-[0.98] transition-transform"
         >
           <div className="flex-1 text-left">
             <p className="text-sm font-bold truncate">{workout.name}</p>
-            <p className="text-xs opacity-75">Tap to resume</p>
+            <p className="text-xs opacity-75">Tap or swipe up to resume</p>
           </div>
           <div className="flex items-center gap-1.5 text-sm font-mono opacity-90">
             <Timer className="w-4 h-4" />
             <span>{formatTime(elapsed)}</span>
           </div>
-          <ChevronDown className="w-4 h-4 opacity-70 -rotate-180" />
+          <ChevronUp className="w-4 h-4 opacity-70" />
         </button>
-      </motion.div>
+      </div>
     );
   }
 
+  // Don't render the full sheet if not on the ActiveWorkout page
+  if (!location.pathname.includes("ActiveWorkout")) return null;
+
   return (
     <>
-      <AnimatePresence>
-        <motion.div
-          key="workout-sheet"
-          initial={{ y: "100%" }}
-          animate={{ y: 0 }}
-          exit={{ y: "100%" }}
-          transition={{ type: "spring", damping: 32, stiffness: 320 }}
-          className="fixed inset-0 z-50 bg-background flex flex-col"
-        >
+      <div
+        ref={sheetRef}
+        className="fixed inset-0 z-50 bg-background flex flex-col"
+      >
           {/* Drag handle */}
           <div
             className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
             onTouchStart={handleDragHandleTouchStart}
             onTouchEnd={handleDragHandleTouchEnd}
           >
-            <button onClick={minimize} className="w-10 h-1.5 bg-muted-foreground/30 rounded-full" />
+            <button onClick={handleMinimize} className="w-10 h-1.5 bg-muted-foreground/30 rounded-full" />
           </div>
 
           {/* Header */}
@@ -288,8 +307,7 @@ export default function ActiveWorkoutSheet() {
             onClose={() => setShowPicker(false)}
             onSelect={(ex) => { handleAddExercise(ex); setShowPicker(false); }}
           />
-        </motion.div>
-      </AnimatePresence>
+      </div>
 
       {/* Cancel confirmation */}
       <ConfirmDialog

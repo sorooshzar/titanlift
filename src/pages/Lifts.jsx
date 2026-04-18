@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
@@ -97,7 +97,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
     await base44.entities.WorkoutTemplate.update(t.id, { notes });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
-  const handleStartWorkout = (t) => startWorkout(t);
+  const handleStartWorkout = (t) => { startWorkout(t); navigate(createPageUrl("ActiveWorkout")); };
   const handleAddWorkoutToFolder = async (folder) => {
     const name = prompt("Workout name:");
     if (!name?.trim()) return;
@@ -107,7 +107,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
 
   return (
     <div className="space-y-3">
-      <Button onClick={() => startWorkout(null)} className="w-full h-14 rounded-xl text-base font-semibold gap-2 shadow-lg shadow-primary/20">
+      <Button onClick={() => { startWorkout(null); navigate(createPageUrl("ActiveWorkout")); }} className="w-full h-14 rounded-xl text-base font-semibold gap-2 shadow-lg shadow-primary/20">
         <Zap className="w-5 h-5" /> Quick Start
       </Button>
 
@@ -459,17 +459,13 @@ export default function Lifts() {
        </div>
 
       <div className="px-4">
-        <AnimatePresence mode="wait">
+        <div className="pt-3">
           {tab === TABS.WORKOUTS ? (
-            <motion.div key="workouts" initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 4 }} transition={{ duration: 0.12, ease: "easeOut" }} className="pt-3">
-              <WorkoutsTab folders={folders} templates={templates} queryClient={queryClient} navigate={navigate} startWorkout={startWorkout} />
-            </motion.div>
+            <WorkoutsTab folders={folders} templates={templates} queryClient={queryClient} navigate={navigate} startWorkout={startWorkout} />
           ) : (
-            <motion.div key="exercises" initial={{ opacity: 0, x: 4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -4 }} transition={{ duration: 0.12, ease: "easeOut" }} className="pt-3">
-              <ExercisesTab />
-            </motion.div>
+            <ExercisesTab />
           )}
-        </AnimatePresence>
+        </div>
         </div>
         </div>
         </PullToRefresh>

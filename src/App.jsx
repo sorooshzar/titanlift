@@ -9,8 +9,6 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import OnboardingGate from '@/components/onboarding/OnboardingGate';
 import SignIn from '@/pages/SignIn';
 import FoodPreview from '@/pages/FoodPreview';
-import { AnimatePresence, motion } from 'framer-motion'
-import { Navigate } from 'react-router-dom';
 import { TabStateProvider } from '@/components/mobile/TabStateManager';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -21,18 +19,8 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
-const RouteContent = ({ children, pageKey }) => {
-  return (
-    <motion.div
-      key={pageKey}
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.2 }}
-    >
-      {children}
-    </motion.div>
-  );
+const RouteContent = ({ children }) => {
+  return <>{children}</>;
 };
 
 const AuthenticatedApp = () => {
@@ -59,8 +47,7 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <OnboardingGate>
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
+      <Routes>
           <Route path="/" element={
             <RouteContent pageKey="/">
               <LayoutWrapper currentPageName={mainPageKey}>
@@ -99,7 +86,6 @@ const AuthenticatedApp = () => {
             </RouteContent>
           } />
         </Routes>
-      </AnimatePresence>
     </OnboardingGate>
   );
 };
