@@ -62,6 +62,8 @@ export default function EditWorkout() {
 
   const markDirty = (fn) => (...args) => { isDirty.current = true; fn(...args); };
 
+  // Read back exercises chosen in ExerciseSelector page
+  // Defined before the useEffect that uses it
   const handleAddExercises = (toAdd) => {
     setExercises(prev => [...prev, ...toAdd.map((ex, i) => ({
       exercise_id: ex.id,
@@ -75,13 +77,17 @@ export default function EditWorkout() {
     isDirty.current = true;
   };
 
-  // Read back exercises chosen in ExerciseSelector page
   useEffect(() => {
     const raw = localStorage.getItem(EXERCISE_SELECTOR_KEY);
-    if (raw) {
-      localStorage.removeItem(EXERCISE_SELECTOR_KEY);
-      try { handleAddExercises(JSON.parse(raw)); } catch {}
+    if (!raw) return;
+    localStorage.removeItem(EXERCISE_SELECTOR_KEY);
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) handleAddExercises(parsed);
+    } catch {
+      // Ignore malformed data
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleExerciseChange = (index, updated) => {

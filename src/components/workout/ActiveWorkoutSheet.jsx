@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ function ConfirmDialog({ open, title, description, confirmLabel, cancelLabel, on
 }
 
 export default function ActiveWorkoutSheet() {
-  const { workout, setWorkout, minimized, minimize, expand, endWorkout } = useActiveWorkout();
+  const { workout, setWorkout, updateWorkout, addExercisesToWorkout, minimized, minimize, expand, endWorkout } = useActiveWorkout();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +39,7 @@ export default function ActiveWorkoutSheet() {
   const dragStartY = useRef(null);
   const sheetRef = useRef(null);
   const miniBarDragStart = useRef(null);
+  const notesInitializedFor = useRef(null);
 
   // Load recent workout logs for previous-set data
   const { data: workoutLogs = [] } = useQuery({
@@ -57,7 +58,7 @@ export default function ActiveWorkoutSheet() {
     enabled: !!workout,
   });
 
-  // Build a map: exercise_id -> last completed sets array (across all logs, not just last workout)
+  // Build map: exercise_id -> last completed sets (from most recent log first)
   const prevSetsMap = {};
   workoutLogs.forEach(log => {
     log.exercises?.forEach(ex => {
@@ -67,24 +68,26 @@ export default function ActiveWorkoutSheet() {
     });
   });
 
-  // Patch saved notes from Exercise entity into workout exercises once per workout session
-  const notesInitializedFor = useRef(null);
+  // Patch saved notes from Exercise entity into workout exercises — runs once per workout session
   useEffect(() => {
     if (!workout || !allExercises.length) return;
     const workoutKey = workout.startTime;
     if (notesInitializedFor.current === workoutKey) return;
     notesInitializedFor.current = workoutKey;
+
     const exerciseMap = {};
     allExercises.forEach(ex => { exerciseMap[ex.id] = ex; });
-    setWorkout(prev => ({
+
+    updateWorkout(prev => ({
       ...prev,
       exercises: prev.exercises.map(ex => ({
         ...ex,
         notes: ex.notes || exerciseMap[ex.exercise_id]?.notes || null,
       })),
     }));
-  }, [allExercises, workout?.startTime]);
+  }, [allExercises, workout?.startTime, updateWorkout]);
 
+  // Elapsed timer
   useEffect(() => {
     if (!workout) return;
     const startTime = new Date(workout.startTime);
@@ -94,35 +97,20 @@ export default function ActiveWorkoutSheet() {
     return () => clearInterval(timerRef.current);
   }, [workout?.startTime]);
 
-  const handleAddExercises = (exercisesToAdd) => {
-    setWorkout(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        exercises: [...prev.exercises, ...exercisesToAdd.map((exercise, i) => ({
-          exercise_id: exercise.id,
-          exercise_name: exercise.name,
-          muscle_group: exercise.primary_muscle,
-          color: null,
-          superset_group: null,
-          notes: exercise.notes || null,
-          order: prev.exercises.length + i,
-          sets: [{ type: "working", weight: 0, reps: 0, rir: 2, completed: false }],
-        }))],
-      };
-    });
-  };
-
-  // Read back exercises chosen in ExerciseSelector page — must be before any early returns
+  // Read back exercises chosen in ExerciseSelector page
   useEffect(() => {
     const raw = localStorage.getItem(EXERCISE_SELECTOR_KEY);
-    if (raw) {
-      localStorage.removeItem(EXERCISE_SELECTOR_KEY);
-      try { handleAddExercises(JSON.parse(raw)); } catch {}
+    if (!raw) return;
+    localStorage.removeItem(EXERCISE_SELECTOR_KEY);
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        addExercisesToWorkout(parsed);
+      }
+    } catch {
+      // Ignore malformed data
     }
-  }, [location.pathname]);
-
-  if (!workout) return null;
+  }, [location.pathname, addExercisesToWorkout]);
 
   const formatTime = (secs) => {
     const h = Math.floor(secs / 3600);
@@ -133,20 +121,20 @@ export default function ActiveWorkoutSheet() {
       : `${m}:${String(s).padStart(2, "0")}`;
   };
 
-  const handleExerciseChange = (index, updated) => {
-    setWorkout(prev => {
+  const handleExerciseChange = useCallback((index, updated) => {
+    updateWorkout(prev => {
       const exercises = [...prev.exercises];
       exercises[index] = updated;
       return { ...prev, exercises };
     });
-  };
+  }, [updateWorkout]);
 
-  const handleRemoveExercise = (index) => {
-    setWorkout(prev => ({
+  const handleRemoveExercise = useCallback((index) => {
+    updateWorkout(prev => ({
       ...prev,
       exercises: prev.exercises.filter((_, i) => i !== index),
     }));
-  };
+  }, [updateWorkout]);
 
   const doFinish = async () => {
     const finished = new Date();
@@ -178,15 +166,12 @@ export default function ActiveWorkoutSheet() {
     const createdLog = await base44.entities.WorkoutLog.create(logData);
     queryClient.invalidateQueries({ queryKey: ["workoutLogs"] });
 
-    // Set completed log BEFORE navigating so WorkoutSummary can read it
     endWorkout({ ...logData, id: createdLog.id });
 
     // Small delay so React can flush state update before navigation
     await new Promise(r => setTimeout(r, 50));
 
-    // Confetti
     confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, ticks: 120 });
-
     navigate(createPageUrl("WorkoutSummary"));
   };
 
@@ -200,36 +185,28 @@ export default function ActiveWorkoutSheet() {
     navigate(createPageUrl("ActiveWorkout"));
   };
 
-  // Touch handlers (mobile) — preventDefault stops pull-to-refresh
-  const handleDragHandleTouchStart = (e) => {
-    dragStartY.current = e.touches[0].clientY;
-  };
-
+  // Touch/mouse drag handlers for the drag handle (minimize on swipe down)
+  const handleDragHandleTouchStart = (e) => { dragStartY.current = e.touches[0].clientY; };
   const handleDragHandleTouchMove = (e) => {
     if (dragStartY.current === null) return;
-    const diff = e.touches[0].clientY - dragStartY.current;
-    if (diff > 10) e.preventDefault(); // block native pull-to-refresh
+    if (e.touches[0].clientY - dragStartY.current > 10) e.preventDefault();
   };
-
   const handleDragHandleTouchEnd = (e) => {
     const diff = e.changedTouches[0].clientY - (dragStartY.current || 0);
     dragStartY.current = null;
     if (diff > 60) handleMinimize();
   };
 
-  // Mouse handlers (laptop/desktop)
   const handleDragHandleMouseDown = (e) => {
     dragStartY.current = e.clientY;
     const onMouseMove = (me) => {
-      const diff = me.clientY - dragStartY.current;
-      if (diff > 60) {
-        dragStartY.current = null;
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("mouseup", onMouseUp);
+      if (me.clientY - dragStartY.current > 60) {
+        cleanup();
         handleMinimize();
       }
     };
-    const onMouseUp = () => {
+    const onMouseUp = () => cleanup();
+    const cleanup = () => {
       dragStartY.current = null;
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
@@ -245,6 +222,8 @@ export default function ActiveWorkoutSheet() {
     if (diff > 40) handleExpand();
   };
 
+  if (!workout) return null;
+
   if (minimized) {
     return (
       <div
@@ -252,7 +231,6 @@ export default function ActiveWorkoutSheet() {
         onTouchStart={handleMiniBarTouchStart}
         onTouchEnd={handleMiniBarTouchEnd}
       >
-        {/* Swipe indicator */}
         <div className="flex justify-center mb-1.5">
           <div className="w-8 h-1 bg-muted-foreground/25 rounded-full" />
         </div>
@@ -279,64 +257,56 @@ export default function ActiveWorkoutSheet() {
 
   return (
     <>
-      <div
-        ref={sheetRef}
-        className="fixed inset-0 z-50 bg-background flex flex-col"
-      >
-          {/* Drag zone — handle + header combined so dragging anywhere on the top bar works */}
-          <div
-            className="cursor-grab active:cursor-grabbing select-none"
-            onTouchStart={handleDragHandleTouchStart}
-            onTouchMove={handleDragHandleTouchMove}
-            onTouchEnd={handleDragHandleTouchEnd}
-            onMouseDown={handleDragHandleMouseDown}
-          >
-            {/* Drag pill */}
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1.5 bg-muted-foreground/30 rounded-full" />
-            </div>
-
-            {/* Header */}
-            <div className="bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-              <div className="max-w-lg mx-auto relative flex items-center justify-center">
-                {/* Left — cancel */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowCancelConfirm(true); }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  className="absolute left-0 p-1"
-                >
-                  <X className="w-5 h-5 text-muted-foreground" />
-                </button>
-
-                {/* Centre — title + timer */}
-                <div className="text-center pointer-events-none">
-                  <p className="text-sm font-bold">{workout.name}</p>
-                  <div className="flex items-center justify-center gap-1 text-xs text-primary">
-                    <Timer className="w-3 h-3" />
-                    <span className="font-mono">{formatTime(elapsed)}</span>
-                  </div>
-                </div>
-
-                {/* Right — finish */}
-                <Button
-                  size="sm"
-                  onClick={(e) => { e.stopPropagation(); setShowFinishConfirm(true); }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  className="absolute right-0 h-8 px-3 rounded-lg text-xs font-semibold"
-                >
-                  <Check className="w-3.5 h-3.5 mr-1" />
-                  Finish
-                </Button>
-              </div>
-            </div>
+      <div ref={sheetRef} className="fixed inset-0 z-50 bg-background flex flex-col">
+        {/* Drag zone — handle + header combined */}
+        <div
+          className="cursor-grab active:cursor-grabbing select-none"
+          onTouchStart={handleDragHandleTouchStart}
+          onTouchMove={handleDragHandleTouchMove}
+          onTouchEnd={handleDragHandleTouchEnd}
+          onMouseDown={handleDragHandleMouseDown}
+        >
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-10 h-1.5 bg-muted-foreground/30 rounded-full" />
           </div>
 
-          {/* Exercises - scrollable */}
-          <div className="flex-1 overflow-y-auto pt-4 pb-8">
+          <div className="bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
+            <div className="max-w-lg mx-auto relative flex items-center justify-center">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowCancelConfirm(true); }}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="absolute left-0 p-1"
+              >
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
+
+              <div className="text-center pointer-events-none">
+                <p className="text-sm font-bold">{workout.name}</p>
+                <div className="flex items-center justify-center gap-1 text-xs text-primary">
+                  <Timer className="w-3 h-3" />
+                  <span className="font-mono">{formatTime(elapsed)}</span>
+                </div>
+              </div>
+
+              <Button
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); setShowFinishConfirm(true); }}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="absolute right-0 h-8 px-3 rounded-lg text-xs font-semibold"
+              >
+                <Check className="w-3.5 h-3.5 mr-1" />
+                Finish
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Exercises — scrollable */}
+        <div className="flex-1 overflow-y-auto pt-4 pb-8">
           <div className="max-w-lg mx-auto px-4 space-y-3">
             {workout.exercises.map((exercise, index) => (
               <ExerciseBlock
-                key={index}
+                key={`${exercise.exercise_id}-${index}`}
                 exercise={exercise}
                 index={index}
                 onChange={(updated) => handleExerciseChange(index, updated)}
@@ -355,10 +325,9 @@ export default function ActiveWorkoutSheet() {
               Add Exercise
             </Button>
           </div>
-          </div>
+        </div>
       </div>
 
-      {/* Cancel confirmation */}
       <ConfirmDialog
         open={showCancelConfirm}
         title="Close Workout?"
@@ -370,7 +339,6 @@ export default function ActiveWorkoutSheet() {
         onCancel={() => setShowCancelConfirm(false)}
       />
 
-      {/* Finish confirmation */}
       <ConfirmDialog
         open={showFinishConfirm}
         title="Complete Workout?"

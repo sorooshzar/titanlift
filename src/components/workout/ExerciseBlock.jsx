@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { MoreVertical, Trash2, GripVertical, StickyNote, RefreshCw, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,13 +20,20 @@ const EXERCISE_COLORS = [
 export default function ExerciseBlock({ exercise, index, onChange, onRemove, onReplace, isActive = false, previousSets = [] }) {
   const [showNotes, setShowNotes] = useState(!!exercise.notes);
   const navigate = useNavigate();
+  const notesDebounceRef = useRef(null);
 
   const updateSets = (newSets) => onChange({ ...exercise, sets: newSets });
+
   const updateNotes = (notes) => {
+    // Update local state immediately for responsive UI
     onChange({ ...exercise, notes });
-    // Persist notes to the Exercise entity so it carries forward
+
+    // Debounce the API call — only persist after 800ms of inactivity
+    if (notesDebounceRef.current) clearTimeout(notesDebounceRef.current);
     if (exercise.exercise_id) {
-      base44.entities.Exercise.update(exercise.exercise_id, { notes }).catch(() => {});
+      notesDebounceRef.current = setTimeout(() => {
+        base44.entities.Exercise.update(exercise.exercise_id, { notes }).catch(() => {});
+      }, 800);
     }
   };
 
@@ -71,7 +78,7 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="p-2">
-            {/* Color picker — compact grid */}
+            {/* Color picker */}
             <div className="mb-2">
               <p className="text-xs font-medium text-muted-foreground mb-2 px-0.5">Color</p>
               <div className="grid grid-cols-4 gap-1.5">
@@ -99,7 +106,7 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
         </DropdownMenu>
       </div>
 
-      {/* Notes section — auto-growing */}
+      {/* Notes section — auto-growing textarea */}
       {showNotes && (
         <div className="px-3 pb-2">
           <textarea

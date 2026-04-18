@@ -397,7 +397,10 @@ export default function Lifts() {
    const queryClient = useQueryClient();
 
    const handleRefresh = async () => {
-     await queryClient.invalidateQueries({ queryKey: ["templates", "folders"] });
+     await Promise.all([
+       queryClient.invalidateQueries({ queryKey: ["templates"] }),
+       queryClient.invalidateQueries({ queryKey: ["folders"] }),
+     ]);
    };
   const { startWorkout } = useActiveWorkout();
   const touchStartX = useRef(null);

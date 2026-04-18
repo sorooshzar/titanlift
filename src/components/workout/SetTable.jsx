@@ -55,7 +55,13 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
   const removeSet = (index) => onChange(sets.filter((_, i) => i !== index));
   const toggleComplete = (index) => updateSet(index, "completed", !sets[index].completed);
 
-  let workingCounter = 0;
+  // Pre-compute working set labels — avoids mutation during render
+  const workingLabels = [];
+  let counter = 0;
+  sets.forEach(set => {
+    if (set.type !== "warmup") { counter++; workingLabels.push(counter); }
+    else workingLabels.push(null);
+  });
 
   return (
     <div className="space-y-0.5">
@@ -73,8 +79,8 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
 
       {sets.map((set, index) => {
         const isWorking = set.type !== "warmup";
-        if (isWorking) workingCounter++;
-        const { label, color } = getSetLabel(set, workingCounter);
+        const workingIndex = workingLabels[index];
+        const { label, color } = getSetLabel(set, workingIndex);
         const isDropset = set.type === "dropset";
         const prev = previousSets[index];
         const prevDisplayWeight = prev?.weight ? toDisplay(prev.weight) : 0;
