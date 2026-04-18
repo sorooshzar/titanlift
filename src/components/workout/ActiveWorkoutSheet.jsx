@@ -95,19 +95,22 @@ export default function ActiveWorkoutSheet() {
   }, [workout?.startTime]);
 
   const handleAddExercises = (exercisesToAdd) => {
-    setWorkout(prev => ({
-      ...prev,
-      exercises: [...prev.exercises, ...exercisesToAdd.map((exercise, i) => ({
-        exercise_id: exercise.id,
-        exercise_name: exercise.name,
-        muscle_group: exercise.primary_muscle,
-        color: null,
-        superset_group: null,
-        notes: exercise.notes || null,
-        order: prev.exercises.length + i,
-        sets: [{ type: "working", weight: 0, reps: 0, rir: 2, completed: false }],
-      }))],
-    }));
+    setWorkout(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        exercises: [...prev.exercises, ...exercisesToAdd.map((exercise, i) => ({
+          exercise_id: exercise.id,
+          exercise_name: exercise.name,
+          muscle_group: exercise.primary_muscle,
+          color: null,
+          superset_group: null,
+          notes: exercise.notes || null,
+          order: prev.exercises.length + i,
+          sets: [{ type: "working", weight: 0, reps: 0, rir: 2, completed: false }],
+        }))],
+      };
+    });
   };
 
   // Read back exercises chosen in ExerciseSelector page — must be before any early returns
