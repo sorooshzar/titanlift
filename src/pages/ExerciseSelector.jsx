@@ -164,11 +164,11 @@ export default function ExerciseSelector() {
                   const isSelected = selected.some(s => s.id === ex.id);
 
                   return (
-                    <button
+                    <div
                       key={ex.id}
                       onClick={() => toggleSelect(ex)}
                       onContextMenu={(e) => { e.preventDefault(); setDetailExercise(ex); }}
-                      className={`w-full flex items-center gap-3 py-2.5 px-2 -mx-2 rounded-xl transition-colors text-left ${
+                      className={`w-full flex items-center gap-3 py-2.5 px-2 -mx-2 rounded-xl transition-colors text-left cursor-pointer ${
                         isSelected ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-secondary/50"
                       }`}
                     >
@@ -200,7 +200,7 @@ export default function ExerciseSelector() {
                           <Star className={`w-4 h-4 ${ex.is_favourite ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`} />
                         </button>
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
