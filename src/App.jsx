@@ -76,7 +76,9 @@ const AuthenticatedApp = () => {
           } />
           <Route path="/ExerciseSelector" element={
             <RouteContent pageKey="/ExerciseSelector">
-              <ExerciseSelector />
+              <LayoutWrapper currentPageName="ExerciseSelector">
+                <ExerciseSelector />
+              </LayoutWrapper>
             </RouteContent>
           } />
           <Route path="/FoodPreview" element={

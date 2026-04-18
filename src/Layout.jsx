@@ -3,7 +3,7 @@ import BottomNav from "./components/layout/BottomNav";
 import { ActiveWorkoutProvider, useActiveWorkout } from "./components/workout/ActiveWorkoutContext";
 import ActiveWorkoutSheet from "./components/workout/ActiveWorkoutSheet";
 
-const HIDDEN_NAV_PAGES = ["ActiveWorkout", "EditWorkout", "WorkoutHistory", "Measurements", "Settings"];
+const HIDDEN_NAV_PAGES = ["ActiveWorkout", "EditWorkout", "WorkoutHistory", "Measurements", "Settings", "ExerciseSelector"];
 
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(true);
