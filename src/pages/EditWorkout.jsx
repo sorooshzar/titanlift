@@ -3,11 +3,11 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Save, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Reorder, AnimatePresence } from "framer-motion";
 import ExerciseBlock from "../components/workout/ExerciseBlock";
-import ExercisePicker from "../components/workout/ExercisePicker";
+import { EXERCISE_SELECTOR_KEY } from "./ExerciseSelector";
+import { createPageUrl } from "@/utils";
 
 export default function EditWorkout() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -17,7 +17,6 @@ export default function EditWorkout() {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [exercises, setExercises] = useState([]);
-  const [showPicker, setShowPicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showUnsavedConfirm, setShowUnsavedConfirm] = useState(false);
   const isDirty = useRef(false);
@@ -63,20 +62,27 @@ export default function EditWorkout() {
 
   const markDirty = (fn) => (...args) => { isDirty.current = true; fn(...args); };
 
-  const handleAddExercise = (exercise) => {
-    setExercises([
-      ...exercises,
-      {
-        exercise_id: exercise.id,
-        exercise_name: exercise.name,
-        muscle_group: exercise.muscle_group,
-        color: null,
-        superset_group: null,
-        order: exercises.length,
-        sets: [{ type: "working", weight: 0, reps: 0, rir: 2 }],
-      },
-    ]);
+  const handleAddExercises = (toAdd) => {
+    setExercises(prev => [...prev, ...toAdd.map((ex, i) => ({
+      exercise_id: ex.id,
+      exercise_name: ex.name,
+      muscle_group: ex.primary_muscle,
+      color: null,
+      superset_group: null,
+      order: prev.length + i,
+      sets: [{ type: "working", weight: 0, reps: 0, rir: 2 }],
+    }))]);
+    isDirty.current = true;
   };
+
+  // Read back exercises chosen in ExerciseSelector page
+  useEffect(() => {
+    const raw = localStorage.getItem(EXERCISE_SELECTOR_KEY);
+    if (raw) {
+      localStorage.removeItem(EXERCISE_SELECTOR_KEY);
+      try { handleAddExercises(JSON.parse(raw)); } catch {}
+    }
+  }, []);
 
   const handleExerciseChange = (index, updated) => {
     const newExercises = [...exercises];
@@ -156,18 +162,12 @@ export default function EditWorkout() {
         <Button
           variant="outline"
           className="w-full h-12 rounded-xl border-dashed text-muted-foreground"
-          onClick={() => setShowPicker(true)}
+          onClick={() => navigate(createPageUrl("ExerciseSelector") + `?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Exercise
         </Button>
       </Reorder.Group>
-
-      <ExercisePicker
-        open={showPicker}
-        onClose={() => setShowPicker(false)}
-        onSelect={(ex) => { isDirty.current = true; handleAddExercise(ex); }}
-      />
 
       {showUnsavedConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center">

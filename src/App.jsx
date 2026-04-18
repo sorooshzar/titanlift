@@ -9,6 +9,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import OnboardingGate from '@/components/onboarding/OnboardingGate';
 import SignIn from '@/pages/SignIn';
 import FoodPreview from '@/pages/FoodPreview';
+import ExerciseSelector from '@/pages/ExerciseSelector';
 import { TabStateProvider } from '@/components/mobile/TabStateManager';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -71,6 +72,11 @@ const AuthenticatedApp = () => {
           <Route path="/SignIn" element={
             <RouteContent pageKey="/SignIn">
               <SignIn />
+            </RouteContent>
+          } />
+          <Route path="/ExerciseSelector" element={
+            <RouteContent pageKey="/ExerciseSelector">
+              <ExerciseSelector />
             </RouteContent>
           } />
           <Route path="/FoodPreview" element={

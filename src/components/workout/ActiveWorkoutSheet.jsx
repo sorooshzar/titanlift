@@ -4,10 +4,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Plus, Check, Timer, ChevronUp } from "lucide-react";
 import ExerciseBlock from "./ExerciseBlock";
-import ExercisePicker from "./ExercisePicker";
 import { useActiveWorkout } from "@/components/workout/ActiveWorkoutContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { EXERCISE_SELECTOR_KEY } from "@/pages/ExerciseSelector";
 import confetti from "canvas-confetti";
 
 function ConfirmDialog({ open, title, description, confirmLabel, cancelLabel, onConfirm, onCancel, confirmDestructive }) {
@@ -32,7 +32,6 @@ export default function ActiveWorkoutSheet() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showPicker, setShowPicker] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -106,21 +105,30 @@ export default function ActiveWorkoutSheet() {
       : `${m}:${String(s).padStart(2, "0")}`;
   };
 
-  const handleAddExercise = (exercise) => {
+  const handleAddExercises = (exercisesToAdd) => {
     setWorkout(prev => ({
       ...prev,
-      exercises: [...prev.exercises, {
+      exercises: [...prev.exercises, ...exercisesToAdd.map((exercise, i) => ({
         exercise_id: exercise.id,
         exercise_name: exercise.name,
         muscle_group: exercise.primary_muscle,
         color: null,
         superset_group: null,
         notes: exercise.notes || null,
-        order: prev.exercises.length,
+        order: prev.exercises.length + i,
         sets: [{ type: "working", weight: 0, reps: 0, rir: 2, completed: false }],
-      }],
+      }))],
     }));
   };
+
+  // Read back exercises chosen in ExerciseSelector page
+  useEffect(() => {
+    const raw = localStorage.getItem(EXERCISE_SELECTOR_KEY);
+    if (raw) {
+      localStorage.removeItem(EXERCISE_SELECTOR_KEY);
+      try { handleAddExercises(JSON.parse(raw)); } catch {}
+    }
+  }, [location.pathname]);
 
   const handleExerciseChange = (index, updated) => {
     setWorkout(prev => {
@@ -338,19 +346,13 @@ export default function ActiveWorkoutSheet() {
             <Button
               variant="outline"
               className="w-full h-12 rounded-xl border-dashed text-muted-foreground"
-              onClick={() => setShowPicker(true)}
+              onClick={() => navigate(createPageUrl("ExerciseSelector") + `?returnTo=${encodeURIComponent(location.pathname)}`)}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Exercise
             </Button>
           </div>
           </div>
-
-          <ExercisePicker
-            open={showPicker}
-            onClose={() => setShowPicker(false)}
-            onSelect={(ex) => { handleAddExercise(ex); setShowPicker(false); }}
-          />
       </div>
 
       {/* Cancel confirmation */}
