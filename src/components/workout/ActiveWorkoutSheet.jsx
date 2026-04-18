@@ -94,17 +94,6 @@ export default function ActiveWorkoutSheet() {
     return () => clearInterval(timerRef.current);
   }, [workout?.startTime]);
 
-  if (!workout) return null;
-
-  const formatTime = (secs) => {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
-    const s = secs % 60;
-    return h > 0
-      ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
-      : `${m}:${String(s).padStart(2, "0")}`;
-  };
-
   const handleAddExercises = (exercisesToAdd) => {
     setWorkout(prev => ({
       ...prev,
@@ -121,7 +110,7 @@ export default function ActiveWorkoutSheet() {
     }));
   };
 
-  // Read back exercises chosen in ExerciseSelector page
+  // Read back exercises chosen in ExerciseSelector page — must be before any early returns
   useEffect(() => {
     const raw = localStorage.getItem(EXERCISE_SELECTOR_KEY);
     if (raw) {
@@ -129,6 +118,17 @@ export default function ActiveWorkoutSheet() {
       try { handleAddExercises(JSON.parse(raw)); } catch {}
     }
   }, [location.pathname]);
+
+  if (!workout) return null;
+
+  const formatTime = (secs) => {
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    return h > 0
+      ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+      : `${m}:${String(s).padStart(2, "0")}`;
+  };
 
   const handleExerciseChange = (index, updated) => {
     setWorkout(prev => {
