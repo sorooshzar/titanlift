@@ -39,6 +39,7 @@ export default function ActiveWorkoutSheet() {
   const timerRef = useRef(null);
   const dragStartY = useRef(null);
   const sheetRef = useRef(null);
+  const miniBarDragStart = useRef(null);
 
   // Load recent workout logs for previous-set data
   const { data: workoutLogs = [] } = useQuery({
@@ -198,7 +199,6 @@ export default function ActiveWorkoutSheet() {
   };
 
   // Swipe up on minimized bar to expand
-  const miniBarDragStart = useRef(null);
   const handleMiniBarTouchStart = (e) => { miniBarDragStart.current = e.touches[0].clientY; };
   const handleMiniBarTouchEnd = (e) => {
     const diff = miniBarDragStart.current - e.changedTouches[0].clientY;
