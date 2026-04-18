@@ -189,13 +189,42 @@ export default function ActiveWorkoutSheet() {
     navigate(createPageUrl("ActiveWorkout"));
   };
 
+  // Touch handlers (mobile) — preventDefault stops pull-to-refresh
   const handleDragHandleTouchStart = (e) => {
     dragStartY.current = e.touches[0].clientY;
   };
 
+  const handleDragHandleTouchMove = (e) => {
+    if (dragStartY.current === null) return;
+    const diff = e.touches[0].clientY - dragStartY.current;
+    if (diff > 10) e.preventDefault(); // block native pull-to-refresh
+  };
+
   const handleDragHandleTouchEnd = (e) => {
     const diff = e.changedTouches[0].clientY - (dragStartY.current || 0);
+    dragStartY.current = null;
     if (diff > 60) handleMinimize();
+  };
+
+  // Mouse handlers (laptop/desktop)
+  const handleDragHandleMouseDown = (e) => {
+    dragStartY.current = e.clientY;
+    const onMouseMove = (me) => {
+      const diff = me.clientY - dragStartY.current;
+      if (diff > 60) {
+        dragStartY.current = null;
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+        handleMinimize();
+      }
+    };
+    const onMouseUp = () => {
+      dragStartY.current = null;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
   };
 
   // Swipe up on minimized bar to expand
@@ -243,36 +272,51 @@ export default function ActiveWorkoutSheet() {
         ref={sheetRef}
         className="fixed inset-0 z-50 bg-background flex flex-col"
       >
-          {/* Drag handle */}
+          {/* Drag zone — handle + header combined so dragging anywhere on the top bar works */}
           <div
-            className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
+            className="cursor-grab active:cursor-grabbing select-none"
             onTouchStart={handleDragHandleTouchStart}
+            onTouchMove={handleDragHandleTouchMove}
             onTouchEnd={handleDragHandleTouchEnd}
+            onMouseDown={handleDragHandleMouseDown}
           >
-            <button onClick={handleMinimize} className="w-10 h-1.5 bg-muted-foreground/30 rounded-full" />
-          </div>
+            {/* Drag pill */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1.5 bg-muted-foreground/30 rounded-full" />
+            </div>
 
-          {/* Header */}
-          <div className="bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-            <div className="max-w-lg mx-auto flex items-center justify-between">
-              <button onClick={() => setShowCancelConfirm(true)} className="p-1">
-                <X className="w-5 h-5 text-muted-foreground" />
-              </button>
-              <div className="text-center">
-                <input
-                  value={workout.name}
-                  onChange={(e) => setWorkout(prev => ({ ...prev, name: e.target.value }))}
-                  className="bg-transparent text-center text-sm font-bold focus:outline-none w-44"
-                />
-                <div className="flex items-center justify-center gap-1 text-xs text-primary">
-                  <Timer className="w-3 h-3" />
-                  <span className="font-mono">{formatTime(elapsed)}</span>
+            {/* Header */}
+            <div className="bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
+              <div className="max-w-lg mx-auto relative flex items-center justify-center">
+                {/* Left — cancel */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowCancelConfirm(true); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className="absolute left-0 p-1"
+                >
+                  <X className="w-5 h-5 text-muted-foreground" />
+                </button>
+
+                {/* Centre — title + timer */}
+                <div className="text-center pointer-events-none">
+                  <p className="text-sm font-bold">{workout.name}</p>
+                  <div className="flex items-center justify-center gap-1 text-xs text-primary">
+                    <Timer className="w-3 h-3" />
+                    <span className="font-mono">{formatTime(elapsed)}</span>
+                  </div>
                 </div>
+
+                {/* Right — finish */}
+                <Button
+                  size="sm"
+                  onClick={(e) => { e.stopPropagation(); setShowFinishConfirm(true); }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className="absolute right-0 h-8 px-3 rounded-lg text-xs font-semibold"
+                >
+                  <Check className="w-3.5 h-3.5 mr-1" />
+                  Finish
+                </Button>
               </div>
-              <Button size="sm" onClick={() => setShowFinishConfirm(true)} className="h-8 px-3 rounded-lg text-xs font-semibold">
-                <Check className="w-3.5 h-3.5 mr-1" />
-                Finish
-              </Button>
             </div>
           </div>
 
