@@ -30,21 +30,21 @@ export default function BottomNav() {
     <>
       <QuickActionMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-xl border-t border-border/50">
+        <div className="flex items-center justify-around h-[52px] max-w-lg mx-auto px-1">
           {tabs.map((tab) => {
             if (tab.name === "plus") {
               return (
-                <button key="plus" onClick={() => setMenuOpen(!menuOpen)} className="relative -mt-6">
+                <button key="plus" onClick={() => setMenuOpen(!menuOpen)} className="relative -mt-5">
                   <motion.div
                     animate={{ rotate: menuOpen ? 45 : 0, scale: menuOpen ? 1.05 : 1 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
+                    className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30"
                   >
                     {menuOpen ? (
-                      <X className="w-6 h-6 text-primary-foreground" />
+                      <X className="w-5 h-5 text-primary-foreground" />
                     ) : (
-                      <Plus className="w-6 h-6 text-primary-foreground" />
+                      <Plus className="w-5 h-5 text-primary-foreground" />
                     )}
                   </motion.div>
                 </button>
@@ -56,11 +56,23 @@ export default function BottomNav() {
 
             return (
               <Link key={tab.name} to={createPageUrl(tab.page)}
-                className="flex flex-col items-center gap-1 py-2 px-3 min-w-[56px] relative">
-                <Icon className={`w-5 h-5 transition-colors duration-150 ${active ? "text-primary" : "text-muted-foreground"}`} />
-                <span className={`text-[10px] font-medium transition-colors duration-150 ${active ? "text-primary" : "text-muted-foreground"}`}>
+                className="flex flex-col items-center gap-0.5 py-2 px-3 min-w-[52px] relative">
+                <motion.div
+                  animate={{ scale: active ? 1 : 1 }}
+                  className="relative flex items-center justify-center"
+                >
+                  <Icon className={`w-[22px] h-[22px] transition-all duration-200 ${active ? "text-primary" : "text-muted-foreground/70"}`} strokeWidth={active ? 2.2 : 1.8} />
+                </motion.div>
+                <span className={`text-[9.5px] font-medium tracking-tight transition-colors duration-200 ${active ? "text-primary font-semibold" : "text-muted-foreground/70"}`}>
                   {tab.name}
                 </span>
+                {active && (
+                  <motion.div
+                    layoutId="tab-indicator"
+                    className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-5 h-[2.5px] bg-primary rounded-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
               </Link>
             );
           })}

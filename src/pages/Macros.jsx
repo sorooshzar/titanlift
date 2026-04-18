@@ -202,42 +202,42 @@ export default function Macros() {
     <PullToRefresh onRefresh={handleRefresh}>
     <div className="max-w-lg mx-auto px-4 pb-4">
       {/* Sticky Header with safe area */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm -mx-4 px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-3 border-b border-border/30">
+      <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-xl -mx-4 px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-2 border-b border-border/20">
       {/* Header row: Title + date picker */}
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-2xl font-bold">Macros</h1>
+      <div className="flex items-center justify-between mb-2.5">
+        <h1 className="text-xl font-bold tracking-tight">Macros</h1>
 
-        {/* Compact date navigator — slightly left of center */}
-        <div className="flex items-center gap-1">
+        {/* Compact date navigator */}
+        <div className="flex items-center gap-0.5 bg-secondary/70 rounded-xl px-1 py-0.5">
           <button
             onClick={goBack}
-            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-secondary transition-colors"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground" />
           </button>
           <button
             onClick={() => setShowCalendar(true)}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-secondary transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg transition-colors"
           >
             <Calendar className="w-3 h-3 text-muted-foreground" />
             <span className="text-xs font-semibold">{displayLabel}</span>
           </button>
           <button
             onClick={goForward}
-            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-secondary transition-colors"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex bg-secondary rounded-xl p-1 mb-4 mt-3">
+      {/* Tab bar — iOS segmented control style */}
+      <div className="flex bg-secondary/80 rounded-xl p-0.5 mb-1">
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 py-1.5 rounded-[10px] text-xs font-semibold transition-all duration-200 ${
               tab === t.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
             }`}
           >

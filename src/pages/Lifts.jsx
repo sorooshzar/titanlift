@@ -429,7 +429,7 @@ export default function Lifts() {
      <PullToRefresh onRefresh={handleRefresh}>
      <div className="max-w-lg mx-auto pb-4" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
        {/* Sticky Header */}
-       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-3 border-b border-border/30">
+       <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-xl px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-3 border-b border-border/20">
          <div className="flex items-center justify-center gap-4">
            {/* Toggle — truly centered */}
            <div className="flex bg-secondary rounded-xl p-1 shrink-0">

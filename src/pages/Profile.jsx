@@ -48,14 +48,16 @@ function LogWeightModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       onClick={onClose}>
-      <div className="bg-card w-full max-w-sm rounded-t-2xl sm:rounded-2xl border-t sm:border border-border p-5 space-y-4"
+      <div className="bg-card w-full max-w-sm rounded-t-3xl sm:rounded-3xl border-t sm:border border-border/50 p-5 space-y-4"
         onClick={e => e.stopPropagation()}>
+        {/* iOS drag handle */}
+        <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto -mt-1 mb-2" />
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold">Log Weight ({unit})</h2>
-          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-secondary">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full bg-secondary/80">
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>
         <Input type="number" step="0.1" placeholder={unit === "lbs" ? "176.0" : "80.0"} value={weight}
@@ -76,13 +78,15 @@ function ProfileInfoPanel({ user, onClose, bodyWeights, workoutLogs, latestWeigh
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center" onClick={onClose}>
-      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border p-6 space-y-4"
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 p-6 space-y-4"
         onClick={e => e.stopPropagation()}>
+        {/* iOS drag handle */}
+        <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto -mt-1 mb-1" />
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-lg">Account</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary/80">
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>
         {/* User identity */}
@@ -258,21 +262,21 @@ export default function Profile() {
   return (
     <div className="max-w-lg mx-auto px-4 pb-4">
       {/* Sticky header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-lg pt-[calc(1rem+env(safe-area-inset-top))] pb-2 border-b border-border/30 mb-4">
+      <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-xl pt-[calc(1rem+env(safe-area-inset-top))] pb-2 border-b border-border/20 mb-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Profile</h1>
-          <div className="flex items-center gap-2.5">
-             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
-               <Inbox className="w-4 h-4" />
+          <h1 className="text-xl font-bold tracking-tight">Profile</h1>
+          <div className="flex items-center gap-1.5">
+             <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors">
+               <Inbox className="w-[18px] h-[18px] text-muted-foreground" />
              </button>
              <Link to={createPageUrl("Measurements")}>
-               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
-                 <Ruler className="w-4 h-4" />
+               <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors">
+                 <Ruler className="w-[18px] h-[18px] text-muted-foreground" />
                </button>
              </Link>
              <Link to={createPageUrl("Settings")}>
-               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
-                 <Settings className="w-4 h-4" />
+               <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors">
+                 <Settings className="w-[18px] h-[18px] text-muted-foreground" />
                </button>
              </Link>
            </div>
@@ -314,10 +318,10 @@ export default function Profile() {
         })()}
 
         {/* Rank / Stats tab toggle */}
-         <div className="flex bg-secondary rounded-xl p-1 gap-1">
+         <div className="flex bg-secondary/80 rounded-xl p-0.5">
            {["rank", "stats"].map(tab => (
              <button key={tab} onClick={() => setActiveTab(tab)}
-               className={`flex-1 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${activeTab === tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+               className={`flex-1 py-1.5 rounded-[10px] text-xs font-semibold capitalize transition-all duration-200 ${activeTab === tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
                {tab === "rank" ? "Rank" : "Stats"}
              </button>
            ))}
