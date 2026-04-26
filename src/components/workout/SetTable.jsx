@@ -109,11 +109,24 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
     const { setIndex, field } = activeKey;
     const raw = parseFloat(kbValue);
     const updated = [...sets];
+    const set = { ...updated[setIndex] };
+
     if (field === "weight") {
-      updated[setIndex] = { ...updated[setIndex], weight: isNaN(raw) ? 0 : toKg(raw) };
+      set.weight = isNaN(raw) ? 0 : toKg(raw);
+    } else if (field === "rir") {
+      const rir = isNaN(raw) ? 0 : Math.round(raw);
+      set.rir = rir;
+      // Smart RIR↔Failure sync
+      if (rir === 0) {
+        set.type = "failure";
+      } else if (set.type === "failure") {
+        set.type = "working";
+      }
     } else {
-      updated[setIndex] = { ...updated[setIndex], [field]: isNaN(raw) ? 0 : Math.round(raw) };
+      set[field] = isNaN(raw) ? 0 : Math.round(raw);
     }
+
+    updated[setIndex] = set;
     onChange(updated);
     setActiveKey(null);
     setKbValue("");
@@ -122,6 +135,16 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
   const updateSet = (index, field, value) => {
     const updated = [...sets];
     updated[index] = { ...updated[index], [field]: value };
+    onChange(updated);
+  };
+
+  // Change set type with smart RIR sync
+  const changeSetType = (index, type) => {
+    const updated = [...sets];
+    const set = { ...updated[index], type };
+    if (type === "failure") set.rir = 0;
+    else if (set.rir === 0 && type !== "failure") set.rir = 2;
+    updated[index] = set;
     onChange(updated);
   };
 
@@ -202,26 +225,20 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
                 )}
 
                 <div className={`grid gap-1 px-1 py-1 items-center rounded-lg transition-colors ${isActive ? GRID_ACTIVE : GRID} ${getRowBg(set)}`}>
-                  {/* Set label */}
-                  {isActive ? (
-                    <div className="flex items-center justify-center">
-                      <span className={`text-xs font-bold ${color}`}>{label}</span>
-                    </div>
-                  ) : (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="flex items-center justify-center w-full h-9">
-                          <span className={`text-xs font-bold ${color}`}>{label}</span>
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="text-xs">
-                        <DropdownMenuItem onClick={() => updateSet(index, "type", "working")}>Working Set</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => updateSet(index, "type", "warmup")}>Warm-up</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => updateSet(index, "type", "failure")} className="text-destructive">Failure Set</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => updateSet(index, "type", "dropset")} className="text-purple-400">Drop Set</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
+                  {/* Set label — tappable in both modes */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center justify-center w-full h-9 active:opacity-60 transition-opacity">
+                        <span className={`text-xs font-bold ${color}`}>{label}</span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="text-xs">
+                      <DropdownMenuItem onClick={() => changeSetType(index, "working")}>Working Set</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => changeSetType(index, "warmup")}>Warm-up</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => changeSetType(index, "failure")} className="text-destructive">Failure Set</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => changeSetType(index, "dropset")} className="text-purple-400">Drop Set</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
                   {/* Previous */}
                   <span className="text-xs text-muted-foreground truncate pl-1 tracking-wide">{prevLabel}</span>

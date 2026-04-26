@@ -72,7 +72,10 @@ export default function EditWorkout() {
       color: null,
       superset_group: null,
       order: prev.length + i,
-      sets: [{ type: "working", weight: 0, reps: 0, rir: 2 }],
+      sets: [
+          { type: "warmup",  weight: 0, reps: 10, rir: 4 },
+          { type: "working", weight: 0, reps: 8,  rir: 2 },
+        ],
     }))]);
     isDirty.current = true;
   };

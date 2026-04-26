@@ -45,7 +45,10 @@ export function ActiveWorkoutProvider({ children }) {
         superset_group: null,
         notes: exercise.notes || null,
         order: prev.exercises.length + i,
-        sets: [{ type: "working", weight: 0, reps: 0, rir: 2, completed: false }],
+        sets: [
+          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false },
+          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false },
+        ],
       }));
       return { ...prev, exercises: [...prev.exercises, ...newExercises] };
     });

@@ -87,12 +87,18 @@ export default function ActiveWorkoutSheet() {
     }));
   }, [allExercises, workout?.startTime, updateWorkout]);
 
-  // Elapsed timer
+  // Elapsed timer — always cleared on unmount or startTime change
   useEffect(() => {
-    if (!workout) return;
-    const startTime = new Date(workout.startTime);
+    if (!workout?.startTime) {
+      clearInterval(timerRef.current);
+      return;
+    }
+    const startTime = new Date(workout.startTime).getTime();
+    // Immediate update so counter doesn't start at 0
+    setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - startTime.getTime()) / 1000));
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
     return () => clearInterval(timerRef.current);
   }, [workout?.startTime]);
