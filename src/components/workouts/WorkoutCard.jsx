@@ -14,7 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const COLORS = ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#64748B"];
+const COLORS = [
+  "#3B82F6", "#60A5FA", "#0EA5E9",
+  "#EF4444", "#F97316", "#F59E0B",
+  "#10B981", "#22C55E", "#84CC16",
+  "#8B5CF6", "#EC4899", "#64748B",
+];
 
 export default function WorkoutCard({ template, folders = [], onEdit, onDelete, onDuplicate, onArchive, onUnarchive, onMoveToFolder, onUpdateNotes, onStart, isArchived }) {
   const queryClient = useQueryClient();
@@ -23,6 +28,7 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
   const accentColor = template.color || null;
   const [editingNote, setEditingNote] = useState(false);
   const [noteValue, setNoteValue] = useState(template.notes || "");
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const regularFolders = folders.filter(f => f.name !== "Archived");
 
@@ -37,6 +43,7 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
   };
 
   const handleSelectColor = async (color) => {
+    setShowColorPicker(false);
     await base44.entities.WorkoutTemplate.update(template.id, { color: color || null });
     queryClient?.invalidateQueries({ queryKey: ["templates"] });
   };
@@ -81,27 +88,9 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
             <DropdownMenuItem onClick={() => { setNoteValue(template.notes || ""); setEditingNote(true); }}>
               <NotebookPen className="w-4 h-4 mr-2" /> {template.notes ? "Edit Note" : "Add Note"}
             </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Palette className="w-4 h-4 mr-2" /> Select Color
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="w-56" onCloseAutoFocus={(e) => e.preventDefault()}>
-                <div className="grid grid-cols-3 gap-2 p-3">
-                  {COLORS.map(color => (
-                    <button 
-                      key={color} 
-                      onClick={(e) => { e.stopPropagation(); handleSelectColor(color); }} 
-                      className="w-10 h-10 rounded-lg border-2 transition-all hover:scale-110" 
-                      style={{ backgroundColor: color, borderColor: accentColor === color ? "#fff" : "transparent", boxShadow: accentColor === color ? `0 0 0 2px #000` : "none" }} 
-                    />
-                  ))}
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); handleSelectColor(null); }} 
-                    className="col-span-3 h-8 rounded-lg border-2 border-dashed bg-secondary flex items-center justify-center text-xs font-semibold transition-all hover:bg-secondary/70"
-                    style={{ borderColor: accentColor === null ? "#000" : "hsl(var(--border))" }}>Remove Color</button>
-                </div>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
+            <DropdownMenuItem onClick={() => setShowColorPicker(true)}>
+              <Palette className="w-4 h-4 mr-2" /> Change Color
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDuplicate(template)}>
               <Copy className="w-4 h-4 mr-2" /> Duplicate
             </DropdownMenuItem>
@@ -138,6 +127,35 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Color Picker Modal */}
+      {showColorPicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowColorPicker(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative bg-card border border-border rounded-2xl p-5 w-full max-w-xs shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-sm font-bold mb-4 text-center">Workout Color</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {COLORS.map(color => (
+                <button
+                  key={color}
+                  onClick={() => handleSelectColor(color)}
+                  className="h-14 rounded-xl transition-all active:scale-95"
+                  style={{
+                    backgroundColor: color,
+                    boxShadow: accentColor === color ? `0 0 0 3px white, 0 0 0 5px ${color}` : "none",
+                  }}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => handleSelectColor(null)}
+              className="mt-4 w-full h-11 rounded-xl border-2 border-dashed border-border bg-secondary flex items-center justify-center text-sm font-semibold text-muted-foreground active:opacity-70"
+            >
+              Remove Color
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Inline Note Editor */}
       {editingNote && (

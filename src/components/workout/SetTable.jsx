@@ -234,7 +234,7 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="text-xs">
                       <DropdownMenuItem onClick={() => changeSetType(index, "working")}>Working Set</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => changeSetType(index, "warmup")}>Warm-up</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => changeSetType(index, "warmup")} className="text-amber-500">Warm-up</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => changeSetType(index, "failure")} className="text-destructive">Failure Set</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => changeSetType(index, "dropset")} className="text-purple-400">Drop Set</DropdownMenuItem>
                     </DropdownMenuContent>

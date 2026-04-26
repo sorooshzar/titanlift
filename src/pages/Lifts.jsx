@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight, Archive, Calculator, Star } from "lucide-react";
+import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight, Archive, Calculator, Star, Bot } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useActiveWorkout } from "../components/workout/ActiveWorkoutContext";
@@ -23,7 +23,7 @@ import { useWorkoutFolders, useWorkoutTemplates, useExercises, useWorkoutLogs } 
 import { TABS, SPECIAL_FOLDERS } from "../components/utils/constants";
 import { MUSCLE_HIERARCHY } from "../components/utils/muscleHierarchy";
 
-function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }) {
+function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, setShowAiCoach }) {
   const [createType, setCreateType] = useState(null);
 
   const unfolderedTemplates = templates.filter((t) => !t.folder_id || t.folder_id === "none");
@@ -114,15 +114,20 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout }
       {/* My Routines header */}
       <div className="flex items-center justify-between pt-1">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">My Routines</h2>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><Plus className="w-5 h-5" /></Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setCreateType("folder")}><FolderPlus className="w-4 h-4 mr-2" /> Create Folder</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setCreateType("workout")}><Dumbbell className="w-4 h-4 mr-2" /> Create Workout</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" className="h-8 px-2.5 gap-1.5 text-xs font-semibold text-primary" onClick={() => setShowAiCoach(true)}>
+            <Bot className="w-4 h-4" /> AI Coach
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8"><Plus className="w-5 h-5" /></Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setCreateType("folder")}><FolderPlus className="w-4 h-4 mr-2" /> Create Folder</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCreateType("workout")}><Dumbbell className="w-4 h-4 mr-2" /> Create Workout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Folders (regular) */}
@@ -392,6 +397,7 @@ function ExercisesTab() {
 
 export default function Lifts() {
    const [tab, setTab] = useState(TABS.WORKOUTS);
+   const [showAiCoach, setShowAiCoach] = useState(false);
    const location = useLocation();
    const navigate = useNavigate();
    const queryClient = useQueryClient();
@@ -464,13 +470,33 @@ export default function Lifts() {
       <div className="px-4">
         <div className="pt-3">
           {tab === TABS.WORKOUTS ? (
-            <WorkoutsTab folders={folders} templates={templates} queryClient={queryClient} navigate={navigate} startWorkout={startWorkout} />
+            <WorkoutsTab folders={folders} templates={templates} queryClient={queryClient} navigate={navigate} startWorkout={startWorkout} setShowAiCoach={setShowAiCoach} />
           ) : (
             <ExercisesTab />
           )}
         </div>
         </div>
         </div>
+
+      {/* AI Coach Coming Soon Modal */}
+      {showAiCoach && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowAiCoach(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative bg-card border border-border rounded-2xl p-8 w-full max-w-xs shadow-2xl text-center" onClick={e => e.stopPropagation()}>
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Bot className="w-7 h-7 text-primary" />
+            </div>
+            <h2 className="text-lg font-bold mb-2">AI Coach</h2>
+            <p className="text-sm text-muted-foreground mb-6">Personalized workout recommendations, form tips, and progress insights — coming soon!</p>
+            <button
+              onClick={() => setShowAiCoach(false)}
+              className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:opacity-80"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
         </PullToRefresh>
         );
         }

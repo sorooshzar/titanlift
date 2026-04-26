@@ -21,10 +21,17 @@ export default function FolderCard({ folder, templates, folders = [], onRenameFo
     <div className="bg-card rounded-xl border border-border overflow-hidden">
       {/* Folder Header */}
       <div className="flex items-center w-full p-4 gap-3">
-        <button onClick={() => setOpen(!open)} className="flex-1 flex items-center gap-3">
+        <button onClick={() => setOpen(!open)} className="flex-shrink-0">
+          {open ? (
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          )}
+        </button>
+        <button onClick={() => setOpen(!open)} className="flex-1 flex items-center gap-3 min-w-0">
           <FolderOpen className="w-5 h-5 text-primary flex-shrink-0" />
-          <span className="flex-1 text-left font-semibold text-sm">{folder.name}</span>
-          <span className="text-xs text-muted-foreground mr-2">{folderTemplates.length}</span>
+          <span className="flex-1 text-left font-semibold text-sm truncate">{folder.name}</span>
+          <span className="text-xs text-muted-foreground">{folderTemplates.length}</span>
         </button>
         
         <DropdownMenu>
@@ -45,12 +52,6 @@ export default function FolderCard({ folder, templates, folders = [], onRenameFo
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
-        {open ? (
-          <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-        ) : (
-          <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-        )}
       </div>
 
       {/* Workout Templates */}
