@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, Plus, Trash2, Flame, ChevronDown } from "lucide-react";
+import { Check, Plus, Flame, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
+import { motion, AnimatePresence } from "framer-motion";
 
 function getSetLabel(set, workingIndex) {
   if (set.type === "warmup") return { label: "W", color: "text-amber-500" };
@@ -31,9 +32,61 @@ function calc1RM(weight, reps) {
   return weight * (1 + reps / 30);
 }
 
-// Grid: [set] [prev] [weight] [reps] [rir] [%] [del]
-const GRID = "grid-cols-[28px_1.2fr_48px_48px_36px_28px_24px]";
-const GRID_ACTIVE = "grid-cols-[24px_28px_1.2fr_44px_44px_36px_28px_24px]";
+// Grid: [set] [prev] [weight] [reps] [rir] [%] [checkbox]
+// Active:   [set] [prev] [weight] [reps] [rir] [%] [checkbox]
+// Non-active (edit): no checkbox col, weight gets more space
+const GRID = "grid-cols-[28px_1.2fr_64px_48px_36px_28px]";
+const GRID_ACTIVE = "grid-cols-[28px_1.2fr_64px_48px_36px_28px_28px]";
+
+const SWIPE_THRESHOLD = 80;
+
+function SwipeableSetRow({ children, onRemove }) {
+  const [dragX, setDragX] = useState(0);
+  const [swiped, setSwiped] = useState(false);
+  const startX = useRef(null);
+  const isDragging = useRef(false);
+
+  const handleTouchStart = (e) => {
+    startX.current = e.touches[0].clientX;
+    isDragging.current = true;
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging.current || startX.current === null) return;
+    const diff = e.touches[0].clientX - startX.current;
+    if (diff < 0) setDragX(Math.max(diff, -SWIPE_THRESHOLD * 1.5));
+  };
+
+  const handleTouchEnd = () => {
+    isDragging.current = false;
+    if (dragX < -SWIPE_THRESHOLD) {
+      setSwiped(true);
+      setTimeout(() => onRemove(), 220);
+    } else {
+      setDragX(0);
+    }
+  };
+
+  return (
+    <motion.div
+      animate={swiped ? { x: "-100%", opacity: 0, height: 0, marginBottom: 0 } : { x: dragX, opacity: 1 }}
+      transition={swiped ? { duration: 0.22, ease: "easeIn" } : { type: "spring", stiffness: 500, damping: 40 }}
+      style={{ position: "relative", overflow: "visible" }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Red delete reveal */}
+      <div
+        className="absolute inset-y-0 right-0 flex items-center justify-end pr-2 rounded-lg bg-destructive/80 pointer-events-none"
+        style={{ width: `${Math.min(Math.abs(dragX), SWIPE_THRESHOLD * 1.5)}px`, opacity: Math.min(Math.abs(dragX) / SWIPE_THRESHOLD, 1) }}
+      >
+        <span className="text-white text-xs font-bold">Delete</span>
+      </div>
+      {children}
+    </motion.div>
+  );
+}
 
 export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [] }) {
   const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
@@ -67,18 +120,17 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
     <div className="space-y-0.5">
       {/* Header */}
       <div className={`grid gap-1 px-1 items-center mb-1 ${isActive ? GRID_ACTIVE : GRID}`}>
-        {isActive && <div />}
         <span className="text-[10px] font-semibold text-muted-foreground text-center">SET</span>
         <span className="text-[10px] font-semibold text-muted-foreground">PREVIOUS</span>
         <span className="text-[10px] font-semibold text-muted-foreground text-center">{weightUnit.toUpperCase()}</span>
         <span className="text-[10px] font-semibold text-muted-foreground text-center">REPS</span>
         <span className="text-[10px] font-semibold text-muted-foreground text-center">RIR</span>
         <span className="text-[10px] font-semibold text-primary/70 text-center">1RM%</span>
-        <div />
+        {isActive && <div />}
       </div>
 
+      <AnimatePresence initial={false}>
       {sets.map((set, index) => {
-        const isWorking = set.type !== "warmup";
         const workingIndex = workingLabels[index];
         const { label, color } = getSetLabel(set, workingIndex);
         const isDropset = set.type === "dropset";
@@ -88,7 +140,6 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
           ? `${prevDisplayWeight}×${prev.reps || 0} ${weightUnit}`
           : "—";
 
-        // 1RM calculated in base unit (kg) for consistency
         const current1RM = calc1RM(set.weight, set.reps);
         const prev1RM = prev ? calc1RM(prev.weight, prev.reps) : null;
         const pctChange = current1RM && prev1RM ? ((current1RM - prev1RM) / prev1RM) * 100 : null;
@@ -96,9 +147,16 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
         const pctColor = pctChange === null ? "text-muted-foreground/40" : pctChange > 0 ? "text-primary" : pctChange < 0 ? "text-destructive/70" : "text-muted-foreground";
 
         return (
-          <div key={index}>
+          <SwipeableSetRow
+            key={index}
+            index={index}
+            set={set}
+            isDropset={isDropset}
+            sets={sets}
+            onRemove={() => removeSet(index)}
+          >
             {isDropset && index > 0 && (
-              <div className="flex items-center gap-1 pl-8 pb-0.5">
+              <div className="flex items-center gap-1 pl-6 pb-0.5">
                 <ChevronDown className="w-3 h-3 text-purple-400" />
                 {sets[index - 1]?.weight && set.weight && sets[index - 1].weight > set.weight && (
                   <span className="text-[10px] text-purple-400 font-medium">
@@ -109,15 +167,6 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
             )}
 
             <div className={`grid gap-1 px-1 items-center rounded-lg transition-colors ${isActive ? GRID_ACTIVE : GRID} ${getRowBg(set)}`}>
-              {isActive && (
-                <button onClick={() => toggleComplete(index)}
-                  className={`w-5 h-5 rounded flex items-center justify-center transition-all duration-150 flex-shrink-0 active:scale-90 ${
-                    set.completed ? "bg-primary text-white scale-105" : "bg-secondary text-muted-foreground"
-                  }`}>
-                  <Check className="w-3 h-3" />
-                </button>
-              )}
-
               {/* Set label */}
               {isActive ? (
                 <div className="flex items-center justify-center">
@@ -155,14 +204,20 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
 
               <span className={`text-[10px] font-semibold text-center ${pctColor}`}>{pctLabel}</span>
 
-              <button onClick={() => removeSet(index)}
-                className="flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors">
-                <Trash2 className="w-3 h-3" />
-              </button>
+              {/* Checkbox — far right, active mode only */}
+              {isActive && (
+                <button onClick={() => toggleComplete(index)}
+                  className={`w-6 h-6 rounded-md flex items-center justify-center transition-all duration-150 flex-shrink-0 active:scale-90 mx-auto ${
+                    set.completed ? "bg-primary text-white scale-105" : "bg-secondary text-muted-foreground"
+                  }`}>
+                  <Check className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
-          </div>
+          </SwipeableSetRow>
         );
       })}
+      </AnimatePresence>
 
       {/* Add buttons — compact single row */}
       <div className="flex gap-1 pt-1 px-1">
