@@ -335,7 +335,7 @@ export default function ActiveWorkoutSheet() {
         confirmLabel="Close Workout"
         cancelLabel="Cancel"
         confirmDestructive
-        onConfirm={() => { setShowCancelConfirm(false); endWorkout(); }}
+        onConfirm={() => { setShowCancelConfirm(false); endWorkout(); navigate(createPageUrl("Lifts")); }}
         onCancel={() => setShowCancelConfirm(false)}
       />
 
