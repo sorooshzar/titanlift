@@ -3,7 +3,7 @@ import {
   Dumbbell, Zap, Flame, Target, Heart, Star, Trophy, Shield,
   Bike, PersonStanding, Waves, Mountain, Timer, Swords, Rocket,
   Sun, Moon, Wind, Snowflake, Leaf, Footprints, HandMetal,
-  Activity, Bolt,
+  Activity, Bolt, Crosshair, RefreshCw,
 } from "lucide-react";
 
 // Map icon name -> component (name stored in DB)
@@ -31,13 +31,16 @@ export const ICON_MAP = {
   Footprints,
   HandMetal,
   Activity,
+  Bolt,
+  Crosshair,
+  RefreshCw,
 };
 
 const ICONS = Object.keys(ICON_MAP);
 
-export function WorkoutIcon({ name, className }) {
+export function WorkoutIcon({ name, className, style }) {
   const Icon = ICON_MAP[name] || Dumbbell;
-  return <Icon className={className} />;
+  return <Icon className={className} style={style} />;
 }
 
 export default function IconPickerModal({ open, current, accentColor, onSelect, onClose }) {
@@ -70,7 +73,7 @@ export default function IconPickerModal({ open, current, accentColor, onSelect, 
               >
                 <Icon
                   className="w-5 h-5"
-                  style={{ color: isSelected ? (accentColor || "hsl(var(--primary))") : "hsl(var(--muted-foreground))" }}
+                  style={{ color: isSelected ? (accentColor || "hsl(var(--primary))") : "hsl(var(--foreground) / 0.45)" }}
                 />
               </button>
             );

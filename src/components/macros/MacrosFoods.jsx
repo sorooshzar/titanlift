@@ -154,13 +154,38 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
   const { data: foods = [] } = useQuery({
     queryKey: ["foods"],
     queryFn: async () => {
-      // Load ALL foods globally (preloaded shared foods + user custom foods)
       return base44.entities.Food.list("name", 500);
     },
   });
 
+  // Recent = last 5 distinct foods the current user has logged, derived from MacroEntries
+  const { data: recentEntries = [] } = useQuery({
+    queryKey: ["recentFoodEntries"],
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.MacroEntry.filter({ created_by: user.email }, "-created_date", 50);
+    },
+  });
+
   const filtered = foods.filter(f => !search || f.name.toLowerCase().includes(search.toLowerCase()));
-  const recent = foods.slice(0, 5);
+
+  // Build recent list: unique food_ids from user's recent entries, matched against the food library
+  const recent = (() => {
+    const seen = new Set();
+    const result = [];
+    for (const entry of recentEntries) {
+      if (result.length >= 5) break;
+      const key = entry.food_id || entry.food_name;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const food = entry.food_id
+        ? foods.find(f => f.id === entry.food_id)
+        : foods.find(f => f.name === entry.food_name);
+      if (food) result.push(food);
+    }
+    return result;
+  })();
+
   const saved = foods.filter(f => f.is_custom);
 
   const handleCreate = async (form) => {
