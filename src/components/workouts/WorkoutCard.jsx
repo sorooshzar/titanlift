@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MoreVertical, Play, Pencil, Copy, Trash2, Dumbbell, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X, Palette } from "lucide-react";
+import { MoreVertical, Play, Pencil, Copy, Trash2, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X, Palette, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -13,6 +13,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import IconPickerModal, { WorkoutIcon } from "./IconPickerModal";
 
 const COLORS = [
   "#3B82F6", "#60A5FA", "#0EA5E9",
@@ -21,14 +22,20 @@ const COLORS = [
   "#8B5CF6", "#EC4899", "#64748B",
 ];
 
-export default function WorkoutCard({ template, folders = [], onEdit, onDelete, onDuplicate, onArchive, onUnarchive, onMoveToFolder, onUpdateNotes, onStart, isArchived }) {
+export default function WorkoutCard({
+  template, folders = [],
+  onEdit, onDelete, onDuplicate, onArchive, onUnarchive,
+  onMoveToFolder, onUpdateNotes, onStart, isArchived,
+  dragHandleProps, // passed from DraggableWorkoutCard wrapper
+}) {
   const queryClient = useQueryClient();
-  
+
   const setCount = template.exercises?.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0) || 0;
   const accentColor = template.color || null;
   const [editingNote, setEditingNote] = useState(false);
   const [noteValue, setNoteValue] = useState(template.notes || "");
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showIconPicker, setShowIconPicker] = useState(false);
 
   const regularFolders = folders.filter(f => f.name !== "Archived");
 
@@ -48,18 +55,36 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
     queryClient?.invalidateQueries({ queryKey: ["templates"] });
   };
 
+  const handleSelectIcon = async (iconName) => {
+    await base44.entities.WorkoutTemplate.update(template.id, { icon: iconName });
+    queryClient?.invalidateQueries({ queryKey: ["templates"] });
+  };
+
   return (
     <div
       className="bg-secondary/50 rounded-lg overflow-hidden"
       style={accentColor ? { borderLeft: `3px solid ${accentColor}` } : {}}
     >
-      <div className="flex items-center p-3 gap-3">
-        <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+      <div className="flex items-center p-3 gap-2">
+        {/* Drag handle */}
+        {dragHandleProps && (
+          <div {...dragHandleProps} className="flex-shrink-0 cursor-grab active:cursor-grabbing p-1 -ml-1">
+            <GripVertical className="w-4 h-4 text-muted-foreground/40" />
+          </div>
+        )}
+
+        {/* Tappable icon → opens icon picker */}
+        <button
+          onClick={() => setShowIconPicker(true)}
+          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 active:scale-90 transition-transform"
           style={{ backgroundColor: accentColor ? accentColor + "22" : "hsl(var(--primary)/0.1)" }}
         >
-          <Dumbbell className="w-4 h-4" style={{ color: accentColor || "hsl(var(--primary))" }} />
-        </div>
+          <WorkoutIcon
+            name={template.icon}
+            className="w-4 h-4"
+            style={{ color: accentColor || "hsl(var(--primary))" }}
+          />
+        </button>
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">
@@ -127,6 +152,15 @@ export default function WorkoutCard({ template, folders = [], onEdit, onDelete, 
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Icon Picker Modal */}
+      <IconPickerModal
+        open={showIconPicker}
+        current={template.icon || "Dumbbell"}
+        accentColor={accentColor}
+        onSelect={handleSelectIcon}
+        onClose={() => setShowIconPicker(false)}
+      />
 
       {/* Color Picker Modal */}
       {showColorPicker && (

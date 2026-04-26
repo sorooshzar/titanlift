@@ -1,0 +1,81 @@
+{
+  "name": "WorkoutTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Workout template name"
+    },
+    "folder_id": {
+      "type": "string",
+      "description": "Parent folder ID"
+    },
+    "color": {
+      "type": "string",
+      "description": "Accent color hex for this workout"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon name from the icon picker (e.g. Dumbbell, Flame, Zap)"
+    },
+    "order": {
+      "type": "number",
+      "description": "Display order within folder"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional workout note or description"
+    },
+    "exercises": {
+      "type": "array",
+      "description": "Exercise configurations",
+      "items": {
+        "type": "object",
+        "properties": {
+          "exercise_id": {
+            "type": "string"
+          },
+          "exercise_name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "superset_group": {
+            "type": "number"
+          },
+          "order": {
+            "type": "number"
+          },
+          "sets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "warmup",
+                    "working"
+                  ]
+                },
+                "weight": {
+                  "type": "number"
+                },
+                "reps": {
+                  "type": "number"
+                },
+                "rir": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -13,6 +13,7 @@ import PullToRefresh from "../components/mobile/PullToRefresh";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import FolderCard from "../components/workouts/FolderCard";
 import WorkoutCard from "../components/workouts/WorkoutCard";
 import CreateDialog from "../components/workouts/CreateDialog";
@@ -105,6 +106,57 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
 
+  // Build the outer draggable list: folders (sorted) + standalone workouts (sorted), each as {type, data}
+  const sortedRegularFolders = [...regularFolders].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const sortedUnfoldered = [...unfolderedTemplates].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // Interleave by their stored `order` so relative positions are respected
+  const outerItems = [
+    ...sortedRegularFolders.map(f => ({ type: "folder", id: `folder-${f.id}`, data: f })),
+    ...sortedUnfoldered.map(t => ({ type: "workout", id: `workout-${t.id}`, data: t })),
+  ].sort((a, b) => ((a.data.order || 0) - (b.data.order || 0)));
+
+  const handleOuterDragEnd = async (result) => {
+    if (!result.destination) return;
+    const from = result.source.index;
+    const to = result.destination.index;
+    if (from === to) return;
+
+    const reordered = Array.from(outerItems);
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+
+    // Optimistic update — assign new order values
+    const updatedFolderOrders = {};
+    const updatedTemplateOrders = {};
+    reordered.forEach((item, i) => {
+      if (item.type === "folder") updatedFolderOrders[item.data.id] = i;
+      else updatedTemplateOrders[item.data.id] = i;
+    });
+
+    queryClient.setQueryData(["folders"], (old = []) =>
+      old.map(f => updatedFolderOrders[f.id] !== undefined ? { ...f, order: updatedFolderOrders[f.id] } : f)
+    );
+    queryClient.setQueryData(["templates"], (old = []) =>
+      old.map(t => updatedTemplateOrders[t.id] !== undefined ? { ...t, order: updatedTemplateOrders[t.id] } : t)
+    );
+
+    // Persist
+    const folderUpdates = Object.entries(updatedFolderOrders).map(([id, order]) =>
+      base44.entities.WorkoutFolder.update(id, { order })
+    );
+    const templateUpdates = Object.entries(updatedTemplateOrders).map(([id, order]) =>
+      base44.entities.WorkoutTemplate.update(id, { order })
+    );
+    await Promise.all([...folderUpdates, ...templateUpdates]);
+  };
+
+  const folderProps = { templates, folders, onRenameFolder: handleRenameFolder, onDeleteFolder: handleDeleteFolder,
+    onEditWorkout: handleEditWorkout, onDeleteWorkout: handleDeleteWorkout,
+    onDuplicateWorkout: handleDuplicateWorkout, onArchiveWorkout: handleArchiveWorkout,
+    onMoveToFolder: handleMoveToFolder, onUpdateNotes: handleUpdateNotes,
+    onStartWorkout: handleStartWorkout, onAddWorkout: handleAddWorkoutToFolder };
+
   return (
     <div className="space-y-3">
       <Button onClick={() => { startWorkout(null); navigate(createPageUrl("ActiveWorkout")); }} className="w-full h-14 rounded-xl text-base font-semibold gap-2 shadow-lg shadow-primary/20">
@@ -130,35 +182,57 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
         </div>
       </div>
 
-      {/* Folders (regular) */}
-      {regularFolders.map((folder) => (
-        <FolderCard key={folder.id} folder={folder} templates={templates} folders={folders}
-          onRenameFolder={handleRenameFolder} onDeleteFolder={handleDeleteFolder}
-          onEditWorkout={handleEditWorkout} onDeleteWorkout={handleDeleteWorkout}
-          onDuplicateWorkout={handleDuplicateWorkout} onArchiveWorkout={handleArchiveWorkout}
-          onMoveToFolder={handleMoveToFolder} onUpdateNotes={handleUpdateNotes}
-          onStartWorkout={handleStartWorkout} onAddWorkout={handleAddWorkoutToFolder} />
-      ))}
+      {/* Outer DnD: folders + standalone workouts */}
+      <DragDropContext onDragEnd={handleOuterDragEnd}>
+        <Droppable droppableId="outer-list">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3">
+              {outerItems.map((item, index) => (
+                <Draggable key={item.id} draggableId={item.id} index={index}>
+                  {(dragProvided, dragSnapshot) => (
+                    item.type === "folder" ? (
+                      <FolderCard
+                        {...folderProps}
+                        folder={item.data}
+                        innerRef={dragProvided.innerRef}
+                        draggableProps={dragProvided.draggableProps}
+                        dragHandleProps={dragProvided.dragHandleProps}
+                        isDragging={dragSnapshot.isDragging}
+                      />
+                    ) : (
+                      <div
+                        ref={dragProvided.innerRef}
+                        {...dragProvided.draggableProps}
+                        className={`transition-shadow ${dragSnapshot.isDragging ? "shadow-xl rounded-lg opacity-95 scale-[1.01]" : ""}`}
+                      >
+                        <WorkoutCard
+                          template={item.data}
+                          folders={folders}
+                          onEdit={handleEditWorkout}
+                          onDelete={handleDeleteWorkout}
+                          onDuplicate={handleDuplicateWorkout}
+                          onArchive={handleArchiveWorkout}
+                          onMoveToFolder={handleMoveToFolder}
+                          onUpdateNotes={handleUpdateNotes}
+                          onStart={handleStartWorkout}
+                          dragHandleProps={dragProvided.dragHandleProps}
+                        />
+                      </div>
+                    )
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
-      {/* Unfoldered */}
-      {unfolderedTemplates.map((template) => (
-        <WorkoutCard key={template.id} template={template} folders={folders}
-          onEdit={handleEditWorkout} onDelete={handleDeleteWorkout}
-          onDuplicate={handleDuplicateWorkout} onArchive={handleArchiveWorkout}
-          onMoveToFolder={handleMoveToFolder} onUpdateNotes={handleUpdateNotes}
-          onStart={handleStartWorkout} />
-      ))}
-
-      {/* Archived folder (dimmed, collapsed by default) */}
+      {/* Archived folder (dimmed, collapsed by default, not draggable) */}
       {archivedFolder && (
         <div className="opacity-50">
-          <FolderCard folder={archivedFolder} templates={templates} folders={folders} isArchiveFolder
-            onRenameFolder={handleRenameFolder} onDeleteFolder={handleDeleteFolder}
-            onEditWorkout={handleEditWorkout} onDeleteWorkout={handleDeleteWorkout}
-            onDuplicateWorkout={handleDuplicateWorkout} onArchiveWorkout={handleArchiveWorkout}
-            onUnarchiveWorkout={handleUnarchiveWorkout} onMoveToFolder={handleMoveToFolder}
-            onUpdateNotes={handleUpdateNotes}
-            onStartWorkout={handleStartWorkout} onAddWorkout={handleAddWorkoutToFolder}
+          <FolderCard folder={archivedFolder} {...folderProps} isArchiveFolder
+            onUnarchiveWorkout={handleUnarchiveWorkout}
             defaultOpen={false} />
         </div>
       )}
