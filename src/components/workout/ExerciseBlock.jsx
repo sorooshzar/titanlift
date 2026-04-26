@@ -17,7 +17,7 @@ const EXERCISE_COLORS = [
   null, "#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4",
 ];
 
-export default function ExerciseBlock({ exercise, index, onChange, onRemove, onReplace, isActive = false, previousSets = [] }) {
+export default function ExerciseBlock({ exercise, index, onChange, onRemove, onReplace, isActive = false, previousSets = [], dragHandleProps }) {
   const [showNotes, setShowNotes] = useState(!!exercise.notes);
   const navigate = useNavigate();
   const notesDebounceRef = useRef(null);
@@ -46,7 +46,9 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
     >
       {/* Exercise Header */}
       <div className="flex items-center px-3 py-3 gap-2">
-        <GripVertical className="w-4 h-4 text-muted-foreground/40 flex-shrink-0 cursor-grab" />
+        <div {...(dragHandleProps || {})} className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none">
+          <GripVertical className="w-4 h-4 text-muted-foreground/40" />
+        </div>
         <div className="flex-1 min-w-0">
           <button
             className="text-sm font-semibold truncate text-left w-full hover:text-primary transition-colors"

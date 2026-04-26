@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Plus, Check, Timer, ChevronUp } from "lucide-react";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import ExerciseBlock from "./ExerciseBlock";
 import { useActiveWorkout } from "@/components/workout/ActiveWorkoutContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -307,24 +308,58 @@ export default function ActiveWorkoutSheet() {
           </div>
         </div>
 
-        {/* Exercises — scrollable */}
+        {/* Exercises — scrollable with DnD reorder */}
         <div className="flex-1 overflow-y-auto pt-4 pb-8">
-          <div className="max-w-lg mx-auto px-4 space-y-3">
-            {workout.exercises.map((exercise, index) => (
-              <ExerciseBlock
-                key={`${exercise.exercise_id}-${index}`}
-                exercise={exercise}
-                index={index}
-                onChange={(updated) => handleExerciseChange(index, updated)}
-                onRemove={() => handleRemoveExercise(index)}
-                isActive={true}
-                previousSets={prevSetsMap[exercise.exercise_id] || []}
-              />
-            ))}
+          <div className="max-w-lg mx-auto px-4">
+            <DragDropContext onDragEnd={(result) => {
+              if (!result.destination) return;
+              const from = result.source.index;
+              const to = result.destination.index;
+              if (from === to) return;
+              updateWorkout(prev => {
+                const exercises = Array.from(prev.exercises);
+                const [moved] = exercises.splice(from, 1);
+                exercises.splice(to, 0, moved);
+                return { ...prev, exercises };
+              });
+            }}>
+              <Droppable droppableId="active-exercises">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3">
+                    {workout.exercises.map((exercise, index) => (
+                      <Draggable
+                        key={`${exercise.exercise_id}-${index}`}
+                        draggableId={`${exercise.exercise_id}-${index}`}
+                        index={index}
+                      >
+                        {(dragProvided, dragSnapshot) => (
+                          <div
+                            ref={dragProvided.innerRef}
+                            {...dragProvided.draggableProps}
+                            className={`transition-shadow ${dragSnapshot.isDragging ? "shadow-2xl rounded-xl" : ""}`}
+                          >
+                            <ExerciseBlock
+                              exercise={exercise}
+                              index={index}
+                              onChange={(updated) => handleExerciseChange(index, updated)}
+                              onRemove={() => handleRemoveExercise(index)}
+                              isActive={true}
+                              previousSets={prevSetsMap[exercise.exercise_id] || []}
+                              dragHandleProps={dragProvided.dragHandleProps}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
 
             <Button
               variant="outline"
-              className="w-full h-12 rounded-xl border-dashed text-muted-foreground"
+              className="w-full h-12 rounded-xl border-dashed text-muted-foreground mt-3"
               onClick={() => navigate(createPageUrl("ExerciseSelector") + `?returnTo=${encodeURIComponent(location.pathname)}`)}
             >
               <Plus className="w-4 h-4 mr-2" />

@@ -26,10 +26,28 @@ import { MUSCLE_HIERARCHY } from "../components/utils/muscleHierarchy";
 
 function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, setShowAiCoach }) {
   const [createType, setCreateType] = useState(null);
+  const [folderToDelete, setFolderToDelete] = useState(null);
+  const [isDraggingOuter, setIsDraggingOuter] = useState(false);
 
-  const unfolderedTemplates = templates.filter((t) => !t.folder_id || t.folder_id === "none");
   const archivedFolder = folders.find(f => f.name === SPECIAL_FOLDERS.ARCHIVED);
   const regularFolders = folders.filter(f => f.name !== "Archived");
+  const unfolderedTemplates = templates.filter((t) => !t.folder_id || t.folder_id === "none");
+
+  // LOCAL state for outer list — prevents snap-back on drop
+  const [outerItems, setOuterItems] = useState([]);
+
+  // Sync outerItems from props only when not dragging (to avoid overwriting mid-drag)
+  useEffect(() => {
+    if (isDraggingOuter) return;
+    const sortedFolders = [...regularFolders].sort((a, b) => (a.order || 0) - (b.order || 0));
+    const sortedUnfoldered = [...unfolderedTemplates].sort((a, b) => (a.order || 0) - (b.order || 0));
+    const items = [
+      ...sortedFolders.map(f => ({ type: "folder", id: `folder-${f.id}`, data: f })),
+      ...sortedUnfoldered.map(t => ({ type: "workout", id: `workout-${t.id}`, data: t })),
+    ].sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
+    setOuterItems(items);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folders, templates, isDraggingOuter]);
 
   const handleCreateFolder = async ({ name }) => {
     await base44.entities.WorkoutFolder.create({ name, order: folders.length });
@@ -44,11 +62,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
 
-  const [folderToDelete, setFolderToDelete] = useState(null);
-
-  const handleDeleteFolder = (folder) => {
-    setFolderToDelete(folder);
-  };
+  const handleDeleteFolder = (folder) => setFolderToDelete(folder);
 
   const confirmDeleteFolder = async () => {
     const folder = folderToDelete;
@@ -106,56 +120,50 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
 
-  // Build the outer draggable list: folders (sorted) + standalone workouts (sorted), each as {type, data}
-  const sortedRegularFolders = [...regularFolders].sort((a, b) => (a.order || 0) - (b.order || 0));
-  const sortedUnfoldered = [...unfolderedTemplates].sort((a, b) => (a.order || 0) - (b.order || 0));
-
-  // Interleave by their stored `order` so relative positions are respected
-  const outerItems = [
-    ...sortedRegularFolders.map(f => ({ type: "folder", id: `folder-${f.id}`, data: f })),
-    ...sortedUnfoldered.map(t => ({ type: "workout", id: `workout-${t.id}`, data: t })),
-  ].sort((a, b) => ((a.data.order || 0) - (b.data.order || 0)));
+  const handleOuterDragStart = () => setIsDraggingOuter(true);
 
   const handleOuterDragEnd = async (result) => {
+    setIsDraggingOuter(false);
     if (!result.destination) return;
     const from = result.source.index;
     const to = result.destination.index;
     if (from === to) return;
 
+    // Update local state immediately — no snap-back
     const reordered = Array.from(outerItems);
     const [moved] = reordered.splice(from, 1);
     reordered.splice(to, 0, moved);
+    const withOrder = reordered.map((item, i) => ({ ...item, data: { ...item.data, order: i } }));
+    setOuterItems(withOrder);
 
-    // Optimistic update — assign new order values
-    const updatedFolderOrders = {};
-    const updatedTemplateOrders = {};
-    reordered.forEach((item, i) => {
-      if (item.type === "folder") updatedFolderOrders[item.data.id] = i;
-      else updatedTemplateOrders[item.data.id] = i;
+    // Also sync React Query cache
+    const folderMap = {}, templateMap = {};
+    withOrder.forEach((item, i) => {
+      if (item.type === "folder") folderMap[item.data.id] = i;
+      else templateMap[item.data.id] = i;
     });
-
     queryClient.setQueryData(["folders"], (old = []) =>
-      old.map(f => updatedFolderOrders[f.id] !== undefined ? { ...f, order: updatedFolderOrders[f.id] } : f)
+      old.map(f => folderMap[f.id] !== undefined ? { ...f, order: folderMap[f.id] } : f)
     );
     queryClient.setQueryData(["templates"], (old = []) =>
-      old.map(t => updatedTemplateOrders[t.id] !== undefined ? { ...t, order: updatedTemplateOrders[t.id] } : t)
+      old.map(t => templateMap[t.id] !== undefined ? { ...t, order: templateMap[t.id] } : t)
     );
 
     // Persist
-    const folderUpdates = Object.entries(updatedFolderOrders).map(([id, order]) =>
-      base44.entities.WorkoutFolder.update(id, { order })
-    );
-    const templateUpdates = Object.entries(updatedTemplateOrders).map(([id, order]) =>
-      base44.entities.WorkoutTemplate.update(id, { order })
-    );
-    await Promise.all([...folderUpdates, ...templateUpdates]);
+    await Promise.all([
+      ...Object.entries(folderMap).map(([id, order]) => base44.entities.WorkoutFolder.update(id, { order })),
+      ...Object.entries(templateMap).map(([id, order]) => base44.entities.WorkoutTemplate.update(id, { order })),
+    ]);
   };
 
-  const folderProps = { templates, folders, onRenameFolder: handleRenameFolder, onDeleteFolder: handleDeleteFolder,
+  const folderProps = {
+    templates, folders,
+    onRenameFolder: handleRenameFolder, onDeleteFolder: handleDeleteFolder,
     onEditWorkout: handleEditWorkout, onDeleteWorkout: handleDeleteWorkout,
     onDuplicateWorkout: handleDuplicateWorkout, onArchiveWorkout: handleArchiveWorkout,
     onMoveToFolder: handleMoveToFolder, onUpdateNotes: handleUpdateNotes,
-    onStartWorkout: handleStartWorkout, onAddWorkout: handleAddWorkoutToFolder };
+    onStartWorkout: handleStartWorkout, onAddWorkout: handleAddWorkoutToFolder,
+  };
 
   return (
     <div className="space-y-3">
@@ -182,8 +190,8 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
         </div>
       </div>
 
-      {/* Outer DnD: folders + standalone workouts */}
-      <DragDropContext onDragEnd={handleOuterDragEnd}>
+      {/* Outer DnD: folders + standalone workouts (whole card is drag handle) */}
+      <DragDropContext onDragStart={handleOuterDragStart} onDragEnd={handleOuterDragEnd}>
         <Droppable droppableId="outer-list">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3">
@@ -198,12 +206,18 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
                         draggableProps={dragProvided.draggableProps}
                         dragHandleProps={dragProvided.dragHandleProps}
                         isDragging={dragSnapshot.isDragging}
+                        forceCollapsed={isDraggingOuter && !dragSnapshot.isDragging}
                       />
                     ) : (
                       <div
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
-                        className={`transition-shadow ${dragSnapshot.isDragging ? "shadow-xl rounded-lg opacity-95 scale-[1.01]" : ""}`}
+                        {...dragProvided.dragHandleProps}
+                        style={{
+                          ...dragProvided.draggableProps.style,
+                          touchAction: "none",
+                        }}
+                        className={`rounded-lg transition-all ${dragSnapshot.isDragging ? "shadow-xl opacity-95 scale-[1.01]" : ""}`}
                       >
                         <WorkoutCard
                           template={item.data}
@@ -215,7 +229,6 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
                           onMoveToFolder={handleMoveToFolder}
                           onUpdateNotes={handleUpdateNotes}
                           onStart={handleStartWorkout}
-                          dragHandleProps={dragProvided.dragHandleProps}
                         />
                       </div>
                     )
@@ -248,7 +261,6 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
       <CreateDialog open={!!createType} onClose={() => setCreateType(null)} type={createType}
         folders={folders} onSubmit={createType === "folder" ? handleCreateFolder : handleCreateWorkout} />
 
-      {/* Folder delete confirmation */}
       {folderToDelete && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 sm:items-center"
           onClick={() => setFolderToDelete(null)}>
@@ -261,14 +273,8 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
               </p>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setFolderToDelete(null)}
-                className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">
-                Cancel
-              </button>
-              <button onClick={confirmDeleteFolder}
-                className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold">
-                Delete All
-              </button>
+              <button onClick={() => setFolderToDelete(null)} className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">Cancel</button>
+              <button onClick={confirmDeleteFolder} className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold">Delete All</button>
             </div>
           </div>
         </div>

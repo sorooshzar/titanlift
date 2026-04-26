@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MoreVertical, Play, Pencil, Copy, Trash2, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X, Palette, GripVertical } from "lucide-react";
+import { MoreVertical, Play, Pencil, Copy, Trash2, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -26,7 +26,7 @@ export default function WorkoutCard({
   template, folders = [],
   onEdit, onDelete, onDuplicate, onArchive, onUnarchive,
   onMoveToFolder, onUpdateNotes, onStart, isArchived,
-  dragHandleProps, // passed from DraggableWorkoutCard wrapper
+  dragHandleProps, // whole-card drag handle (long-press from parent)
 }) {
   const queryClient = useQueryClient();
 
@@ -66,13 +66,6 @@ export default function WorkoutCard({
       style={accentColor ? { borderLeft: `3px solid ${accentColor}` } : {}}
     >
       <div className="flex items-center p-3 gap-2">
-        {/* Drag handle */}
-        {dragHandleProps && (
-          <div {...dragHandleProps} className="flex-shrink-0 cursor-grab active:cursor-grabbing p-1 -ml-1">
-            <GripVertical className="w-4 h-4 text-muted-foreground/40" />
-          </div>
-        )}
-
         {/* Tappable icon → opens icon picker */}
         <button
           onClick={() => setShowIconPicker(true)}
@@ -82,7 +75,7 @@ export default function WorkoutCard({
           <WorkoutIcon
             name={template.icon}
             className="w-4 h-4"
-            style={{ color: accentColor || "hsl(var(--primary))" }}
+            style={{ color: accentColor ? accentColor + "cc" : "hsl(var(--muted-foreground) / 0.45)" }}
           />
         </button>
 

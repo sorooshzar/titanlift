@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Save, Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Reorder, AnimatePresence } from "framer-motion";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import ExerciseBlock from "../components/workout/ExerciseBlock";
 import { EXERCISE_SELECTOR_KEY } from "./ExerciseSelector";
 import { createPageUrl } from "@/utils";
@@ -153,30 +153,54 @@ export default function EditWorkout() {
       </div>
 
       {/* Exercises — Drag to reorder */}
-      <Reorder.Group axis="y" values={exercises} onReorder={(newOrder) => { isDirty.current = true; setExercises(newOrder); }} className="px-4 pt-4 space-y-3">
-        <AnimatePresence>
-          {exercises.map((exercise, index) => (
-            <Reorder.Item key={exercise.exercise_id || index} value={exercise}>
-              <ExerciseBlock
-                exercise={exercise}
-                index={index}
-                onChange={(updated) => { isDirty.current = true; handleExerciseChange(index, updated); }}
-                onRemove={() => { isDirty.current = true; handleRemoveExercise(index); }}
-                isActive={false}
-              />
-            </Reorder.Item>
-          ))}
-        </AnimatePresence>
+      <DragDropContext onDragEnd={(result) => {
+        if (!result.destination) return;
+        const from = result.source.index;
+        const to = result.destination.index;
+        if (from === to) return;
+        const reordered = Array.from(exercises);
+        const [moved] = reordered.splice(from, 1);
+        reordered.splice(to, 0, moved);
+        isDirty.current = true;
+        setExercises(reordered);
+      }}>
+        <Droppable droppableId="edit-exercises">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="px-4 pt-4 space-y-3">
+              {exercises.map((exercise, index) => (
+                <Draggable key={exercise.exercise_id || index} draggableId={String(exercise.exercise_id || index)} index={index}>
+                  {(dragProvided, dragSnapshot) => (
+                    <div
+                      ref={dragProvided.innerRef}
+                      {...dragProvided.draggableProps}
+                      className={`transition-shadow ${dragSnapshot.isDragging ? "shadow-2xl rounded-xl" : ""}`}
+                    >
+                      <ExerciseBlock
+                        exercise={exercise}
+                        index={index}
+                        onChange={(updated) => { isDirty.current = true; handleExerciseChange(index, updated); }}
+                        onRemove={() => { isDirty.current = true; handleRemoveExercise(index); }}
+                        isActive={false}
+                        dragHandleProps={dragProvided.dragHandleProps}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
 
-        <Button
-          variant="outline"
-          className="w-full h-12 rounded-xl border-dashed text-muted-foreground"
-          onClick={() => navigate(createPageUrl("ExerciseSelector") + `?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Exercise
-        </Button>
-      </Reorder.Group>
+              <Button
+                variant="outline"
+                className="w-full h-12 rounded-xl border-dashed text-muted-foreground"
+                onClick={() => navigate(createPageUrl("ExerciseSelector") + `?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Exercise
+              </Button>
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       {showUnsavedConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center">
