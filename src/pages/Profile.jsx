@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import { useWeightUnit } from "@/components/utils/useWeightUnit";
 import { userStorage } from "@/components/utils/userStorage";
 import { computeRecovery } from "@/components/utils/recoveryEngine";
 import { computeMuscleRanks } from "@/components/utils/rankEngine";
-import { calculateMuscleRanks } from "@/components/utils/muscleRankCalculator";
+import { computeMuscleRanksFromLogs } from "@/components/utils/muscleRankCalculator";
 import MuscleRankModal from "../components/profile/MuscleRankModal";
 import NutritionRankCard from "../components/macros/NutritionRank";
 import { computeNutritionStreak } from "../components/macros/NutritionRank";
@@ -221,18 +221,9 @@ export default function Profile() {
   const latestWeightKg = bodyWeights[0]?.weight;
   const latestWeightDisplay = latestWeightKg ? toDisplay(latestWeightKg) : null;
 
-  // Use new dynamic muscle rank calculator based on impressiveness scores
-  const [dynamicMuscleRanks, setDynamicMuscleRanks] = useState({});
-
-  useEffect(() => {
-    (async () => {
-      const ranks = await calculateMuscleRanks();
-      setDynamicMuscleRanks(ranks || {});
-    })();
-  }, [workoutLogs]);
-
-  // Fallback to old system if dynamic ranks not available
+  // Compute muscle ranks directly from already-fetched workoutLogs (no extra API call)
   const muscleRankDetails = computeMuscleRanks(workoutLogs, latestWeightKg || 80);
+  const dynamicMuscleRanks = React.useMemo(() => computeMuscleRanksFromLogs(workoutLogs), [workoutLogs]);
   const muscleRankNames = Object.keys(dynamicMuscleRanks).length > 0 ? dynamicMuscleRanks : {};
   if (Object.keys(muscleRankNames).length === 0) {
     Object.keys(muscleRankDetails).forEach(m => { muscleRankNames[m] = muscleRankDetails[m].rank.name; });

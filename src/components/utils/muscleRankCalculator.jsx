@@ -24,26 +24,17 @@ function getRankFromScore(score, muscleName) {
   return RANKS[idx];
 }
 
-export async function calculateMuscleRanks() {
-  const user = await base44.auth.me();
-  if (!user) return {};
-
-  // Fetch more logs to get a fuller picture (last 100)
-  const logs = await base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 100);
-
+// Pure version — works on already-fetched logs, no API call
+export function computeMuscleRanksFromLogs(logs = {}) {
   // Step 1: For each exercise (by name), track the BEST impressiveness_score ever logged
-  // This prevents penalizing a muscle when a less impressive version of the exercise was done
   const bestScorePerExercise = {};
 
-  logs.forEach(log => {
+  (Array.isArray(logs) ? logs : []).forEach(log => {
     log.exercises?.forEach(ex => {
       if (!ex.impressiveness_score || !ex.muscle_group) return;
       const key = `${ex.muscle_group}::${ex.exercise_name || ex.exercise_id}`;
       if (!bestScorePerExercise[key] || ex.impressiveness_score > bestScorePerExercise[key].score) {
-        bestScorePerExercise[key] = {
-          score: ex.impressiveness_score,
-          muscle: ex.muscle_group,
-        };
+        bestScorePerExercise[key] = { score: ex.impressiveness_score, muscle: ex.muscle_group };
       }
     });
   });
@@ -55,14 +46,21 @@ export async function calculateMuscleRanks() {
     muscleScores[muscle].push(score);
   });
 
-  // Step 3: Rank each muscle using the TOP scores (best up to 5 exercises for that muscle)
+  // Step 3: Rank each muscle using top 5 average
   const rankedMuscles = {};
   Object.entries(muscleScores).forEach(([muscle, scores]) => {
-    // Sort descending, take top 5, average them
     const top = [...scores].sort((a, b) => b - a).slice(0, 5);
     const avg = top.reduce((a, b) => a + b, 0) / top.length;
     rankedMuscles[muscle] = getRankFromScore(avg, muscle);
   });
 
   return rankedMuscles;
+}
+
+// Legacy async version kept for backward compatibility
+export async function calculateMuscleRanks() {
+  const user = await base44.auth.me();
+  if (!user) return {};
+  const logs = await base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 100);
+  return computeMuscleRanksFromLogs(logs);
 }
