@@ -1,18 +1,23 @@
 {
-  "name": "WorkoutFolder",
+  "name": "UserMuscleRank",
   "type": "object",
   "properties": {
-    "name": {
+    "muscle": {
       "type": "string",
-      "description": "Folder name"
+      "description": "Muscle group name"
     },
-    "order": {
+    "rank": {
+      "type": "string",
+      "description": "Current rank for this muscle"
+    },
+    "impressiveness_score": {
       "type": "number",
-      "description": "Display order"
+      "description": "Latest impressiveness score for this muscle"
     }
   },
   "required": [
-    "name"
+    "muscle",
+    "rank"
   ],
   "rls": {
     "create": {

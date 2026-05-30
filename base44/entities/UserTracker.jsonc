@@ -1,18 +1,29 @@
 {
-  "name": "WorkoutFolder",
+  "name": "UserTracker",
   "type": "object",
   "properties": {
-    "name": {
+    "type": {
       "type": "string",
-      "description": "Folder name"
+      "enum": [
+        "measurement",
+        "exercise",
+        "habits",
+        "macros"
+      ]
+    },
+    "label": {
+      "type": "string"
+    },
+    "config": {
+      "type": "object",
+      "description": "JSON config e.g. {body_part, exercise_id, exercise_name}"
     },
     "order": {
-      "type": "number",
-      "description": "Display order"
+      "type": "number"
     }
   },
   "required": [
-    "name"
+    "type"
   ],
   "rls": {
     "create": {

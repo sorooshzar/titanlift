@@ -1,0 +1,68 @@
+{
+  "name": "MacroEntry",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "meal_type": {
+      "type": "string",
+      "enum": [
+        "breakfast",
+        "lunch",
+        "dinner",
+        "snack"
+      ],
+      "default": "snack"
+    },
+    "food_name": {
+      "type": "string"
+    },
+    "food_id": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 100
+    },
+    "unit": {
+      "type": "string",
+      "default": "g"
+    },
+    "calories": {
+      "type": "number"
+    },
+    "protein": {
+      "type": "number"
+    },
+    "carbs": {
+      "type": "number"
+    },
+    "fat": {
+      "type": "number"
+    },
+    "fiber": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "date",
+    "food_name",
+    "calories"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

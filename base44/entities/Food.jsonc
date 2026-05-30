@@ -1,0 +1,53 @@
+{
+  "name": "Food",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "brand": {
+      "type": "string"
+    },
+    "calories_per_100g": {
+      "type": "number"
+    },
+    "protein_per_100g": {
+      "type": "number"
+    },
+    "carbs_per_100g": {
+      "type": "number"
+    },
+    "fat_per_100g": {
+      "type": "number"
+    },
+    "fiber_per_100g": {
+      "type": "number"
+    },
+    "serving_size": {
+      "type": "number",
+      "default": 100
+    },
+    "serving_unit": {
+      "type": "string",
+      "default": "g"
+    },
+    "is_custom": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "calories_per_100g"
+  ],
+  "rls": {
+    "create": true,
+    "read": true,
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

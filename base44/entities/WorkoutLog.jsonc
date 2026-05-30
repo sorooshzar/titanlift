@@ -1,34 +1,32 @@
 {
-  "name": "WorkoutTemplate",
+  "name": "WorkoutLog",
   "type": "object",
   "properties": {
     "name": {
       "type": "string",
-      "description": "Workout template name"
+      "description": "Workout name"
     },
-    "folder_id": {
+    "template_id": {
       "type": "string",
-      "description": "Parent folder ID"
+      "description": "Source template ID if from premade"
     },
-    "color": {
+    "started_at": {
       "type": "string",
-      "description": "Accent color hex for this workout"
+      "format": "date-time",
+      "description": "When workout started"
     },
-    "icon": {
+    "finished_at": {
       "type": "string",
-      "description": "Icon name from the icon picker (e.g. Dumbbell, Flame, Zap)"
+      "format": "date-time",
+      "description": "When workout finished"
     },
-    "order": {
+    "duration_minutes": {
       "type": "number",
-      "description": "Display order within folder"
-    },
-    "notes": {
-      "type": "string",
-      "description": "Optional workout note or description"
+      "description": "Duration in minutes"
     },
     "exercises": {
       "type": "array",
-      "description": "Exercise configurations",
+      "description": "Completed exercises with sets",
       "items": {
         "type": "object",
         "properties": {
@@ -36,6 +34,9 @@
             "type": "string"
           },
           "exercise_name": {
+            "type": "string"
+          },
+          "muscle_group": {
             "type": "string"
           },
           "color": {
@@ -67,12 +68,31 @@
                 },
                 "rir": {
                   "type": "number"
+                },
+                "completed": {
+                  "type": "boolean"
                 }
               }
             }
+          },
+          "impressiveness_score": {
+            "type": "number",
+            "description": "Calculated impressiveness score for this exercise (0-255+)"
+          },
+          "rank": {
+            "type": "string",
+            "description": "Medal rank (wood, bronze, silver, gold, platinum, diamond, champion, titan, olympian)"
           }
         }
       }
+    },
+    "total_volume": {
+      "type": "number",
+      "description": "Total volume in kg/lbs"
+    },
+    "total_sets": {
+      "type": "number",
+      "description": "Total sets completed"
     }
   },
   "required": [

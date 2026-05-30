@@ -1,18 +1,28 @@
 {
-  "name": "WorkoutFolder",
+  "name": "BodyWeight",
   "type": "object",
   "properties": {
-    "name": {
-      "type": "string",
-      "description": "Folder name"
-    },
-    "order": {
+    "weight": {
       "type": "number",
-      "description": "Display order"
+      "description": "Body weight value"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "kg",
+        "lbs"
+      ],
+      "default": "kg"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of measurement"
     }
   },
   "required": [
-    "name"
+    "weight",
+    "date"
   ],
   "rls": {
     "create": {

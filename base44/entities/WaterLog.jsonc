@@ -1,18 +1,20 @@
 {
-  "name": "WorkoutFolder",
+  "name": "WaterLog",
   "type": "object",
   "properties": {
-    "name": {
+    "date": {
       "type": "string",
-      "description": "Folder name"
+      "format": "date",
+      "description": "Date of water intake"
     },
-    "order": {
+    "amount_ml": {
       "type": "number",
-      "description": "Display order"
+      "description": "Amount of water in milliliters (base unit)"
     }
   },
   "required": [
-    "name"
+    "date",
+    "amount_ml"
   ],
   "rls": {
     "create": {
