@@ -1,0 +1,45 @@
+{
+  "name": "BodyMeasurement",
+  "type": "object",
+  "properties": {
+    "body_part": {
+      "type": "string",
+      "description": "The body part measured (e.g. Chest, Waist, Biceps)"
+    },
+    "value": {
+      "type": "number",
+      "description": "Measurement value"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "cm",
+        "in"
+      ],
+      "default": "cm"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "body_part",
+    "value",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}
