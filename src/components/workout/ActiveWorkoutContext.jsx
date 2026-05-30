@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { createSuperset } from "./supersetUtils";
 
 const ActiveWorkoutContext = createContext(null);
 
@@ -34,7 +35,7 @@ export function ActiveWorkoutProvider({ children }) {
     });
   }, []);
 
-  const addExercisesToWorkout = useCallback((exercisesToAdd) => {
+  const addExercisesToWorkout = useCallback((exercisesToAdd, asSuperset = false) => {
     setWorkout(prev => {
       if (!prev) return prev;
       const newExercises = exercisesToAdd.map((exercise, i) => ({
@@ -50,7 +51,12 @@ export function ActiveWorkoutProvider({ children }) {
           { type: "working", weight: 0, reps: 8,  rir: 2, completed: false },
         ],
       }));
-      return { ...prev, exercises: [...prev.exercises, ...newExercises] };
+      const combined = [...prev.exercises, ...newExercises];
+      if (asSuperset && newExercises.length >= 2) {
+        const indices = Array.from({ length: newExercises.length }, (_, i) => prev.exercises.length + i);
+        return { ...prev, exercises: createSuperset(combined, indices) };
+      }
+      return { ...prev, exercises: combined };
     });
   }, []);
 

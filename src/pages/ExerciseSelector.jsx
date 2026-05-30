@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Plus, Dumbbell, Search, Library, Star, CheckCircle2 } from "lucide-react";
+import { X, Plus, Dumbbell, Search, Library, Star, CheckCircle2, Link2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ExerciseFilters from "@/components/exercises/ExerciseFilters";
 import CreateExerciseModal from "@/components/exercises/CreateExerciseModal";
@@ -88,8 +88,8 @@ export default function ExerciseSelector() {
   });
   const sortedKeys = useGroups ? Object.keys(grouped).sort() : ["Results"];
 
-  const handleConfirm = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
+  const handleConfirm = (asSuperset = false) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ exercises: selected, asSuperset }));
     navigate(returnTo);
   };
 
@@ -215,7 +215,7 @@ export default function ExerciseSelector() {
         )}
       </div>
 
-      {/* Floating confirm button */}
+      {/* Floating confirm button(s) */}
       <AnimatePresence>
         {selected.length > 0 && (
           <motion.div
@@ -225,8 +225,22 @@ export default function ExerciseSelector() {
             transition={{ type: "spring", stiffness: 400, damping: 35 }}
             className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t border-border"
           >
-            <div className="max-w-lg mx-auto">
-              <Button className="w-full h-12 rounded-xl font-bold text-base" onClick={handleConfirm}>
+            <div className="max-w-lg mx-auto flex flex-col gap-2">
+              {selected.length >= 2 && (
+                <Button
+                  className="w-full h-12 rounded-xl font-bold text-base gap-2"
+                  style={{ background: "#8b5cf6" }}
+                  onClick={() => handleConfirm(true)}
+                >
+                  <Link2 className="w-4 h-4" />
+                  Create Superset ({selected.length})
+                </Button>
+              )}
+              <Button
+                variant={selected.length >= 2 ? "outline" : "default"}
+                className="w-full h-12 rounded-xl font-bold text-base"
+                onClick={() => handleConfirm(false)}
+              >
                 Add {selected.length} Exercise{selected.length > 1 ? "s" : ""} to Workout
               </Button>
             </div>

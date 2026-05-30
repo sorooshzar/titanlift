@@ -9,18 +9,18 @@ export default function SupersetBlock({ label, members, onExerciseChange, onExer
   const accentColor = "#8b5cf6"; // purple accent for supersets
 
   return (
-    <div className="relative">
+    <div className="w-full min-w-0">
       {/* Superset header */}
-      <div className="flex items-center gap-2 mb-1.5 px-1">
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold"
+      <div className="flex items-center gap-2 mb-1 px-1">
+        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold shrink-0"
           style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
           <Link2 className="w-3 h-3" />
           Superset {label}
         </div>
-        <div className="flex-1 h-px" style={{ backgroundColor: `${accentColor}30` }} />
+        <div className="flex-1 h-px min-w-0" style={{ backgroundColor: `${accentColor}30` }} />
         <button
           onClick={onDissolve}
-          className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+          className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
         >
           <Unlink className="w-2.5 h-2.5" />
           Break
@@ -28,14 +28,14 @@ export default function SupersetBlock({ label, members, onExerciseChange, onExer
       </div>
 
       {/* Bracket + exercises */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 w-full min-w-0">
         {/* Left bracket line */}
-        <div className="flex flex-col items-center w-3 shrink-0 mt-1">
+        <div className="flex flex-col items-center w-3 shrink-0">
           <div className="flex-1 w-0.5 rounded-full" style={{ backgroundColor: accentColor, opacity: 0.5 }} />
         </div>
 
-        {/* Exercise blocks */}
-        <div className="flex-1 space-y-2">
+        {/* Exercise blocks — full width, no overflow */}
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
           {members.map(({ exercise, index }) => (
             <ExerciseBlock
               key={index}

@@ -110,12 +110,13 @@ export default function ActiveWorkoutSheet() {
     localStorage.removeItem(EXERCISE_SELECTOR_KEY);
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        addExercisesToWorkout(parsed);
+      // New format: { exercises, asSuperset }; legacy format: array
+      const list = Array.isArray(parsed) ? parsed : (parsed.exercises || []);
+      const asSuperset = !Array.isArray(parsed) && parsed.asSuperset;
+      if (list.length > 0) {
+        addExercisesToWorkout(list, asSuperset);
       }
-    } catch {
-      // Ignore malformed data
-    }
+    } catch {}
   }, [location.pathname, addExercisesToWorkout]);
 
   const formatTime = (secs) => {

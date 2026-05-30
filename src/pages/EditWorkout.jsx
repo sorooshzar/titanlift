@@ -83,7 +83,32 @@ export default function EditWorkout() {
     localStorage.removeItem(EXERCISE_SELECTOR_KEY);
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) handleAddExercises(parsed);
+      // New format: { exercises, asSuperset }; legacy format: array
+      const list = Array.isArray(parsed) ? parsed : (parsed.exercises || []);
+      const asSuperset = !Array.isArray(parsed) && parsed.asSuperset;
+      if (list.length > 0) {
+        setExercises(prev => {
+          const newItems = list.map((ex, i) => ({
+            exercise_id: ex.id,
+            exercise_name: ex.name,
+            muscle_group: ex.primary_muscle,
+            color: null,
+            superset_group: null,
+            order: prev.length + i,
+            sets: [
+              { type: "warmup", weight: 0, reps: 10, rir: 4 },
+              { type: "working", weight: 0, reps: 8, rir: 2 },
+            ],
+          }));
+          const combined = [...prev, ...newItems];
+          if (asSuperset && list.length >= 2) {
+            const indices = Array.from({ length: list.length }, (_, i) => prev.length + i);
+            return createSuperset(combined, indices);
+          }
+          return combined;
+        });
+        isDirty.current = true;
+      }
     } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
