@@ -3,8 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Plus, Check, Timer, ChevronUp } from "lucide-react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import ExerciseBlock from "./ExerciseBlock";
+import ExerciseList from "./ExerciseList";
 import { useActiveWorkout } from "@/components/workout/ActiveWorkoutContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -128,19 +127,8 @@ export default function ActiveWorkoutSheet() {
       : `${m}:${String(s).padStart(2, "0")}`;
   };
 
-  const handleExerciseChange = useCallback((index, updated) => {
-    updateWorkout(prev => {
-      const exercises = [...prev.exercises];
-      exercises[index] = updated;
-      return { ...prev, exercises };
-    });
-  }, [updateWorkout]);
-
-  const handleRemoveExercise = useCallback((index) => {
-    updateWorkout(prev => ({
-      ...prev,
-      exercises: prev.exercises.filter((_, i) => i !== index),
-    }));
+  const handleExercisesChange = useCallback((newExercises) => {
+    updateWorkout(prev => ({ ...prev, exercises: newExercises }));
   }, [updateWorkout]);
 
   const doFinish = async () => {
@@ -311,51 +299,13 @@ export default function ActiveWorkoutSheet() {
         {/* Exercises — scrollable with DnD reorder */}
         <div className="flex-1 overflow-y-auto pt-4 pb-8">
           <div className="max-w-lg mx-auto px-4">
-            <DragDropContext onDragEnd={(result) => {
-              if (!result.destination) return;
-              const from = result.source.index;
-              const to = result.destination.index;
-              if (from === to) return;
-              updateWorkout(prev => {
-                const exercises = Array.from(prev.exercises);
-                const [moved] = exercises.splice(from, 1);
-                exercises.splice(to, 0, moved);
-                return { ...prev, exercises };
-              });
-            }}>
-              <Droppable droppableId="active-exercises">
-                {(provided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3">
-                    {workout.exercises.map((exercise, index) => (
-                      <Draggable
-                        key={`${exercise.exercise_id}-${index}`}
-                        draggableId={`${exercise.exercise_id}-${index}`}
-                        index={index}
-                      >
-                        {(dragProvided, dragSnapshot) => (
-                          <div
-                            ref={dragProvided.innerRef}
-                            {...dragProvided.draggableProps}
-                            className={`transition-shadow ${dragSnapshot.isDragging ? "shadow-2xl rounded-xl" : ""}`}
-                          >
-                            <ExerciseBlock
-                              exercise={exercise}
-                              index={index}
-                              onChange={(updated) => handleExerciseChange(index, updated)}
-                              onRemove={() => handleRemoveExercise(index)}
-                              isActive={true}
-                              previousSets={prevSetsMap[exercise.exercise_id] || []}
-                              dragHandleProps={dragProvided.dragHandleProps}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+            <ExerciseList
+              exercises={workout.exercises}
+              onChange={handleExercisesChange}
+              isActive={true}
+              prevSetsMap={prevSetsMap}
+              droppableId="active-exercises"
+            />
 
             <Button
               variant="outline"

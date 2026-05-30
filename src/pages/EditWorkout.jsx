@@ -2,23 +2,26 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { X, Save, Plus } from "lucide-react";
+import { X, Save, Plus, Link2, CheckSquare } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import ExerciseBlock from "../components/workout/ExerciseBlock";
+import ExerciseList from "../components/workout/ExerciseList";
 import { EXERCISE_SELECTOR_KEY } from "./ExerciseSelector";
 import { createPageUrl } from "@/utils";
+import { createSuperset } from "../components/workout/supersetUtils";
 
 export default function EditWorkout() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get("id");
-  
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [exercises, setExercises] = useState([]);
   const [saving, setSaving] = useState(false);
   const [showUnsavedConfirm, setShowUnsavedConfirm] = useState(false);
+  // Multi-select superset mode
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIndices, setSelectedIndices] = useState(new Set());
   const isDirty = useRef(false);
   const draftKey = `edit-draft-${id}`;
 
@@ -31,7 +34,6 @@ export default function EditWorkout() {
 
   useEffect(() => {
     if (template) {
-      // Check if there's a draft version first
       const draft = localStorage.getItem(draftKey);
       if (draft) {
         try {
@@ -40,7 +42,6 @@ export default function EditWorkout() {
           setExercises(draftExercises);
           isDirty.current = true;
         } catch {
-          // Fallback to template if draft is corrupted
           setName(template.name);
           setExercises(template.exercises || []);
           isDirty.current = false;
@@ -60,10 +61,6 @@ export default function EditWorkout() {
     }
   }, [name, exercises, draftKey]);
 
-  const markDirty = (fn) => (...args) => { isDirty.current = true; fn(...args); };
-
-  // Read back exercises chosen in ExerciseSelector page
-  // Defined before the useEffect that uses it
   const handleAddExercises = (toAdd) => {
     setExercises(prev => [...prev, ...toAdd.map((ex, i) => ({
       exercise_id: ex.id,
@@ -73,9 +70,9 @@ export default function EditWorkout() {
       superset_group: null,
       order: prev.length + i,
       sets: [
-          { type: "warmup",  weight: 0, reps: 10, rir: 4 },
-          { type: "working", weight: 0, reps: 8,  rir: 2 },
-        ],
+        { type: "warmup", weight: 0, reps: 10, rir: 4 },
+        { type: "working", weight: 0, reps: 8, rir: 2 },
+      ],
     }))]);
     isDirty.current = true;
   };
@@ -87,20 +84,13 @@ export default function EditWorkout() {
     try {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) handleAddExercises(parsed);
-    } catch {
-      // Ignore malformed data
-    }
+    } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleExerciseChange = (index, updated) => {
-    const newExercises = [...exercises];
-    newExercises[index] = updated;
+  const handleExercisesChange = (newExercises) => {
+    isDirty.current = true;
     setExercises(newExercises);
-  };
-
-  const handleRemoveExercise = (index) => {
-    setExercises(exercises.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
@@ -114,17 +104,36 @@ export default function EditWorkout() {
   };
 
   const handleClose = () => {
-    if (isDirty.current) {
-      setShowUnsavedConfirm(true);
-    } else {
-      navigate(createPageUrl("Lifts"));
-    }
+    if (isDirty.current) setShowUnsavedConfirm(true);
+    else navigate(createPageUrl("Lifts"));
   };
 
   const handleDiscard = () => {
     localStorage.removeItem(draftKey);
     setShowUnsavedConfirm(false);
     navigate(createPageUrl("Lifts"));
+  };
+
+  // Multi-select superset creation
+  const toggleSelectMode = () => {
+    setSelectMode(v => !v);
+    setSelectedIndices(new Set());
+  };
+
+  const toggleSelect = (i) => {
+    setSelectedIndices(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+  };
+
+  const handleCreateSuperset = () => {
+    const updated = createSuperset(exercises, Array.from(selectedIndices));
+    isDirty.current = true;
+    setExercises(updated);
+    setSelectMode(false);
+    setSelectedIndices(new Set());
   };
 
   return (
@@ -152,55 +161,90 @@ export default function EditWorkout() {
         </div>
       </div>
 
-      {/* Exercises — Drag to reorder */}
-      <DragDropContext onDragEnd={(result) => {
-        if (!result.destination) return;
-        const from = result.source.index;
-        const to = result.destination.index;
-        if (from === to) return;
-        const reordered = Array.from(exercises);
-        const [moved] = reordered.splice(from, 1);
-        reordered.splice(to, 0, moved);
-        isDirty.current = true;
-        setExercises(reordered);
-      }}>
-        <Droppable droppableId="edit-exercises">
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="px-4 pt-4 space-y-3">
-              {exercises.map((exercise, index) => (
-                <Draggable key={exercise.exercise_id || index} draggableId={String(exercise.exercise_id || index)} index={index}>
-                  {(dragProvided, dragSnapshot) => (
-                    <div
-                      ref={dragProvided.innerRef}
-                      {...dragProvided.draggableProps}
-                      className={`transition-shadow ${dragSnapshot.isDragging ? "shadow-2xl rounded-xl" : ""}`}
-                    >
-                      <ExerciseBlock
-                        exercise={exercise}
-                        index={index}
-                        onChange={(updated) => { isDirty.current = true; handleExerciseChange(index, updated); }}
-                        onRemove={() => { isDirty.current = true; handleRemoveExercise(index); }}
-                        isActive={false}
-                        dragHandleProps={dragProvided.dragHandleProps}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
+      {/* Multi-select mode bar */}
+      {selectMode && (
+        <div className="sticky top-[61px] z-10 bg-violet-950/90 backdrop-blur-lg border-b border-violet-800/40 px-4 py-2.5 flex items-center gap-3">
+          <p className="flex-1 text-sm font-semibold text-violet-200">
+            {selectedIndices.size} selected
+          </p>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-violet-300 h-8"
+            onClick={toggleSelectMode}
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            disabled={selectedIndices.size < 2}
+            className="h-8 px-3 text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white gap-1.5"
+            onClick={handleCreateSuperset}
+          >
+            <Link2 className="w-3.5 h-3.5" />
+            Create Superset
+          </Button>
+        </div>
+      )}
 
-              <Button
-                variant="outline"
-                className="w-full h-12 rounded-xl border-dashed text-muted-foreground"
-                onClick={() => navigate(createPageUrl("ExerciseSelector") + `?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
+      {/* Exercise list */}
+      <div className="px-4 pt-4">
+        {selectMode ? (
+          // Multi-select mode: flat list with checkboxes
+          <div className="space-y-2">
+            {exercises.map((ex, i) => (
+              <button
+                key={i}
+                onClick={() => toggleSelect(i)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
+                  selectedIndices.has(i)
+                    ? "bg-violet-500/15 border-violet-500/50"
+                    : "bg-card border-border"
+                }`}
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Exercise
-              </Button>
-            </div>
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
+                  selectedIndices.has(i) ? "bg-violet-500 border-violet-500" : "border-border"
+                }`}>
+                  {selectedIndices.has(i) && (
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-sm font-semibold truncate">{ex.exercise_name}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <ExerciseList
+            exercises={exercises}
+            onChange={handleExercisesChange}
+            isActive={false}
+            droppableId="edit-exercises"
+          />
+        )}
+
+        {/* Action buttons */}
+        <div className={`flex gap-2 mt-3 ${selectMode ? "hidden" : ""}`}>
+          <Button
+            variant="outline"
+            className="flex-1 h-12 rounded-xl border-dashed text-muted-foreground"
+            onClick={() => navigate(createPageUrl("ExerciseSelector") + `?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Exercise
+          </Button>
+          {exercises.length >= 2 && (
+            <Button
+              variant="outline"
+              className="h-12 px-4 rounded-xl border-dashed text-violet-400 border-violet-400/40 hover:bg-violet-500/10"
+              onClick={toggleSelectMode}
+            >
+              <Link2 className="w-4 h-4" />
+            </Button>
           )}
-        </Droppable>
-      </DragDropContext>
+        </div>
+      </div>
 
       {showUnsavedConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center">
@@ -209,10 +253,10 @@ export default function EditWorkout() {
             <h2 className="text-base font-bold mb-1">Unsaved Changes</h2>
             <p className="text-sm text-muted-foreground mb-5">You have unsaved changes. Are you sure you want to leave without saving?</p>
             <div className="flex flex-col gap-2">
-               <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save & Exit"}</Button>
-               <Button variant="destructive" onClick={handleDiscard}>Discard Changes</Button>
-               <Button variant="ghost" onClick={() => setShowUnsavedConfirm(false)}>Keep Editing</Button>
-             </div>
+              <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save & Exit"}</Button>
+              <Button variant="destructive" onClick={handleDiscard}>Discard Changes</Button>
+              <Button variant="ghost" onClick={() => setShowUnsavedConfirm(false)}>Keep Editing</Button>
+            </div>
           </div>
         </div>
       )}

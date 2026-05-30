@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { MoreVertical, Trash2, GripVertical, StickyNote, RefreshCw, Timer } from "lucide-react";
+import { MoreVertical, Trash2, GripVertical, StickyNote, RefreshCw, Timer, Link2, Unlink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,7 +17,20 @@ const EXERCISE_COLORS = [
   null, "#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4",
 ];
 
-export default function ExerciseBlock({ exercise, index, onChange, onRemove, onReplace, isActive = false, previousSets = [], dragHandleProps }) {
+export default function ExerciseBlock({
+  exercise,
+  index,
+  onChange,
+  onRemove,
+  onReplace,
+  isActive = false,
+  previousSets = [],
+  dragHandleProps,
+  // Superset actions
+  onMakeSuperset,     // () => void — open superset picker
+  onLeaveSuperset,    // () => void — remove this exercise from its superset
+  accentColor,        // override left border color when inside a SupersetBlock
+}) {
   const [showNotes, setShowNotes] = useState(!!exercise.notes);
   const navigate = useNavigate();
   const notesDebounceRef = useRef(null);
@@ -25,10 +38,7 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
   const updateSets = (newSets) => onChange({ ...exercise, sets: newSets });
 
   const updateNotes = (notes) => {
-    // Update local state immediately for responsive UI
     onChange({ ...exercise, notes });
-
-    // Debounce the API call — only persist after 800ms of inactivity
     if (notesDebounceRef.current) clearTimeout(notesDebounceRef.current);
     if (exercise.exercise_id) {
       notesDebounceRef.current = setTimeout(() => {
@@ -37,7 +47,8 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
     }
   };
 
-  const borderColor = exercise.color || "transparent";
+  const borderColor = accentColor || exercise.color || "transparent";
+  const isInSuperset = !!exercise.superset_group;
 
   return (
     <div
@@ -56,11 +67,6 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
           >
             {exercise.exercise_name}
           </button>
-          {exercise.superset_group > 0 && (
-            <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
-              Superset {exercise.superset_group}
-            </span>
-          )}
         </div>
 
         {/* Notes toggle */}
@@ -92,6 +98,19 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
               </div>
             </div>
             <div className="border-t border-border mb-1" />
+
+            {/* Superset actions */}
+            {!isInSuperset && onMakeSuperset && (
+              <DropdownMenuItem onClick={onMakeSuperset}>
+                <Link2 className="w-3.5 h-3.5 mr-2 text-violet-400" /> Make Superset
+              </DropdownMenuItem>
+            )}
+            {isInSuperset && onLeaveSuperset && (
+              <DropdownMenuItem onClick={onLeaveSuperset} className="text-muted-foreground">
+                <Unlink className="w-3.5 h-3.5 mr-2" /> Remove from Superset
+              </DropdownMenuItem>
+            )}
+
             <DropdownMenuItem className="text-muted-foreground" onSelect={(e) => e.preventDefault()}>
               <Timer className="w-3.5 h-3.5 mr-2" /> Update Rest Timer
             </DropdownMenuItem>
@@ -108,7 +127,7 @@ export default function ExerciseBlock({ exercise, index, onChange, onRemove, onR
         </DropdownMenu>
       </div>
 
-      {/* Notes section — auto-growing textarea */}
+      {/* Notes section */}
       {showNotes && (
         <div className="px-3 pb-2">
           <textarea
