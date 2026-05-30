@@ -2,9 +2,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Scale, ChevronRight, Settings, X, Target, Plus, Ruler, Inbox } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Scale, ChevronRight, Settings, X, Target, Plus, Ruler, Users } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import MedalsBook from "../components/profile/MedalsBook";
 import MuscleModel from "../components/profile/MuscleModel";
 import WeightChart from "../components/profile/WeightChart";
 import RankLegend from "../components/profile/RankLegend";
@@ -72,57 +73,73 @@ function LogWeightModal({ onClose }) {
   );
 }
 
-function ProfileInfoPanel({ user, onClose, bodyWeights, workoutLogs, latestWeightDisplay, weightUnit, nutritionStreak }) {
+function ProfileInfoPanel({ user, onClose, xp }) {
   const handleSignOut = () => {
     base44.auth.logout();
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center" onClick={onClose}>
-      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 p-6 space-y-4"
-        onClick={e => e.stopPropagation()}>
-        {/* iOS drag handle */}
-        <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto -mt-1 mb-1" />
-        <div className="flex items-center justify-between">
-          <h2 className="font-bold text-lg">Account</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary/80">
-            <X className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-        </div>
-        {/* User identity */}
-        <div className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3.5">
-          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <span className="text-lg font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            {user?.full_name && <p className="text-sm font-bold truncate">{user.full_name}</p>}
-            {user?.email && <p className="text-xs text-muted-foreground truncate">{user.email}</p>}
-          </div>
-        </div>
-        <div className="space-y-2">
-          <div className="bg-secondary rounded-xl px-4 py-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Total Workouts</p>
-            <p className="text-sm font-medium">{workoutLogs.length}</p>
-          </div>
-          <div className="bg-secondary rounded-xl px-4 py-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Current Weight</p>
-            <p className="text-sm font-medium">{latestWeightDisplay ? `${latestWeightDisplay}${weightUnit}` : "—"}</p>
-          </div>
-          <div className="bg-secondary rounded-xl px-4 py-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Nutrition Level</p>
-            <p className="text-sm font-medium">{nutritionStreak.level || "—"}</p>
-          </div>
-        </div>
-        <div className="flex gap-3 pt-2">
-          <Link to={createPageUrl("Settings")} onClick={onClose} className="flex-1">
-            <button className="w-full flex items-center justify-center gap-2 bg-secondary rounded-xl py-3 text-sm font-semibold">
-              <Settings className="w-4 h-4" /> Settings
+      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40"
+        onClick={e => e.stopPropagation()}
+        style={{ maxHeight: "88vh", display: "flex", flexDirection: "column" }}>
+
+        {/* Fixed top section */}
+        <div className="p-6 pb-4 space-y-4 shrink-0">
+          {/* iOS drag handle */}
+          <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto -mt-1 mb-1" />
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-lg">Account</h2>
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary/80">
+              <X className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
-          </Link>
-          <button onClick={handleSignOut}
-            className="flex-1 bg-destructive/10 text-destructive rounded-xl py-3 text-sm font-semibold">
-            Sign Out
-          </button>
+          </div>
+
+          {/* User identity */}
+          <div className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3.5">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <span className="text-lg font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              {user?.full_name && <p className="text-sm font-bold truncate">{user.full_name}</p>}
+              {user?.email && <p className="text-xs text-muted-foreground truncate">{user.email}</p>}
+            </div>
+          </div>
+
+          {/* Level card */}
+          <div className="bg-secondary rounded-2xl px-4 py-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Level</p>
+              <span className="text-xl font-black text-primary">{xp.level}</span>
+            </div>
+            <div className="h-2 bg-background/60 rounded-full overflow-hidden mb-1.5">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-700"
+                style={{ width: `${Math.min(xp.progress * 100, 100)}%` }}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground text-right">
+              {Math.round(xp.xpIntoLevel).toLocaleString()} / {Math.round(xp.xpNeeded).toLocaleString()} XP
+            </p>
+          </div>
+
+          {/* Settings / Sign out */}
+          <div className="flex gap-3">
+            <Link to={createPageUrl("Settings")} onClick={onClose} className="flex-1">
+              <button className="w-full flex items-center justify-center gap-2 bg-secondary rounded-xl py-3 text-sm font-semibold">
+                <Settings className="w-4 h-4" /> Settings
+              </button>
+            </Link>
+            <button onClick={handleSignOut}
+              className="flex-1 bg-destructive/10 text-destructive rounded-xl py-3 text-sm font-semibold">
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable medals section */}
+        <div className="overflow-y-auto px-6 pb-8 pt-2 flex-1">
+          <MedalsBook unlockedIds={[]} />
         </div>
       </div>
     </div>
@@ -130,6 +147,7 @@ function ProfileInfoPanel({ user, onClose, bodyWeights, workoutLogs, latestWeigh
 }
 
 export default function Profile() {
+  const navigate = useNavigate();
   const [showRecovery, setShowRecovery] = useState(false);
   const [showLogWeight, setShowLogWeight] = useState(false);
   const [rankModalMuscle, setRankModalMuscle] = useState(null);
@@ -257,9 +275,11 @@ export default function Profile() {
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold tracking-tight">Profile</h1>
           <div className="flex items-center gap-1.5">
-             <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors">
-               <Inbox className="w-[18px] h-[18px] text-muted-foreground" />
-             </button>
+             <Link to="/Friends">
+               <button className="flex items-center gap-2 h-8 px-3 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors">
+                 <Users className="w-3.5 h-3.5" /> Friends
+               </button>
+             </Link>
              <Link to={createPageUrl("Measurements")}>
                <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors">
                  <Ruler className="w-[18px] h-[18px] text-muted-foreground" />
@@ -427,7 +447,7 @@ export default function Profile() {
       </div>
 
       {showLogWeight && <LogWeightModal onClose={() => setShowLogWeight(false)} />}
-      {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} bodyWeights={bodyWeights} workoutLogs={workoutLogs} latestWeightDisplay={latestWeightDisplay} weightUnit={weightUnit} nutritionStreak={nutritionStreak} />}
+      {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} xp={xp} />}
       {showAddTracker && <AddTrackerModal onClose={() => setShowAddTracker(false)} onAdded={refetchTrackers} />}
       {rankModalMuscle && (
         <MuscleRankModal

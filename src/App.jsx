@@ -10,6 +10,7 @@ import OnboardingGate from '@/components/onboarding/OnboardingGate';
 import SignIn from '@/pages/SignIn';
 import FoodPreview from '@/pages/FoodPreview';
 import ExerciseSelector from '@/pages/ExerciseSelector';
+import Friends from '@/pages/Friends';
 import { TabStateProvider } from '@/components/mobile/TabStateManager';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -86,6 +87,11 @@ const AuthenticatedApp = () => {
               <LayoutWrapper currentPageName="FoodPreview">
                 <FoodPreview />
               </LayoutWrapper>
+            </RouteContent>
+          } />
+          <Route path="/Friends" element={
+            <RouteContent pageKey="/Friends">
+              <Friends />
             </RouteContent>
           } />
           <Route path="*" element={
