@@ -1,31 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { userStorage } from "@/components/utils/userStorage";
-import { ChevronLeft, ChevronRight, Moon, Sun, Palette, Ruler, Sliders, Zap, Timer, Apple, Check } from "lucide-react";
+import { applyTheme } from "@/components/profile/SettingsPanel";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ChevronLeft, Moon, Sun, Check, LogOut, Trash2,
+  Palette, Ruler, Timer, Utensils, Sliders, Zap, User
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Switch } from "@/components/ui/switch";
-import { applyTheme } from "../components/profile/SettingsPanel";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
 
+// ─── Constants ────────────────────────────────────────────────
 const THEMES = [
-  { id: "default", label: "Default", color: "#2563eb" },
-  { id: "halloween", label: "Halloween", color: "#f97316" },
-  { id: "crimson", label: "Crimson", color: "#dc2626" },
-  { id: "forest", label: "Forest", color: "#16a34a" },
-  { id: "fairy", label: "Fairy", color: "#ec4899" },
-  { id: "gold", label: "Gold", color: "#eab308" },
-  { id: "ocean", label: "Ocean", color: "#0891b2" },
-  { id: "violet", label: "Violet", color: "#7c3aed" },
+  { id: "default",   label: "Blue",    color: "#2563eb" },
+  { id: "halloween", label: "Orange",  color: "#f97316" },
+  { id: "crimson",   label: "Red",     color: "#dc2626" },
+  { id: "forest",    label: "Green",   color: "#16a34a" },
+  { id: "fairy",     label: "Pink",    color: "#ec4899" },
+  { id: "gold",      label: "Gold",    color: "#eab308" },
+  { id: "ocean",     label: "Cyan",    color: "#0891b2" },
+  { id: "violet",    label: "Violet",  color: "#7c3aed" },
 ];
 
-function SegmentPicker({ options, value, onChange }) {
+// ─── Primitive UI ─────────────────────────────────────────────
+function Seg({ options, value, onChange }) {
   return (
     <div className="flex bg-secondary rounded-lg p-0.5 shrink-0">
       {options.map(o => (
         <button key={o.id} onClick={() => onChange(o.id)}
-          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${value === o.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
+          className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${value === o.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}>
           {o.label}
         </button>
       ))}
@@ -33,88 +38,131 @@ function SegmentPicker({ options, value, onChange }) {
   );
 }
 
-function SettingRow({ label, description, children }) {
+function Row({ label, description, children, className = "" }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3.5 gap-4">
+    <div className={`flex items-center justify-between px-4 py-3 gap-4 ${className}`}>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium">{label}</p>
-        {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
+        <p className="text-sm font-medium leading-tight">{label}</p>
+        {description && <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{description}</p>}
       </div>
+      <div className="shrink-0">{children}</div>
+    </div>
+  );
+}
+
+function Divider() {
+  return <div className="h-px bg-border/60 mx-4" />;
+}
+
+function SectionHeader({ icon: Icon, label, color }) {
+  return (
+    <div className="flex items-center gap-2 px-1 mt-6 mb-1">
+      <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: color + "30" }}>
+        <Icon className="w-3.5 h-3.5" style={{ color }} />
+      </div>
+      <p className="text-xs font-bold uppercase tracking-widest" style={{ color }}>{label}</p>
+    </div>
+  );
+}
+
+function Card({ children }) {
+  return (
+    <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border/40">
       {children}
     </div>
   );
 }
 
-function Section({ icon: Icon, title, color, children }) {
-  const [open, setOpen] = useState(false);
-
+function TimerStepper({ value, onChange, min = 15, max = 600, step = 15 }) {
+  const fmt = (s) => s >= 60 ? `${Math.floor(s / 60)}m ${s % 60 > 0 ? `${s % 60}s` : ""}`.trim() : `${s}s`;
   return (
-    <div className="bg-card rounded-2xl border border-border overflow-hidden">
-      <button onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-4 py-4">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0`} style={{ backgroundColor: color + "22" }}>
-          <Icon className="w-4.5 h-4.5" style={{ color }} />
-        </div>
-        <span className="flex-1 text-left font-semibold text-sm">{title}</span>
-        <motion.div animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </motion.div>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }}
-            transition={{ duration: 0.2 }} className="overflow-hidden">
-            <div className="border-t border-border/50 divide-y divide-border/30">
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="flex items-center gap-2">
+      <button onClick={() => onChange(Math.max(min, value - step))}
+        className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-base font-bold text-muted-foreground">−</button>
+      <span className="text-sm font-bold w-14 text-center">{fmt(value)}</span>
+      <button onClick={() => onChange(Math.min(max, value + step))}
+        className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-base font-bold text-muted-foreground">+</button>
     </div>
   );
 }
 
+// ─── Page ─────────────────────────────────────────────────────
 export default function Settings() {
+  const [user, setUser] = useState(null);
+
+  // Appearance
   const [darkMode, setDarkMode] = useState(true);
   const [theme, setTheme] = useState("default");
+
+  // Units
   const [weightUnit, setWeightUnit] = useState("kg");
   const [distanceUnit, setDistanceUnit] = useState("metric");
   const [weekStart, setWeekStart] = useState("monday");
-  const [countDumbbellTwice, setCountDumbbellTwice] = useState(false);
-  const [disableSleep, setDisableSleep] = useState(false);
-  const [soundEffects, setSoundEffects] = useState(false);
-  const [includeBodyweight, setIncludeBodyweight] = useState(false);
-  const [warmupRestTime, setWarmupRestTime] = useState(60);
-  const [compoundRestTime, setCompoundRestTime] = useState(180);
-  const [isolationRestTime, setIsolationRestTime] = useState(90);
 
-  // Macro goals
+  // Timers
+  const [warmupRest, setWarmupRest] = useState(60);
+  const [compoundRest, setCompoundRest] = useState(180);
+  const [isolationRest, setIsolationRest] = useState(90);
+  const [autoStartRest, setAutoStartRest] = useState(false);
+  const [timerSound, setTimerSound] = useState(true);
+  const [timerVibration, setTimerVibration] = useState(true);
+
+  // Nutrition
   const [macroCalories, setMacroCalories] = useState(2000);
   const [macroProtein, setMacroProtein] = useState(150);
   const [macroCarbs, setMacroCarbs] = useState(225);
   const [macroFat, setMacroFat] = useState(67);
   const [macroDirty, setMacroDirty] = useState(false);
 
+  // Preferences
+  const [prevSetDisplay, setPrevSetDisplay] = useState("weight_reps");
+  const [showExerciseNotes, setShowExerciseNotes] = useState(true);
+  const [showMuscleGroups, setShowMuscleGroups] = useState(true);
+  const [showVolume, setShowVolume] = useState(true);
+
+  // Advanced
+  const [countDumbbellTwice, setCountDumbbellTwice] = useState(false);
+  const [includeBodyweight, setIncludeBodyweight] = useState(false);
+  const [disableSleep, setDisableSleep] = useState(false);
+  const [soundEffects, setSoundEffects] = useState(false);
+
+  // Delete dialog
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   useEffect(() => {
-    const saved = localStorage.getItem("gym-dark-mode"); // dark mode is device-global (fine)
-    setDarkMode(saved === null ? true : saved === "true");
+    base44.auth.me().then(u => setUser(u)).catch(() => {});
+
+    setDarkMode(localStorage.getItem("gym-dark-mode") === null ? true : localStorage.getItem("gym-dark-mode") === "true");
     setTheme(userStorage.getItem("gym-theme") || "default");
     setWeightUnit(userStorage.getItem("gym-weight-unit") || "kg");
     setDistanceUnit(userStorage.getItem("gym-distance-unit") || "metric");
     setWeekStart(userStorage.getItem("gym-week-start") || "monday");
-    setCountDumbbellTwice(userStorage.getItem("gym-dumbbell-twice") === "true");
-    setDisableSleep(userStorage.getItem("gym-disable-sleep") === "true");
-    setSoundEffects(userStorage.getItem("gym-sound-effects") === "true");
-    setIncludeBodyweight(userStorage.getItem("gym-include-bodyweight") === "true");
-    setWarmupRestTime(parseInt(userStorage.getItem("gym-warmup-rest") || "60"));
-    setCompoundRestTime(parseInt(userStorage.getItem("gym-compound-rest") || "180"));
-    setIsolationRestTime(parseInt(userStorage.getItem("gym-isolation-rest") || "90"));
+
+    setWarmupRest(parseInt(userStorage.getItem("gym-warmup-rest") || "60"));
+    setCompoundRest(parseInt(userStorage.getItem("gym-compound-rest") || "180"));
+    setIsolationRest(parseInt(userStorage.getItem("gym-isolation-rest") || "90"));
+    setAutoStartRest(userStorage.getItem("gym-auto-start-rest") === "true");
+    setTimerSound(userStorage.getItem("gym-timer-sound") !== "false");
+    setTimerVibration(userStorage.getItem("gym-timer-vibration") !== "false");
+
     setMacroCalories(parseInt(userStorage.getItem("gym-macro-calories") || "2000"));
     setMacroProtein(parseInt(userStorage.getItem("gym-macro-protein") || "150"));
     setMacroCarbs(parseInt(userStorage.getItem("gym-macro-carbs") || "225"));
     setMacroFat(parseInt(userStorage.getItem("gym-macro-fat") || "67"));
+
+    setPrevSetDisplay(userStorage.getItem("gym-prev-set-display") || "weight_reps");
+    setShowExerciseNotes(userStorage.getItem("gym-show-exercise-notes") !== "false");
+    setShowMuscleGroups(userStorage.getItem("gym-show-muscle-groups") !== "false");
+    setShowVolume(userStorage.getItem("gym-show-volume") !== "false");
+
+    setCountDumbbellTwice(userStorage.getItem("gym-dumbbell-twice") === "true");
+    setIncludeBodyweight(userStorage.getItem("gym-include-bodyweight") === "true");
+    setDisableSleep(userStorage.getItem("gym-disable-sleep") === "true");
+    setSoundEffects(userStorage.getItem("gym-sound-effects") === "true");
   }, []);
+
+  // ── Helpers ────────────────────────────────────────────
+  const save = (key, val, setter) => { setter(val); userStorage.setItem(key, String(val)); };
 
   const toggleDark = (v) => {
     setDarkMode(v);
@@ -123,22 +171,25 @@ export default function Settings() {
     window.dispatchEvent(new Event("darkModeChanged"));
   };
 
-  const handleTheme = (id) => {
-    setTheme(id);
-    applyTheme(id);
+  const handleTheme = (id) => { setTheme(id); applyTheme(id); };
+
+  const handleWeightUnit = (u) => {
+    save("gym-weight-unit", u, setWeightUnit);
+    window.dispatchEvent(new CustomEvent("weightUnitChanged", { detail: { unit: u } }));
   };
 
-  const save = (key, val, setter) => { setter(val); userStorage.setItem(key, String(val)); };
-
-  const handleWeightUnitChange = (newUnit) => {
-    if (weightUnit === newUnit) return;
-    // We only change the display preference — all weights are stored in kg (base unit).
-    save("gym-weight-unit", newUnit, setWeightUnit);
-    window.dispatchEvent(new CustomEvent("weightUnitChanged", { detail: { unit: newUnit } }));
+  const saveMacros = () => {
+    userStorage.setItem("gym-macro-calories", String(macroCalories));
+    userStorage.setItem("gym-macro-protein", String(macroProtein));
+    userStorage.setItem("gym-macro-carbs", String(macroCarbs));
+    userStorage.setItem("gym-macro-fat", String(macroFat));
+    window.dispatchEvent(new CustomEvent("macroGoalsChanged", { detail: { calories: macroCalories, protein: macroProtein, carbs: macroCarbs, fat: macroFat } }));
+    setMacroDirty(false);
   };
 
+  // ── Render ────────────────────────────────────────────
   return (
-    <div className="max-w-lg mx-auto px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-8 space-y-3">
+    <div className="max-w-lg mx-auto px-4 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-12">
       {/* Header */}
       <div className="flex items-center gap-3 mb-2">
         <Link to={createPageUrl("Profile")}>
@@ -149,175 +200,244 @@ export default function Settings() {
         <h1 className="text-xl font-bold">Settings</h1>
       </div>
 
-      {/* Appearance */}
-      <Section icon={Palette} title="Appearance" color="#8b5cf6">
-        <SettingRow label={darkMode ? "Dark Mode" : "Light Mode"} description="Toggle app theme">
+      {/* ── APPEARANCE ─────────────────────────────────── */}
+      <SectionHeader icon={Palette} label="Appearance" color="#8b5cf6" />
+      <Card>
+        <Row label={darkMode ? "Dark Mode" : "Light Mode"} description="Toggle between dark and light interface">
           <div className="flex items-center gap-2">
-            {darkMode ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-amber-500" />}
+            {darkMode ? <Moon className="w-4 h-4 text-violet-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
             <Switch checked={darkMode} onCheckedChange={toggleDark} />
           </div>
-        </SettingRow>
+        </Row>
         <div className="px-4 py-3.5">
-          <p className="text-sm font-medium mb-3">Color Theme</p>
-          <div className="grid grid-cols-4 gap-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Accent Color</p>
+          <div className="grid grid-cols-8 gap-2">
             {THEMES.map(t => (
               <button key={t.id} onClick={() => handleTheme(t.id)}
-                className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all ${theme === t.id ? "bg-secondary ring-2 ring-primary" : "bg-secondary/50"}`}>
-                <div className="w-7 h-7 rounded-full shadow-sm" style={{ backgroundColor: t.color }} />
-                <span className="text-[10px] font-medium text-muted-foreground">{t.label}</span>
+                className="flex flex-col items-center gap-1 group">
+                <div className={`w-8 h-8 rounded-full transition-all ${theme === t.id ? "ring-2 ring-offset-2 ring-offset-card scale-110" : "opacity-70"}`}
+                  style={{ backgroundColor: t.color, '--tw-ring-color': t.color }} />
+                {theme === t.id && <div className="w-1 h-1 rounded-full bg-foreground" />}
               </button>
             ))}
           </div>
         </div>
-      </Section>
+      </Card>
 
-      {/* Measurements */}
-      <Section icon={Ruler} title="Measurements" color="#06b6d4">
-        <SettingRow label="Weight Unit">
-          <SegmentPicker value={weightUnit} onChange={handleWeightUnitChange}
-            options={[{ id: "kg", label: "kg" }, { id: "lbs", label: "lbs" }]} />
-        </SettingRow>
-        <SettingRow label="Distance Unit">
-          <SegmentPicker value={distanceUnit} onChange={v => save("gym-distance-unit", v, setDistanceUnit)}
-            options={[{ id: "metric", label: "km" }, { id: "imperial", label: "mi" }]} />
-        </SettingRow>
-        <SettingRow label="Week Starts On">
-          <SegmentPicker value={weekStart} onChange={v => save("gym-week-start", v, setWeekStart)}
-            options={[{ id: "monday", label: "Mon" }, { id: "sunday", label: "Sun" }]} />
-        </SettingRow>
-      </Section>
+      {/* ── UNITS & MEASUREMENTS ───────────────────────── */}
+      <SectionHeader icon={Ruler} label="Units & Measurements" color="#06b6d4" />
+      <Card>
+        <Row label="Weight">
+          <Seg value={weightUnit} onChange={handleWeightUnit} options={[{ id: "kg", label: "kg" }, { id: "lbs", label: "lbs" }]} />
+        </Row>
+        <Divider />
+        <Row label="Distance">
+          <Seg value={distanceUnit} onChange={v => save("gym-distance-unit", v, setDistanceUnit)} options={[{ id: "metric", label: "km" }, { id: "imperial", label: "mi" }]} />
+        </Row>
+        <Divider />
+        <Row label="Week Starts On">
+          <Seg value={weekStart} onChange={v => save("gym-week-start", v, setWeekStart)} options={[{ id: "monday", label: "Mon" }, { id: "sunday", label: "Sun" }]} />
+        </Row>
+      </Card>
 
-      {/* Timers */}
-       <Section icon={Timer} title="Timers" color="#ec4899">
-         <SettingRow label="Warm-up rest time" description="Rest between warm-up sets">
-           <input type="number" value={warmupRestTime} onChange={e => { setWarmupRestTime(parseInt(e.target.value)); userStorage.setItem("gym-warmup-rest", String(e.target.value)); }}
-             className="w-20 text-xs text-center bg-secondary border-0 rounded-lg px-2 py-1" />
-           <span className="text-xs text-muted-foreground ml-1">s</span>
-         </SettingRow>
-         <SettingRow label="Compound rest time" description="Rest for compound movements">
-           <input type="number" value={compoundRestTime} onChange={e => { setCompoundRestTime(parseInt(e.target.value)); userStorage.setItem("gym-compound-rest", String(e.target.value)); }}
-             className="w-20 text-xs text-center bg-secondary border-0 rounded-lg px-2 py-1" />
-           <span className="text-xs text-muted-foreground ml-1">s</span>
-         </SettingRow>
-         <SettingRow label="Isolation rest time" description="Rest for isolation movements">
-           <input type="number" value={isolationRestTime} onChange={e => { setIsolationRestTime(parseInt(e.target.value)); localStorage.setItem("gym-isolation-rest", String(e.target.value)); }}
-             className="w-20 text-xs text-center bg-secondary border-0 rounded-lg px-2 py-1" />
-           <span className="text-xs text-muted-foreground ml-1">s</span>
-         </SettingRow>
-       </Section>
+      {/* ── WORKOUT & TIMERS ────────────────────────────── */}
+      <SectionHeader icon={Timer} label="Workout & Timers" color="#ec4899" />
+      <Card>
+        <Row label="Warm-up Rest" description="Rest time between warm-up sets">
+          <TimerStepper value={warmupRest} onChange={v => save("gym-warmup-rest", v, setWarmupRest)} />
+        </Row>
+        <Divider />
+        <Row label="Compound Rest" description="Rest for compound movements (squat, bench, deadlift)">
+          <TimerStepper value={compoundRest} onChange={v => save("gym-compound-rest", v, setCompoundRest)} step={30} />
+        </Row>
+        <Divider />
+        <Row label="Isolation Rest" description="Rest for isolation movements (curls, laterals)">
+          <TimerStepper value={isolationRest} onChange={v => save("gym-isolation-rest", v, setIsolationRest)} />
+        </Row>
+        <Divider />
+        <Row label="Auto-start Rest Timer" description="Start rest timer automatically after completing a set">
+          <Switch checked={autoStartRest} onCheckedChange={v => save("gym-auto-start-rest", v, setAutoStartRest)} />
+        </Row>
+        <Divider />
+        <Row label="Timer Sound" description="Play a sound when rest timer ends">
+          <Switch checked={timerSound} onCheckedChange={v => save("gym-timer-sound", v, setTimerSound)} />
+        </Row>
+        <Divider />
+        <Row label="Vibration" description="Vibrate when rest timer ends">
+          <Switch checked={timerVibration} onCheckedChange={v => save("gym-timer-vibration", v, setTimerVibration)} />
+        </Row>
+      </Card>
 
-       {/* Macros */}
-       <Section icon={Apple} title="Macros" color="#f59e0b">
-         <div className="px-4 py-4 space-y-4">
-           <p className="text-xs text-muted-foreground">Changing grams updates percentages &amp; calories. Changing percentages updates grams. Changing calories scales all grams.</p>
+      {/* ── NUTRITION ───────────────────────────────────── */}
+      <SectionHeader icon={Utensils} label="Nutrition" color="#f59e0b" />
+      <Card>
+        <div className="px-4 py-4 space-y-4">
+          <p className="text-[11px] text-muted-foreground">These goals sync with your Nutrition page in real-time.</p>
 
-           {/* Calories */}
-           <div>
-             <div className="flex items-center justify-between mb-1.5">
-               <span className="text-sm font-semibold">Calories</span>
-               <span className="text-xs text-muted-foreground">{macroCalories} kcal/day</span>
-             </div>
-             <input type="number" value={macroCalories}
-               onChange={e => {
-                 const cal = Math.max(500, parseInt(e.target.value) || 0);
-                 setMacroCalories(cal);
-                 // Scale grams proportionally
-                 const pPct = macroProtein * 4 / macroCalories;
-                 const cPct = macroCarbs * 4 / macroCalories;
-                 const fPct = macroFat * 9 / macroCalories;
-                 setMacroProtein(Math.round((pPct * cal) / 4));
-                 setMacroCarbs(Math.round((cPct * cal) / 4));
-                 setMacroFat(Math.round((fPct * cal) / 9));
-                 setMacroDirty(true);
-               }}
-               className="w-full text-center text-xl font-bold bg-secondary border-0 rounded-xl py-2.5"
-             />
-           </div>
+          {/* Calories */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold">Daily Calories</p>
+              <span className="text-xs text-muted-foreground font-medium">{macroCalories} kcal</span>
+            </div>
+            <input type="number" inputMode="numeric" value={macroCalories}
+              onChange={e => {
+                const cal = Math.max(500, parseInt(e.target.value) || 500);
+                setMacroCalories(cal);
+                setMacroDirty(true);
+              }}
+              className="w-full text-center text-2xl font-black bg-secondary border-0 rounded-xl py-3 focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
 
-           {/* Macro grid */}
-           <div className="grid grid-cols-3 gap-3">
-             {[
-               { label: "Protein", val: macroProtein, setVal: setMacroProtein, cal: 4, color: "text-blue-400" },
-               { label: "Carbs", val: macroCarbs, setVal: setMacroCarbs, cal: 4, color: "text-amber-400" },
-               { label: "Fat", val: macroFat, setVal: setMacroFat, cal: 9, color: "text-pink-400" },
-             ].map(({ label, val, setVal, cal, color }) => {
-               const pct = macroCalories > 0 ? Math.round((val * cal / macroCalories) * 100) : 0;
-               return (
-                 <div key={label} className="bg-secondary rounded-xl p-3 space-y-2">
-                   <div className="flex items-center justify-between">
-                     <span className={`text-xs font-semibold ${color}`}>{label}</span>
-                     <span className="text-[10px] text-muted-foreground">{pct}%</span>
-                   </div>
-                   <input type="number" value={val}
-                     onChange={e => {
-                       const g = Math.max(0, parseInt(e.target.value) || 0);
-                       setVal(g);
-                       // Recalculate calories from all macros
-                       const newCal = g * cal + (label === "Protein" ? macroCarbs * 4 + macroFat * 9 : label === "Carbs" ? macroProtein * 4 + macroFat * 9 : macroProtein * 4 + macroCarbs * 4);
-                       setMacroCalories(newCal);
-                       setMacroDirty(true);
-                     }}
-                     className="w-full text-center text-base font-bold bg-card border-0 rounded-lg py-1.5"
-                   />
-                   <p className="text-[10px] text-muted-foreground text-center">{val * cal} kcal</p>
-                 </div>
-               );
-             })}
-           </div>
+          {/* Macros grid */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { key: "protein", label: "Protein", val: macroProtein, setVal: (v) => { setMacroProtein(v); setMacroDirty(true); }, kcalPer: 4, color: "#60a5fa" },
+              { key: "carbs",   label: "Carbs",   val: macroCarbs,   setVal: (v) => { setMacroCarbs(v);   setMacroDirty(true); }, kcalPer: 4, color: "#fbbf24" },
+              { key: "fat",     label: "Fat",     val: macroFat,     setVal: (v) => { setMacroFat(v);     setMacroDirty(true); }, kcalPer: 9, color: "#f472b6" },
+            ].map(({ key, label, val, setVal, kcalPer, color }) => {
+              const pct = macroCalories > 0 ? Math.round((val * kcalPer / macroCalories) * 100) : 0;
+              return (
+                <div key={key} className="bg-secondary rounded-xl p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold" style={{ color }}>{label}</span>
+                    <span className="text-[10px] text-muted-foreground">{pct}%</span>
+                  </div>
+                  <input type="number" inputMode="numeric" value={val}
+                    onChange={e => setVal(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="w-full text-center text-base font-black bg-card border-0 rounded-lg py-1.5 focus:outline-none"
+                  />
+                  <p className="text-[10px] text-muted-foreground text-center mt-1">{val * kcalPer} kcal</p>
+                </div>
+              );
+            })}
+          </div>
 
-           {/* Confirm button */}
-           <AnimatePresence>
-             {macroDirty && (
-               <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}>
-                 <Button className="w-full gap-2" onClick={() => {
-                   userStorage.setItem("gym-macro-calories", String(macroCalories));
-                   userStorage.setItem("gym-macro-protein", String(macroProtein));
-                   userStorage.setItem("gym-macro-carbs", String(macroCarbs));
-                   userStorage.setItem("gym-macro-fat", String(macroFat));
-                   window.dispatchEvent(new CustomEvent("macroGoalsChanged", { detail: { calories: macroCalories, protein: macroProtein, carbs: macroCarbs, fat: macroFat } }));
-                   setMacroDirty(false);
-                 }}>
-                   <Check className="w-4 h-4" /> Confirm Macro Goals
-                 </Button>
-               </motion.div>
-             )}
-           </AnimatePresence>
-         </div>
-       </Section>
+          <AnimatePresence>
+            {macroDirty && (
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}>
+                <Button className="w-full gap-2" onClick={saveMacros}>
+                  <Check className="w-4 h-4" /> Save Macro Goals
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </Card>
 
-       {/* Preferences */}
-       <Section icon={Sliders} title="Preferences" color="#06b6d4">
-         <SettingRow label="Previous set display" description="How previous set data appears">
-           <span className="text-xs text-muted-foreground">Weight × Reps</span>
-         </SettingRow>
-       </Section>
+      {/* ── APP PREFERENCES ─────────────────────────────── */}
+      <SectionHeader icon={Sliders} label="App Preferences" color="#10b981" />
+      <Card>
+        <div className="px-4 py-3.5">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">Previous Set Display</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              { id: "weight_reps", label: "Weight × Reps" },
+              { id: "weight_only", label: "Weight Only" },
+              { id: "reps_only",   label: "Reps Only" },
+              { id: "hidden",      label: "Hidden" },
+            ].map(opt => (
+              <button key={opt.id} onClick={() => save("gym-prev-set-display", opt.id, setPrevSetDisplay)}
+                className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${prevSetDisplay === opt.id ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <Divider />
+        <Row label="Show Exercise Notes" description="Display technique notes under exercise name">
+          <Switch checked={showExerciseNotes} onCheckedChange={v => save("gym-show-exercise-notes", v, setShowExerciseNotes)} />
+        </Row>
+        <Divider />
+        <Row label="Show Muscle Groups" description="Display target muscle under exercise name">
+          <Switch checked={showMuscleGroups} onCheckedChange={v => save("gym-show-muscle-groups", v, setShowMuscleGroups)} />
+        </Row>
+        <Divider />
+        <Row label="Show Workout Volume" description="Display total volume on workout completion">
+          <Switch checked={showVolume} onCheckedChange={v => save("gym-show-volume", v, setShowVolume)} />
+        </Row>
+      </Card>
 
-      {/* Advanced */}
-      <Section icon={Zap} title="Advanced" color="#ef4444">
-        <SettingRow label="Count dumbbells twice" description="Multiply dumbbell weight ×2 for total volume">
+      {/* ── ADVANCED ────────────────────────────────────── */}
+      <SectionHeader icon={Zap} label="Advanced" color="#ef4444" />
+      <Card>
+        <Row label="Count Dumbbells Twice" description="Multiply dumbbell weight ×2 when calculating total volume">
           <Switch checked={countDumbbellTwice} onCheckedChange={v => save("gym-dumbbell-twice", v, setCountDumbbellTwice)} />
-        </SettingRow>
-        <SettingRow label="Disable screen sleep" description="Keep screen on during workouts">
-          <Switch checked={disableSleep} onCheckedChange={v => save("gym-disable-sleep", v, setDisableSleep)} />
-        </SettingRow>
-        <SettingRow label="Sound effects" description="Play sounds when completing sets">
-          <Switch checked={soundEffects} onCheckedChange={v => save("gym-sound-effects", v, setSoundEffects)} />
-        </SettingRow>
-        <SettingRow label="Include bodyweight" description="Add bodyweight to assisted exercises">
+        </Row>
+        <Divider />
+        <Row label="Include Bodyweight in Volume" description="Add your bodyweight to bodyweight exercises">
           <Switch checked={includeBodyweight} onCheckedChange={v => save("gym-include-bodyweight", v, setIncludeBodyweight)} />
-        </SettingRow>
-      </Section>
+        </Row>
+        <Divider />
+        <Row label="Keep Screen Awake" description="Prevents the display from turning off during workouts">
+          <Switch checked={disableSleep} onCheckedChange={v => save("gym-disable-sleep", v, setDisableSleep)} />
+        </Row>
+        <Divider />
+        <Row label="Sound Effects" description="Play sounds when completing sets and finishing workouts">
+          <Switch checked={soundEffects} onCheckedChange={v => save("gym-sound-effects", v, setSoundEffects)} />
+        </Row>
+      </Card>
 
-      {/* Account */}
-      <Section icon={Apple} title="Account" color="#dc2626">
-        <button onClick={() => {
-          if (window.confirm("Are you sure you want to delete your account? This cannot be undone.")) {
-            base44.auth.deleteAccount?.().catch(err => console.error(err));
-          }
-        }} className="w-full flex items-center justify-center px-4 py-3.5 text-sm font-semibold text-destructive hover:bg-destructive/5 transition-colors">
-          Delete Account
+      {/* ── ACCOUNT ─────────────────────────────────────── */}
+      <SectionHeader icon={User} label="Account" color="#64748b" />
+      <Card>
+        {user && (
+          <>
+            <div className="px-4 py-3.5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <span className="text-sm font-bold text-primary">{user.full_name?.[0]?.toUpperCase() || "?"}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{user.full_name}</p>
+                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              </div>
+            </div>
+            <Divider />
+          </>
+        )}
+        <button onClick={() => base44.auth.logout()}
+          className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-medium hover:bg-secondary/50 transition-colors text-left">
+          <LogOut className="w-4 h-4 text-muted-foreground" />
+          <span>Sign Out</span>
         </button>
-      </Section>
+      </Card>
+
+      {/* Destructive zone */}
+      <div className="mt-2">
+        <Card>
+          <button onClick={() => setShowDeleteConfirm(true)}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-destructive hover:bg-destructive/5 transition-colors">
+            <Trash2 className="w-4 h-4" />
+            Delete Account
+          </button>
+        </Card>
+        <p className="text-[11px] text-muted-foreground text-center mt-2 px-4">Deleting your account is permanent and cannot be undone. All data will be lost.</p>
       </div>
-      );
-      }
+
+      {/* Delete Confirm Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setShowDeleteConfirm(false)}>
+            <motion.div className="bg-card w-full max-w-sm rounded-2xl border border-border p-5 space-y-4"
+              initial={{ y: 40 }} animate={{ y: 0 }} exit={{ y: 40 }}
+              onClick={e => e.stopPropagation()}>
+              <div>
+                <h3 className="font-bold text-base">Delete Account?</h3>
+                <p className="text-sm text-muted-foreground mt-1">This will permanently delete your account and all associated data. This action cannot be undone.</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 py-3 rounded-xl bg-secondary text-sm font-semibold">Cancel</button>
+                <button onClick={() => { setShowDeleteConfirm(false); base44.auth.deleteAccount?.().catch(() => {}); }}
+                  className="flex-1 py-3 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold">Delete</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
