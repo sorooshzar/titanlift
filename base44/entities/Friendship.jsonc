@@ -1,0 +1,42 @@
+{
+  "name": "Friendship",
+  "type": "object",
+  "properties": {
+    "requester_email": {
+      "type": "string",
+      "description": "Email of the user who sent the friend request"
+    },
+    "recipient_email": {
+      "type": "string",
+      "description": "Email of the user who received the friend request"
+    },
+    "requester_username": {
+      "type": "string",
+      "description": "Username of requester (cached for display)"
+    },
+    "recipient_username": {
+      "type": "string",
+      "description": "Username of recipient (cached for display)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted"
+      ],
+      "default": "pending",
+      "description": "Status of the friendship"
+    }
+  },
+  "required": [
+    "requester_email",
+    "recipient_email",
+    "status"
+  ],
+  "rls": {
+    "create": true,
+    "read": true,
+    "update": true,
+    "delete": true
+  }
+}
