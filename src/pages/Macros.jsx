@@ -111,6 +111,14 @@ function useMacroGoals() {
 
   React.useEffect(() => {
     recalculate();
+    // Re-fetch goals when Settings saves new macros
+    const handler = (e) => {
+      if (e.detail) {
+        setGoals({ calories: e.detail.calories, protein: e.detail.protein, carbs: e.detail.carbs, fat: e.detail.fat });
+      }
+    };
+    window.addEventListener("macroGoalsChanged", handler);
+    return () => window.removeEventListener("macroGoalsChanged", handler);
   }, [recalculate]);
 
   return goals;
