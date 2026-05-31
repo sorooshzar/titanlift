@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { base44 } from "@/api/base44Client";
 
+function formatCode(raw) {
+  // Format 12 digits as XXXX-XXXX-XXXX
+  const digits = raw.replace(/\D/g, "").slice(0, 12);
+  const parts = digits.match(/.{1,4}/g) || [];
+  return parts.join("-");
+}
+
 export default function AddFriendSheet({ currentUser, onClose, onRequestSent }) {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState(null);
@@ -11,19 +18,28 @@ export default function AddFriendSheet({ currentUser, onClose, onRequestSent }) 
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
-  const [showMyId, setShowMyId] = useState(false);
+  const [showMyCode, setShowMyCode] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const myId = currentUser?.id || "";
+  const myCode = currentUser?.friend_code || "";
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(myId);
+    navigator.clipboard.writeText(myCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleQueryChange = (e) => {
+    const formatted = formatCode(e.target.value);
+    setQuery(formatted);
+    setResult(null);
+    setSent(false);
+    setError("");
+  };
+
   const handleSearch = async () => {
-    if (!query.trim()) return;
+    const raw = query.replace(/-/g, "").trim();
+    if (!raw || raw.length < 12) return;
     setSearching(true);
     setResult(null);
     setError("");
@@ -31,7 +47,7 @@ export default function AddFriendSheet({ currentUser, onClose, onRequestSent }) 
 
     const users = await base44.entities.User.list();
     const found = users.find(u =>
-      u.id === query.trim() && u.email !== currentUser.email
+      u.friend_code?.replace(/-/g, "") === raw && u.email !== currentUser.email
     );
 
     setSearching(false);
@@ -86,48 +102,60 @@ export default function AddFriendSheet({ currentUser, onClose, onRequestSent }) 
           </button>
         </div>
 
-        {/* My ID toggle */}
+        {/* My Friend Code */}
         <div className="bg-secondary rounded-2xl px-4 py-3 space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">My User ID</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">My Friend Code</p>
             <button
-              onClick={() => setShowMyId(v => !v)}
+              onClick={() => setShowMyCode(v => !v)}
               className="flex items-center gap-1.5 text-xs text-primary font-semibold"
             >
-              {showMyId ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              {showMyId ? "Hide" : "Show"}
+              {showMyCode ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              {showMyCode ? "Hide" : "Show"}
             </button>
           </div>
-          {showMyId && (
+          {showMyCode && (
             <div className="flex items-center gap-2">
-              <p className="text-xs font-mono text-foreground break-all flex-1 select-all">{myId}</p>
-              <button
-                onClick={handleCopy}
-                className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"
-              >
-                {copied ? <CheckIcon className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5 text-primary" />}
-              </button>
+              {myCode ? (
+                <>
+                  <p className="text-lg font-mono font-bold text-foreground tracking-widest flex-1">{myCode}</p>
+                  <button
+                    onClick={handleCopy}
+                    className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"
+                  >
+                    {copied ? <CheckIcon className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5 text-primary" />}
+                  </button>
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground">Generating your code...</p>
+              )}
             </div>
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground">Enter a friend's User ID to send them a request.</p>
+        <p className="text-xs text-muted-foreground">Enter a friend's code to send them a request.</p>
 
         <div className="flex gap-2">
           <Input
-            placeholder="Paste User ID..."
+            placeholder="XXXX-XXXX-XXXX"
             value={query}
-            onChange={e => { setQuery(e.target.value); setResult(null); setSent(false); setError(""); }}
+            onChange={handleQueryChange}
             onKeyDown={e => e.key === "Enter" && handleSearch()}
-            className="bg-secondary border-0 flex-1 font-mono text-sm"
+            className="bg-secondary border-0 flex-1 font-mono text-base tracking-widest text-center"
+            maxLength={14}
+            inputMode="numeric"
           />
-          <Button onClick={handleSearch} disabled={searching || !query.trim()} className="px-4 rounded-xl">
+          <Button
+            onClick={handleSearch}
+            disabled={searching || query.replace(/-/g, "").length < 12}
+            className="px-4 rounded-xl"
+          >
             <Search className="w-4 h-4" />
           </Button>
         </div>
 
         {result && !result.found && (
-          <p className="text-sm text-muted-foreground text-center py-2">No user found with that ID.</p>
+          <p className="text-sm text-muted-foreground text-center py-2">No user found with that code.</p>
         )}
 
         {result?.found && !sent && (

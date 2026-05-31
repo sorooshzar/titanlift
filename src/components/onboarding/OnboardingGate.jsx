@@ -35,6 +35,13 @@ export default function OnboardingGate({ children }) {
       const savedTheme = userStorage.getItem("gym-theme");
       if (savedTheme) applyTheme(savedTheme);
 
+      // Generate a friend code if the user doesn't have one yet
+      if (!user.friend_code) {
+        const digits = Array.from({ length: 12 }, () => Math.floor(Math.random() * 10)).join("");
+        const code = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}`;
+        await base44.auth.updateMe({ friend_code: code });
+      }
+
       // After OAuth sign-up redirect, recover & save pending onboarding answers
       const pending = sessionStorage.getItem("pending_onboarding");
       if (pending && !user.onboarding_completed) {

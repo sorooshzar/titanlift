@@ -12,7 +12,11 @@
     },
     "username": {
       "type": "string",
-      "description": "Unique display username (used for friends system)"
+      "description": "Unique display username"
+    },
+    "friend_code": {
+      "type": "string",
+      "description": "Short 12-digit numeric friend code formatted as XXXX-XXXX-XXXX"
     },
     "onboarding_completed": {
       "type": "boolean",
@@ -20,7 +24,6 @@
     },
     "goal": {
       "type": "string",
-      "description": "Primary fitness goal",
       "enum": [
         "build_muscle",
         "lose_fat",
