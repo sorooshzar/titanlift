@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Clock, Dumbbell, ChevronRight, BarChart3, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Dumbbell, ChevronRight, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,19 +29,37 @@ function CalendarView({ logs, onSelectDay }) {
     logsByDay[key].push(log);
   });
 
+  const totalThisMonth = Object.keys(logsByDay).filter(k => k.startsWith(format(month, "yyyy-MM"))).length;
+
   return (
-    <div className="bg-card rounded-xl border border-border p-4">
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1))} className="text-muted-foreground px-2 text-sm font-medium">‹</button>
-        <span className="text-sm font-bold">{format(month, "MMMM yyyy")}</span>
-        <button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1))} className="text-muted-foreground px-2 text-sm font-medium">›</button>
+    <div className="bg-card rounded-2xl border border-border p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-1">
+        <button
+          onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1))}
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors text-muted-foreground font-bold text-base"
+        >‹</button>
+        <div className="text-center">
+          <span className="text-sm font-bold">{format(month, "MMMM yyyy")}</span>
+          {totalThisMonth > 0 && (
+            <p className="text-[10px] text-primary font-medium mt-0.5">{totalThisMonth} workout{totalThisMonth !== 1 ? "s" : ""}</p>
+          )}
+        </div>
+        <button
+          onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1))}
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary transition-colors text-muted-foreground font-bold text-base"
+        >›</button>
       </div>
-      <div className="grid grid-cols-7 mb-2">
+
+      {/* Day labels */}
+      <div className="grid grid-cols-7 mb-1 mt-3">
         {["Su","Mo","Tu","We","Th","Fr","Sa"].map((d) => (
           <div key={d} className="text-center text-[10px] font-semibold text-muted-foreground py-1">{d}</div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1">
+
+      {/* Days grid */}
+      <div className="grid grid-cols-7 gap-y-1">
         {Array(firstDayOffset).fill(null).map((_, i) => <div key={`e-${i}`} />)}
         {days.map((day) => {
           const key = format(day, "yyyy-MM-dd");
@@ -49,12 +67,19 @@ function CalendarView({ logs, onSelectDay }) {
           const hasLog = dayLogs.length > 0;
           const isToday = isSameDay(day, new Date());
           return (
-            <button key={key} onClick={() => hasLog && onSelectDay(day, dayLogs)}
-              className={`aspect-square rounded-lg flex items-center justify-center text-xs font-semibold relative transition-all
-                ${isToday ? "ring-1 ring-primary" : ""}
-                ${hasLog ? "bg-primary/20 text-primary" : "text-foreground hover:bg-secondary"}`}>
+            <button
+              key={key}
+              onClick={() => hasLog && onSelectDay(day, dayLogs)}
+              disabled={!hasLog}
+              className={`aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-semibold relative transition-all active:scale-90
+                ${isToday && !hasLog ? "ring-1 ring-primary/60 text-primary" : ""}
+                ${hasLog ? "bg-primary text-primary-foreground shadow-sm active:bg-primary/80" : "text-foreground/60"}
+              `}
+            >
               {format(day, "d")}
-              {hasLog && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />}
+              {hasLog && dayLogs.length > 1 && (
+                <span className="text-[8px] font-bold opacity-80 leading-none mt-0.5">{dayLogs.length}x</span>
+              )}
             </button>
           );
         })}
@@ -182,7 +207,6 @@ export default function WorkoutHistory() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { unit: weightUnit, toDisplay } = useWeightUnit();
-  const [showCalendar, setShowCalendar] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
   const [dayLogs, setDayLogs] = useState(null);
 
@@ -215,20 +239,9 @@ export default function WorkoutHistory() {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h1 className="text-xl font-bold flex-1">History</h1>
-        <Button
-          variant={showCalendar ? "default" : "secondary"}
-          size="sm"
-          className="gap-1.5 text-xs rounded-full"
-          onClick={() => setShowCalendar(!showCalendar)}
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Calendar
-        </Button>
       </div>
 
-      {showCalendar && (
-        <CalendarView logs={logs} onSelectDay={handleSelectDay} />
-      )}
+      <CalendarView logs={logs} onSelectDay={handleSelectDay} />
 
       {dayLogs && (
         <div className="bg-card rounded-xl border border-border p-4">
