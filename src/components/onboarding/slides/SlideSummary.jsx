@@ -75,9 +75,9 @@ export default function SlideSummary({ answers, onFinish }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
         onClick={onFinish}
-        className="w-full h-14 rounded-2xl bg-primary text-white text-base font-bold shadow-lg shadow-primary/30"
+        className="w-full h-14 rounded-2xl bg-primary text-white text-base font-bold shadow-lg shadow-primary/30 active:scale-[0.97] transition-transform"
       >
-        Create Account →
+        Create My Account →
       </motion.button>
     </div>
   );

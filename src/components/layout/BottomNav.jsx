@@ -66,7 +66,8 @@ export default function BottomNav() {
                 {active && (
                   <motion.div
                     layoutId="tab-indicator"
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-5 h-[2.5px] bg-primary rounded-full"
+                    className="absolute top-0 w-5 h-[2.5px] bg-primary rounded-full"
+                    style={{ left: "50%", transform: "translateX(-50%)" }}
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                   />
                 )}

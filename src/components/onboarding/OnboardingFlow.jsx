@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { base44 } from "@/api/base44Client";
-import { initUserStorage, userStorage } from "@/components/utils/userStorage";
-
 import SlideWelcome from "./slides/SlideWelcome";
 import SlideGoal from "./slides/SlideGoal";
 import SlideExperience from "./slides/SlideExperience";
@@ -35,10 +32,9 @@ const SLIDES = [
   { id: "summary",      component: SlideSummary,       title: "All Set!" },
 ];
 
-export default function OnboardingFlow({ onComplete }) {
+export default function OnboardingFlow({ onComplete, onLoginRequested }) {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [saving, setSaving] = useState(false);
   const [answers, setAnswers] = useState({
     goal: null,
     goal_weight_kg: null,
@@ -78,65 +74,9 @@ export default function OnboardingFlow({ onComplete }) {
     if (step > 0) { setDirection(-1); setStep(s => s - 1); }
   };
 
-  const handleFinish = async () => {
-    setSaving(true);
-    try {
-      const user = await base44.auth.me();
-      initUserStorage(user.id);
-
-      await base44.auth.updateMe({
-        onboarding_completed: true,
-        goal: answers.goal,
-        goal_weight_kg: answers.goal_weight_kg,
-        goal_timeline_weeks: answers.goal_timeline_weeks,
-        experience_level: answers.experience_level,
-        sex: answers.sex,
-        age: answers.age,
-        height_cm: answers.height_cm,
-        weight_kg: answers.weight_kg,
-        body_fat_pct: answers.body_fat_pct,
-        activity_level: answers.activity_level,
-        workout_days_per_week: answers.workout_days_per_week,
-        nutrition_tracking: answers.nutrition_tracking,
-        daily_calories: answers.daily_calories,
-        daily_protein: answers.daily_protein,
-        daily_carbs: answers.daily_carbs,
-        daily_fat: answers.daily_fat,
-        weight_unit: answers.weight_unit,
-        week_start: answers.week_start,
-        workout_style: answers.workout_style,
-      });
-
-      // Mirror to userStorage for local reads
-      if (answers.weight_unit) userStorage.setItem("gym-weight-unit", answers.weight_unit);
-      if (answers.distance_unit) userStorage.setItem("gym-distance-unit", answers.distance_unit);
-      if (answers.week_start) userStorage.setItem("gym-week-start", answers.week_start === "sunday" ? "0" : "1");
-      if (answers.daily_calories) {
-        userStorage.setItem("gym-macro-calories", String(answers.daily_calories));
-        userStorage.setItem("gym-macro-protein", String(answers.daily_protein || 0));
-        userStorage.setItem("gym-macro-carbs", String(answers.daily_carbs || 0));
-        userStorage.setItem("gym-macro-fat", String(answers.daily_fat || 0));
-      }
-      if (answers.goal_weight_kg) userStorage.setItem("gym-goal-weight", String(answers.goal_weight_kg));
-      if (answers.goal_timeline_weeks) userStorage.setItem("gym-goal-weeks", String(answers.goal_timeline_weeks));
-
-      // Create initial body records
-      if (answers.weight_kg) {
-        await base44.entities.BodyWeight.create({
-          weight: answers.weight_kg, unit: "kg", date: new Date().toISOString().split("T")[0],
-        });
-      }
-      if (answers.height_cm) {
-        await base44.entities.BodyMeasurement.create({
-          body_part: "Height", value: answers.height_cm, unit: "cm", date: new Date().toISOString().split("T")[0],
-        });
-      }
-
-      onComplete();
-    } catch (e) {
-      console.error("Onboarding save failed:", e);
-      setSaving(false);
-    }
+  const handleFinish = () => {
+    // Pass answers up — actual save happens in SignUpScreen after account creation
+    onComplete(answers);
   };
 
   const variants = {
@@ -181,7 +121,7 @@ export default function OnboardingFlow({ onComplete }) {
               updateMany={updateMany}
               onNext={goNext}
               onFinish={isLast ? handleFinish : undefined}
-              saving={saving}
+              onLoginRequested={onLoginRequested}
             />
           </motion.div>
         </AnimatePresence>
