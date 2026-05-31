@@ -122,7 +122,7 @@ export default function Friends() {
     <div className="max-w-lg mx-auto min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-3">
-        <div className="flex items-center justify-between">
+        <div className="relative flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
@@ -130,7 +130,7 @@ export default function Friends() {
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
 
-          <div className="text-center">
+          <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none">
             <h1 className="text-base font-bold">Friends</h1>
             {currentUser?.username && (
               <p className="text-[11px] text-muted-foreground">@{currentUser.username}</p>

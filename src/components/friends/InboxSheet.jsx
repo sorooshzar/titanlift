@@ -20,7 +20,11 @@ export default function InboxSheet({ currentUser, requests, onClose, onRefresh }
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center" onClick={onClose}>
-      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 p-6 space-y-4" onClick={e => e.stopPropagation()}>
+      <div
+        className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 p-6 space-y-4"
+        style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+        onClick={e => e.stopPropagation()}
+      >
         <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto -mt-1 mb-1" />
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-base">Friend Requests</h2>
