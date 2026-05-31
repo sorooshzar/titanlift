@@ -2,12 +2,10 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { AuthProvider } from '@/lib/AuthContext';
 import OnboardingGate from '@/components/onboarding/OnboardingGate';
-import SignIn from '@/pages/SignIn';
 import FoodPreview from '@/pages/FoodPreview';
 import ExerciseSelector from '@/pages/ExerciseSelector';
 import Friends from '@/pages/Friends';
@@ -26,27 +24,7 @@ const RouteContent = ({ children }) => {
 };
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-  const location = useLocation();
-
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    }
-    // For auth_required, fall through to OnboardingGate which handles unauthenticated users
-  }
-
-  // Render the main app
+  // OnboardingGate is the single state machine: handles loading, auth, onboarding, and app
   return (
     <OnboardingGate>
       <Routes>
@@ -70,11 +48,6 @@ const AuthenticatedApp = () => {
               }
             />
           ))}
-          <Route path="/SignIn" element={
-            <RouteContent pageKey="/SignIn">
-              <SignIn />
-            </RouteContent>
-          } />
           <Route path="/ExerciseSelector" element={
             <RouteContent pageKey="/ExerciseSelector">
               <LayoutWrapper currentPageName="ExerciseSelector">
