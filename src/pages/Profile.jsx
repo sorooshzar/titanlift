@@ -80,12 +80,11 @@ function ProfileInfoPanel({ user, onClose, xp }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center" onClick={onClose}>
-      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40"
+      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 overflow-y-auto"
         onClick={e => e.stopPropagation()}
-        style={{ maxHeight: "88vh", display: "flex", flexDirection: "column" }}>
+        style={{ maxHeight: "88vh" }}>
 
-        {/* Fixed top section */}
-        <div className="p-6 pb-4 space-y-4 shrink-0">
+        <div className="p-6 pb-8 space-y-4">
           {/* iOS drag handle */}
           <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto -mt-1 mb-1" />
           <div className="flex items-center justify-between">
@@ -135,10 +134,8 @@ function ProfileInfoPanel({ user, onClose, xp }) {
               Sign Out
             </button>
           </div>
-        </div>
 
-        {/* Scrollable medals section */}
-        <div className="overflow-y-auto px-6 pb-8 pt-2 flex-1">
+          {/* Medals section — fully reachable by scrolling */}
           <MedalsBook unlockedIds={[]} />
         </div>
       </div>
