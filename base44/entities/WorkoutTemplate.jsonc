@@ -26,6 +26,14 @@
       "type": "string",
       "description": "Optional workout note or description"
     },
+    "shared_from_email": {
+      "type": "string",
+      "description": "Email of the user who shared this workout (optional)"
+    },
+    "shared_from_name": {
+      "type": "string",
+      "description": "Display name of the user who shared this workout (optional)"
+    },
     "exercises": {
       "type": "array",
       "description": "Exercise configurations",

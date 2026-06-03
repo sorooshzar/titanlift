@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { MoreVertical, Play, Pencil, Copy, Trash2, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X, Palette } from "lucide-react";
+import { MoreVertical, Play, Pencil, Copy, Trash2, Archive, FolderInput, ArchiveRestore, NotebookPen, Check, X, Palette, Share2 } from "lucide-react";
+import ShareWorkoutSheet from "./ShareWorkoutSheet";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -36,6 +37,7 @@ export default function WorkoutCard({
   const [noteValue, setNoteValue] = useState(template.notes || "");
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
 
   const regularFolders = folders.filter(f => f.name !== "Archived");
 
@@ -129,6 +131,9 @@ export default function WorkoutCard({
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
             )}
+            <DropdownMenuItem onClick={() => setShowShareSheet(true)}>
+              <Share2 className="w-4 h-4 mr-2" /> Share
+            </DropdownMenuItem>
             {isArchived && onUnarchive ? (
               <DropdownMenuItem onClick={() => onUnarchive(template)}>
                 <ArchiveRestore className="w-4 h-4 mr-2" /> Remove from Archive
@@ -182,6 +187,11 @@ export default function WorkoutCard({
             </button>
           </div>
         </div>
+      )}
+
+      {/* Share Sheet */}
+      {showShareSheet && (
+        <ShareWorkoutSheet template={template} onClose={() => setShowShareSheet(false)} />
       )}
 
       {/* Inline Note Editor */}
