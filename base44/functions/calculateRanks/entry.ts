@@ -174,12 +174,12 @@ Deno.serve(async (req) => {
     }
 
     // Get latest body weight — default to 80kg if none logged
-    const bodyWeights = await base44.asServiceRole.entities.BodyWeight.filter({ created_by: user.email }, "-date", 1);
+    const bodyWeights = await base44.entities.BodyWeight.filter({ created_by: user.email }, "-date", 1);
     const rawBW = bodyWeights[0]?.weight;
     const bodyweightKg = (rawBW && rawBW > 0) ? rawBW : 80;
 
     // Load ALL prior logs to find personal bests (for anchor lift detection)
-    const allLogs = await base44.asServiceRole.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 200);
+    const allLogs = await base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 200);
 
     // Build a map: exercise_id → best historical e1RM (from ALL logs excluding current)
     const historicalBestE1RM = {};
@@ -230,8 +230,8 @@ Deno.serve(async (req) => {
       };
     });
 
-    // Persist updated exercises back to the log
-    await base44.asServiceRole.entities.WorkoutLog.update(workoutLogId, {
+    // Persist updated exercises back to the log (use user-scoped client to satisfy RLS)
+    await base44.entities.WorkoutLog.update(workoutLogId, {
       exercises: updatedExercises,
     });
 
@@ -271,11 +271,11 @@ Deno.serve(async (req) => {
     });
 
     // Persist muscle ranks to UserMuscleRank entity
-    const existing = await base44.asServiceRole.entities.UserMuscleRank.filter({ created_by: user.email }, null, 1000);
-    await Promise.all(existing.map(e => base44.asServiceRole.entities.UserMuscleRank.delete(e.id)));
+    const existing = await base44.entities.UserMuscleRank.filter({ created_by: user.email }, null, 1000);
+    await Promise.all(existing.map(e => base44.entities.UserMuscleRank.delete(e.id)));
     await Promise.all(
       Object.entries(muscleRanks).map(([muscle, rank]) =>
-        base44.asServiceRole.entities.UserMuscleRank.create({ muscle, rank })
+        base44.entities.UserMuscleRank.create({ muscle, rank })
       )
     );
 

@@ -48,6 +48,7 @@ export function ActiveWorkoutProvider({ children }) {
       template_id: template?.id || null,
       exercises: (template?.exercises || []).map(ex => ({
         ...ex,
+        muscle_group: ex.muscle_group || ex.primary_muscle || null,
         sets: (ex.sets || []).map(s => ({
           ...s,
           completed: false,
