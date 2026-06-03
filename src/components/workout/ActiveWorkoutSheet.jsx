@@ -176,21 +176,21 @@ export default function ActiveWorkoutSheet() {
 
     endWorkout({ ...logData, id: createdLog.id });
 
-    // Small delay so React can flush state update before navigation
-    await new Promise(r => setTimeout(r, 50));
+    // Wait for React to flush the completedLog state before navigating
+    await new Promise(r => setTimeout(r, 100));
 
     confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, ticks: 120 });
-    navigate(createPageUrl("WorkoutSummary"));
+    navigate("/WorkoutSummary");
   };
 
   const handleMinimize = () => {
     minimize();
-    navigate(createPageUrl("Lifts"));
+    navigate("/Lifts");
   };
 
   const handleExpand = () => {
     expand();
-    navigate(createPageUrl("ActiveWorkout"));
+    navigate("/ActiveWorkout");
   };
 
   // Touch/mouse drag handlers for the drag handle (minimize on swipe down)
@@ -324,7 +324,7 @@ export default function ActiveWorkoutSheet() {
             <Button
               variant="outline"
               className="w-full h-12 rounded-xl border-dashed text-muted-foreground mt-3"
-              onClick={() => navigate(createPageUrl("ExerciseSelector") + `?returnTo=${encodeURIComponent(location.pathname)}`)}
+              onClick={() => navigate(`/ExerciseSelector?returnTo=${encodeURIComponent(location.pathname)}`)}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Exercise
@@ -342,7 +342,7 @@ export default function ActiveWorkoutSheet() {
         confirmLabel="Close Workout"
         cancelLabel="Cancel"
         confirmDestructive
-        onConfirm={() => { setShowCancelConfirm(false); endWorkout(); navigate(createPageUrl("Lifts")); }}
+        onConfirm={() => { setShowCancelConfirm(false); endWorkout(); navigate("/Lifts"); }}
         onCancel={() => setShowCancelConfirm(false)}
       />
 
