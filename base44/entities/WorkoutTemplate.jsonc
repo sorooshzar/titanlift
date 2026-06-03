@@ -75,6 +75,12 @@
                 },
                 "rir": {
                   "type": "number"
+                },
+                "rest_duration": {
+                  "type": "number"
+                },
+                "rest_duration_locked": {
+                  "type": "boolean"
                 }
               }
             }
