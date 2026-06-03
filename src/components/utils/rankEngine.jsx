@@ -12,10 +12,12 @@ export const RANKS = [
 
 // Base e1RM/bodyweight thresholds for compound lifts.
 // Index i = floor of RANKS[i]. Scale per muscle adjusts these for isolation lifts.
-const BASE_THRESHOLDS = [0.1, 0.4, 0.7, 1.1, 1.5, 2.0, 2.5, 3.0, 3.5, 99];
+// CANONICAL — must match calculateRanks backend function exactly.
+export const BASE_THRESHOLDS = [0.1, 0.4, 0.7, 1.1, 1.5, 2.0, 2.5, 3.0, 3.5, 99];
 
 // Scale factor per muscle: 1.0 = big compound, lower = isolation
-const MUSCLE_SCALE = {
+// CANONICAL — must match calculateRanks backend function exactly.
+export const MUSCLE_SCALE = {
   "Quads":           1.0,
   "Hamstrings":      0.85,
   "Glutes":          0.9,

@@ -12,8 +12,11 @@ const RANKS = [
   { name: "olympian", label: "Olympian" },
 ];
 
-// Thresholds for impressiveness score (after applying gender-adjusted factors)
-const BASE_THRESHOLDS = [0.2, 0.5, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 99];
+// ─── CANONICAL CONSTANTS ────────────────────────────────────────────────────
+// Source of truth: src/components/utils/rankEngine.jsx
+// Keep these in sync manually — Deno functions cannot import frontend modules.
+// ────────────────────────────────────────────────────────────────────────────
+const BASE_THRESHOLDS = [0.1, 0.4, 0.7, 1.1, 1.5, 2.0, 2.5, 3.0, 3.5, 99];
 
 const MUSCLE_SCALE = {
   "Quads":           1.0,
@@ -39,25 +42,30 @@ const MUSCLE_SCALE = {
   "Brachioradialis": 0.4,
 };
 
-// Anchor lifts per muscle — the canonical exercise used as reference
 const MUSCLE_ANCHOR = {
-  "Upper Chest":     "Incline",
+  "Upper Chest":     "Incline Bench Press",
   "Mid/Low Chest":   "Bench Press",
   "Quads":           "Squat",
   "Hamstrings":      "Romanian Deadlift",
   "Glutes":          "Hip Thrust",
   "Lats":            "Lat Pulldown",
   "Mid Back":        "Barbell Row",
-  "Traps":           "Shrug",
+  "Traps":           "Barbell Shrug",
   "Rear Delt":       "Face Pull",
   "Front Delt":      "Overhead Press",
   "Side Delt":       "Lateral Raise",
-  "Biceps":          "Bicep Curl",
+  "Biceps":          "Barbell Curl",
   "Triceps":         "Tricep Pushdown",
   "Calves":          "Calf Raise",
   "Abs":             "Cable Crunch",
   "Erectors":        "Deadlift",
+  "Obliques":        "Weighted Side Bend",
+  "Adductors":       "Adductor Machine",
+  "Abductors":       "Abductor Machine",
+  "Wrist Flexor":    "Wrist Curl",
+  "Brachioradialis": "Hammer Curl",
 };
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Impressiveness factors per exercise
 const IMPRESSIVENESS_FACTORS = {
