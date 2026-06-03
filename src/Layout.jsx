@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import BottomNav from "./components/layout/BottomNav";
 import { ActiveWorkoutProvider, useActiveWorkout } from "./components/workout/ActiveWorkoutContext";
 import ActiveWorkoutSheet from "./components/workout/ActiveWorkoutSheet";
+import { RestTimerProvider } from "./components/workout/RestTimerContext";
+import RestTimerBar from "./components/workout/RestTimerBar";
 
 const HIDDEN_NAV_PAGES = ["ActiveWorkout", "EditWorkout", "WorkoutHistory", "Measurements", "Settings", "ExerciseSelector"];
 
@@ -34,7 +36,9 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <ActiveWorkoutProvider>
-      <InnerLayout hideNav={hideNav}>{children}</InnerLayout>
+      <RestTimerProvider>
+        <InnerLayout hideNav={hideNav}>{children}</InnerLayout>
+      </RestTimerProvider>
     </ActiveWorkoutProvider>
   );
 }
@@ -50,6 +54,7 @@ function InnerLayout({ children, hideNav }) {
       </div>
       {!hideNav && <BottomNav />}
       <ActiveWorkoutSheet />
+      <RestTimerBar />
     </div>
   );
 }

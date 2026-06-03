@@ -9,9 +9,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SetTable from "./SetTable";
+import RestDurationPicker from "./RestDurationPicker";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { userStorage } from "@/components/utils/userStorage";
 
 const EXERCISE_COLORS = [
   null, "#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4",
@@ -33,8 +35,11 @@ export default function ExerciseBlock({
   onSetCompleted,     // (set) => void — fires when a set is toggled to completed
 }) {
   const [showNotes, setShowNotes] = useState(!!exercise.notes);
+  const [showRestEditor, setShowRestEditor] = useState(false);
   const navigate = useNavigate();
   const notesDebounceRef = useRef(null);
+
+  const defaultRestDuration = parseInt(userStorage.getItem("gym-isolation-rest") || "90");
 
   const updateSets = (newSets) => onChange({ ...exercise, sets: newSets });
 
@@ -112,8 +117,8 @@ export default function ExerciseBlock({
               </DropdownMenuItem>
             )}
 
-            <DropdownMenuItem className="text-muted-foreground" onSelect={(e) => e.preventDefault()}>
-              <Timer className="w-3.5 h-3.5 mr-2" /> Update Rest Timer
+            <DropdownMenuItem onClick={() => setShowRestEditor(v => !v)}>
+              <Timer className="w-3.5 h-3.5 mr-2 text-primary" /> Update Rest Timer
             </DropdownMenuItem>
             {onReplace && (
               <DropdownMenuItem onClick={onReplace}>
@@ -154,6 +159,14 @@ export default function ExerciseBlock({
       <div className="px-2 pb-3">
         <SetTable sets={exercise.sets || []} onChange={updateSets} isActive={isActive} previousSets={previousSets} onSetCompleted={onSetCompleted} />
       </div>
+
+      {/* Rest duration editor — collapsible */}
+      <RestDurationPicker
+        open={showRestEditor}
+        sets={exercise.sets || []}
+        onChange={updateSets}
+        defaultDuration={defaultRestDuration}
+      />
     </div>
   );
 }

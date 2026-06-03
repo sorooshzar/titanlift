@@ -4,6 +4,7 @@ import { userStorage } from "@/components/utils/userStorage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Plus, Check, Timer, ChevronUp } from "lucide-react";
+import { useRestTimer } from "./RestTimerContext";
 import ExerciseList from "./ExerciseList";
 import { useActiveWorkout } from "@/components/workout/ActiveWorkoutContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -36,12 +37,9 @@ export default function ActiveWorkoutSheet() {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [elapsed, setElapsed] = useState(0);
-  const [restSeconds, setRestSeconds] = useState(0);
-  const [restTotal, setRestTotal] = useState(0);
-  const [restActive, setRestActive] = useState(false);
   const timerRef = useRef(null);
-  const restIntervalRef = useRef(null);
   const dragStartY = useRef(null);
+  const { start: startRestTimer } = useRestTimer();
   const sheetRef = useRef(null);
   const miniBarDragStart = useRef(null);
   const notesInitializedFor = useRef(null);
@@ -92,44 +90,19 @@ export default function ActiveWorkoutSheet() {
     }));
   }, [allExercises, workout?.startTime, updateWorkout]);
 
-  // Cleanup rest timer on unmount
-  useEffect(() => () => clearInterval(restIntervalRef.current), []);
-
-  const startRestTimer = (duration) => {
-    clearInterval(restIntervalRef.current);
-    setRestTotal(duration);
-    setRestSeconds(duration);
-    setRestActive(true);
-    restIntervalRef.current = setInterval(() => {
-      setRestSeconds(prev => {
-        if (prev <= 1) {
-          clearInterval(restIntervalRef.current);
-          setRestActive(false);
-          if (userStorage.getItem("gym-timer-sound") !== "false") {
-            try { new Audio("https://www.soundjay.com/buttons/sounds/button-09a.mp3").play(); } catch {}
-          }
-          if (userStorage.getItem("gym-timer-vibration") !== "false" && navigator.vibrate) {
-            navigator.vibrate([200, 100, 200]);
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  function isCompound(exercise) {
-    const compounds = ["quads", "hamstrings", "glutes", "lats", "mid back", "erectors", "upper chest", "mid/low chest"];
-    return compounds.some(m => (exercise?.muscle_group || "").toLowerCase().includes(m));
-  }
-
   const handleSetCompleted = (set, exercise) => {
     const autoStart = userStorage.getItem("gym-auto-start-rest") === "true";
     if (!autoStart) return;
-    const duration =
-      set.type === "warmup"    ? parseInt(userStorage.getItem("gym-warmup-rest")   || "60")  :
-      isCompound(exercise)     ? parseInt(userStorage.getItem("gym-compound-rest") || "180") :
-                                 parseInt(userStorage.getItem("gym-isolation-rest") || "90");
+    // Use per-set rest_duration if set, otherwise fall back to global settings
+    let duration = set.rest_duration;
+    if (!duration) {
+      const isCompound = ["quads", "hamstrings", "glutes", "lats", "mid back", "erectors", "upper chest", "mid/low chest"]
+        .some(m => (exercise?.muscle_group || "").toLowerCase().includes(m));
+      duration =
+        set.type === "warmup" ? parseInt(userStorage.getItem("gym-warmup-rest")   || "60") :
+        isCompound            ? parseInt(userStorage.getItem("gym-compound-rest") || "180") :
+                                parseInt(userStorage.getItem("gym-isolation-rest") || "90");
+    }
     startRestTimer(duration);
   };
 
@@ -324,19 +297,10 @@ export default function ActiveWorkoutSheet() {
 
               <div className="text-center pointer-events-none">
                 <p className="text-sm font-bold">{workout.name}</p>
-                <button
-                  className="flex items-center justify-center gap-1 text-xs text-primary pointer-events-auto"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const dur = parseInt(userStorage.getItem("gym-compound-rest") || "180");
-                    startRestTimer(dur);
-                  }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  title="Start rest timer"
-                >
+                <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
                   <Timer className="w-3 h-3" />
                   <span className="font-mono">{formatTime(elapsed)}</span>
-                </button>
+                </div>
               </div>
 
               <Button
@@ -375,34 +339,7 @@ export default function ActiveWorkoutSheet() {
           </div>
         </div>
 
-        {/* Rest timer banner — inside the sheet flex column */}
-        {(restActive || restSeconds > 0) && (
-          <div className="border-t border-border bg-card px-4 py-2.5 flex-shrink-0">
-            <div className="max-w-lg mx-auto flex items-center gap-3">
-              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-1000"
-                  style={{ width: `${restTotal > 0 ? (restSeconds / restTotal) * 100 : 0}%` }}
-                />
-              </div>
-              <span className="text-sm font-mono font-bold text-primary w-10 text-right">
-                {restSeconds > 0 ? `${Math.floor(restSeconds / 60)}:${String(restSeconds % 60).padStart(2, "0")}` : "Done"}
-              </span>
-              <button
-                onClick={() => startRestTimer(restTotal)}
-                className="text-base text-muted-foreground hover:text-foreground transition-colors px-1"
-              >
-                ↺
-              </button>
-              <button
-                onClick={() => { clearInterval(restIntervalRef.current); setRestActive(false); setRestSeconds(0); }}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        )}
+
       </div>
 
       <ConfirmDialog

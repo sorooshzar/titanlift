@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { createSuperset } from "./supersetUtils";
 
+function getDefaultRestDurations() {
+  return {
+    warmup:  parseInt(localStorage.getItem("gym-warmup-rest")   || "60"),
+    working: parseInt(localStorage.getItem("gym-isolation-rest") || "90"),
+  };
+}
+
 const STORAGE_KEY = "titanlift-active-workout";
 
 const ActiveWorkoutContext = createContext(null);
@@ -32,12 +39,17 @@ export function ActiveWorkoutProvider({ children }) {
   }, [workout]);
 
   const startWorkout = useCallback((template) => {
+    const defaults = getDefaultRestDurations();
     const session = {
       name: template?.name || "Quick Workout",
       template_id: template?.id || null,
       exercises: (template?.exercises || []).map(ex => ({
         ...ex,
-        sets: (ex.sets || []).map(s => ({ ...s, completed: false })),
+        sets: (ex.sets || []).map(s => ({
+          ...s,
+          completed: false,
+          rest_duration: s.rest_duration ?? (s.type === "warmup" ? defaults.warmup : defaults.working),
+        })),
       })),
       startTime: new Date().toISOString(),
     };
@@ -64,6 +76,7 @@ export function ActiveWorkoutProvider({ children }) {
   const addExercisesToWorkout = useCallback((exercisesToAdd, asSuperset = false) => {
     setWorkout(prev => {
       if (!prev) return prev;
+      const defaults = getDefaultRestDurations();
       const newExercises = exercisesToAdd.map((exercise, i) => ({
         exercise_id: exercise.id,
         exercise_name: exercise.name,
@@ -73,8 +86,8 @@ export function ActiveWorkoutProvider({ children }) {
         notes: exercise.notes || null,
         order: prev.exercises.length + i,
         sets: [
-          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false },
-          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false },
+          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false, rest_duration: defaults.warmup },
+          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false, rest_duration: defaults.working },
         ],
       }));
       const combined = [...prev.exercises, ...newExercises];
