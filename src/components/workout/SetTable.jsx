@@ -107,7 +107,7 @@ function TapCell({ value, onTap, placeholder = "0", className = "" }) {
 }
 
 /* ── main component ────────────────────────────────────── */
-export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [], onSetCompleted, showRestEditor = false, onCollapseRest, muscleGroup = "" }) {
+export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [], onSetCompleted, showRestEditor = false, onCollapseRest, movementType = "" }) {
   const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
 
   // activeKey: { setIndex, field } | null
@@ -169,7 +169,7 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
 
   const addSet = (type = "working") => {
     const last = sets.filter(s => s.type !== "warmup").slice(-1)[0];
-    onChange([...sets, { type, weight: last?.weight || 0, reps: last?.reps || 0, rir: last?.rir ?? 2, completed: false, rest_duration: getRestDurationForSet(type, muscleGroup), rest_duration_locked: false }]);
+    onChange([...sets, { type, weight: last?.weight || 0, reps: last?.reps || 0, rir: last?.rir ?? 2, completed: false, rest_duration: getRestDurationForSet(type, movementType), rest_duration_locked: false }]);
   };
 
   const removeSet = (index) => onChange(sets.filter((_, i) => i !== index));
@@ -238,8 +238,8 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
 
             // If user hasn't manually locked a rest time, always read live from settings
             const currentRestDuration = set.rest_duration_locked
-              ? (set.rest_duration ?? getRestDurationForSet(set.type, muscleGroup))
-              : getRestDurationForSet(set.type, muscleGroup);
+              ? (set.rest_duration ?? getRestDurationForSet(set.type, movementType))
+              : getRestDurationForSet(set.type, movementType);
 
             return (
               <React.Fragment key={index}>

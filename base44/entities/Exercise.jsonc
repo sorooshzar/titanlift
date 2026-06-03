@@ -30,6 +30,14 @@
       ],
       "description": "Equipment category"
     },
+    "movement_type": {
+      "type": "string",
+      "enum": [
+        "compound",
+        "isolation"
+      ],
+      "description": "Compound (multi-joint) or Isolation (single-joint) movement"
+    },
     "instructions": {
       "type": "string",
       "description": "How to perform the exercise"

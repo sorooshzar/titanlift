@@ -92,8 +92,8 @@ export default function ActiveWorkoutSheet() {
   const handleSetCompleted = (set, exercise) => {
     // Use locked duration if manually set, otherwise always read live from settings
     const duration = set.rest_duration_locked
-      ? (set.rest_duration || getRestDurationForSet(set.type, exercise?.muscle_group))
-      : getRestDurationForSet(set.type, exercise?.muscle_group);
+      ? (set.rest_duration || getRestDurationForSet(set.type, exercise?.movement_type))
+      : getRestDurationForSet(set.type, exercise?.movement_type);
     startRestTimer(duration);
   };
 

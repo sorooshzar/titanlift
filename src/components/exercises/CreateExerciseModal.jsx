@@ -13,6 +13,7 @@ export default function CreateExerciseModal({ open, onClose }) {
   const [primaryMuscle, setPrimaryMuscle] = useState("");
   const [secondaryMuscles, setSecondaryMuscles] = useState([]);
   const [category, setCategory] = useState("");
+  const [movementType, setMovementType] = useState("");
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
 
@@ -28,6 +29,7 @@ export default function CreateExerciseModal({ open, onClose }) {
       primary_muscle: primaryMuscle,
       secondary_muscles: secondaryMuscles,
       category: category || "other",
+      movement_type: movementType || undefined,
     });
     queryClient.invalidateQueries({ queryKey: ["exercises"] });
     setSaving(false);
@@ -35,6 +37,7 @@ export default function CreateExerciseModal({ open, onClose }) {
     setPrimaryMuscle("");
     setSecondaryMuscles([]);
     setCategory("");
+    setMovementType("");
     onClose();
   };
 
@@ -111,6 +114,29 @@ export default function CreateExerciseModal({ open, onClose }) {
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             </div>
+          </div>
+
+          {/* Movement Type */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Movement Type</label>
+            <div className="flex gap-2">
+              {["compound", "isolation"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setMovementType(prev => prev === type ? "" : type)}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-semibold capitalize transition-all ${
+                    movementType === type
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/70"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Compound = multi-joint (presses, rows, deadlifts). Isolation = single-joint (curls, extensions, flyes).
+            </p>
           </div>
 
           {/* Secondary Muscles — multi-select chips */}

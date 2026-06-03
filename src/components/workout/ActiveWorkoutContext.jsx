@@ -2,18 +2,11 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { createSuperset } from "./supersetUtils";
 import { userStorage } from "@/components/utils/userStorage";
 
-export function isCompoundMuscle(muscleGroup) {
-  if (!muscleGroup) return false;
-  const m = muscleGroup.toLowerCase();
-  return ["quads", "hamstrings", "glutes", "lats", "mid back", "erectors", "upper chest", "mid/low chest", "chest", "back", "legs", "shoulders"]
-    .some(comp => m.includes(comp));
-}
-
-export function getRestDurationForSet(setType, muscleGroup) {
+export function getRestDurationForSet(setType, movementType) {
   if (setType === "warmup") {
     return parseInt(userStorage.getItem("gym-warmup-rest") || "60");
   }
-  if (isCompoundMuscle(muscleGroup)) {
+  if (movementType === "compound") {
     return parseInt(userStorage.getItem("gym-compound-rest") || "180");
   }
   return parseInt(userStorage.getItem("gym-isolation-rest") || "90");
@@ -58,7 +51,7 @@ export function ActiveWorkoutProvider({ children }) {
         sets: (ex.sets || []).map(s => ({
           ...s,
           completed: false,
-          rest_duration: s.rest_duration_locked ? s.rest_duration : getRestDurationForSet(s.type, ex.muscle_group || ex.primary_muscle),
+          rest_duration: s.rest_duration_locked ? s.rest_duration : getRestDurationForSet(s.type, ex.movement_type),
           rest_duration_locked: s.rest_duration_locked ?? false,
         })),
       })),
@@ -91,13 +84,14 @@ export function ActiveWorkoutProvider({ children }) {
         exercise_id: exercise.id,
         exercise_name: exercise.name,
         muscle_group: exercise.primary_muscle,
+        movement_type: exercise.movement_type || null,
         color: null,
         superset_group: null,
         notes: exercise.notes || null,
         order: prev.exercises.length + i,
         sets: [
-          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false, rest_duration: getRestDurationForSet("warmup", exercise.primary_muscle), rest_duration_locked: false },
-          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false, rest_duration: getRestDurationForSet("working", exercise.primary_muscle), rest_duration_locked: false },
+          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false, rest_duration: getRestDurationForSet("warmup", exercise.movement_type), rest_duration_locked: false },
+          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false, rest_duration: getRestDurationForSet("working", exercise.movement_type), rest_duration_locked: false },
         ],
       }));
       const combined = [...prev.exercises, ...newExercises];
