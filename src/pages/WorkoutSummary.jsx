@@ -5,7 +5,7 @@ import { useActiveWorkout } from "../components/workout/ActiveWorkoutContext";
 import { motion } from "framer-motion";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
 import { base44 } from "@/api/base44Client";
-import { RANKS } from "@/components/utils/rankEngine";
+import { RANKS, BASE_THRESHOLDS, MUSCLE_SCALE } from "@/components/utils/rankEngine";
 
 function formatDuration(minutes) {
   if (!minutes) return "—";
@@ -46,57 +46,76 @@ export default function WorkoutSummary() {
     return () => clearTimeout(t);
   }, []);
 
-  // Calculate ranks once we have the captured log
+  // Calculate ranks client-side immediately using the same engine as the body model,
+  // then fire the backend in the background to persist to DB.
   useEffect(() => {
-    // Use ref (synchronously captured) OR wait for effect to set it
     const log = capturedLogRef.current || completedLog;
     if (!log?.id) return;
 
-    const calculate = async () => {
+    const calculateClientSide = async () => {
       setLoading(true);
       try {
         const user = await base44.auth.me();
-        const response = await base44.functions.invoke("calculateRanks", {
-          workoutLogId: log.id,
-          userGender: user?.sex || "male",
-          exercises: log.exercises,
-        });
+        const bodyWeights = await base44.entities.BodyWeight.filter(
+          { created_by: user.email }, "-date", 1
+        );
+        const rawBW = bodyWeights[0]?.weight;
+        const bodyweightKg = (rawBW && rawBW > 0) ? rawBW : 80;
+        const userGender = user?.sex || "male";
 
-        const apiExercises = response?.data?.updatedLog?.exercises;
-        if (!apiExercises || apiExercises.length === 0) {
-          console.warn("[WorkoutSummary] No exercises returned from calculateRanks");
-          return;
-        }
+        // Compute rank for every exercise from its sets
+        const rankedExercises = (log.exercises || []).map(ex => {
+          // Find best e1RM across all completed working sets
+          let maxE1rm = 0;
+          (ex.sets || []).forEach(s => {
+            if (s.completed && s.type !== "warmup" && s.weight > 0 && s.reps > 0) {
+              const e1rm = s.weight * (1 + s.reps / 30); // Epley
+              if (e1rm > maxE1rm) maxE1rm = e1rm;
+            }
+          });
 
-        // Build rank map keyed by exercise_id (fallback to name)
-        const rankMap = {};
-        apiExercises.forEach(ex => {
-          const key = ex.exercise_id || ex.exercise_name;
-          rankMap[key] = {
-            rank: ex.rank,
-            impressiveness_score: ex.impressiveness_score,
-            is_personal_best: ex.is_personal_best,
-            best_e1rm: ex.best_e1rm,
+          if (maxE1rm === 0) return ex; // no working sets — no rank
+
+          // e1RM ratio relative to bodyweight
+          const ratio = maxE1rm / bodyweightKg;
+
+          // Use muscle_group for scale; fall back to generic 0.7
+          const muscle = ex.muscle_group || null;
+          const scale = (muscle && MUSCLE_SCALE[muscle]) ? MUSCLE_SCALE[muscle] : 0.7;
+          const thresholds = BASE_THRESHOLDS.map(t => t * scale);
+
+          // Find rank index
+          let rankIndex = 0;
+          for (let i = 0; i < RANKS.length; i++) {
+            if (ratio >= thresholds[i]) rankIndex = i;
+            else break;
+          }
+
+          return {
+            ...ex,
+            rank: RANKS[rankIndex].name,
+            impressiveness_score: Math.round(ratio * scale * 100) / 100,
+            best_e1rm: Math.round(maxE1rm * 10) / 10,
           };
         });
 
-        // Merge rank data onto the captured log's exercises (preserving set data)
-        const mergedExercises = log.exercises.map(ex => {
-          const key = ex.exercise_id || ex.exercise_name;
-          const rankData = rankMap[key] || {};
-          return { ...ex, ...rankData };
-        });
+        setDisplayLog({ ...log, exercises: rankedExercises });
 
-        setDisplayLog({ ...log, exercises: mergedExercises });
+        // Fire backend in background to persist ranks to DB (don't await for UI)
+        base44.functions.invoke("calculateRanks", {
+          workoutLogId: log.id,
+          userGender,
+          exercises: log.exercises,
+        }).catch(err => console.warn("[WorkoutSummary] Background rank persist failed:", err));
+
       } catch (err) {
         console.error("[WorkoutSummary] Error calculating ranks:", err);
-        // Keep displaying without ranks — don't blank the screen
       } finally {
         setLoading(false);
       }
     };
 
-    calculate();
+    calculateClientSide();
   }, []); // run once on mount
 
   const handleDone = () => {
