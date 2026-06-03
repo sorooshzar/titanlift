@@ -438,7 +438,7 @@ export default function Profile() {
               {!showRecovery && (
                 <button
                   onClick={() => setShowRankTester(true)}
-                  className="-mt-5 w-[85%] flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
+                  className="-mt-10 w-[85%] flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
                 >
                   <FlaskConical className="w-4 h-4 text-primary" />
                   <span className="text-[10px] font-semibold text-foreground leading-tight text-center">Rank Tester</span>
