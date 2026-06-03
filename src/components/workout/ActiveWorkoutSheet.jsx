@@ -299,7 +299,7 @@ export default function ActiveWorkoutSheet() {
 
   return (
     <>
-      <div ref={sheetRef} className="fixed inset-0 z-50 bg-background flex flex-col relative">
+      <div ref={sheetRef} className="fixed inset-0 z-50 bg-background flex flex-col">
         {/* Drag zone — handle + header combined */}
         <div
           className="cursor-grab active:cursor-grabbing select-none"
@@ -353,7 +353,7 @@ export default function ActiveWorkoutSheet() {
         </div>
 
         {/* Exercises — scrollable with DnD reorder */}
-        <div className="flex-1 overflow-y-auto pt-4 pb-8" style={{ paddingBottom: (restActive || restSeconds > 0) ? "56px" : "32px" }}>
+        <div className="flex-1 overflow-y-auto pt-4 pb-8">
           <div className="max-w-lg mx-auto px-4">
             <ExerciseList
               exercises={workout.exercises}
@@ -378,7 +378,7 @@ export default function ActiveWorkoutSheet() {
 
       {/* Rest timer banner */}
       {(restActive || restSeconds > 0) && (
-        <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-card px-4 py-2.5">
+        <div className="border-t border-border bg-card px-4 py-2.5 flex-shrink-0">
           <div className="max-w-lg mx-auto flex items-center gap-3">
             <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
               <div
