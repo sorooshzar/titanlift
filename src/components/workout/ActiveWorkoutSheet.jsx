@@ -374,36 +374,36 @@ export default function ActiveWorkoutSheet() {
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Rest timer banner */}
-      {(restActive || restSeconds > 0) && (
-        <div className="border-t border-border bg-card px-4 py-2.5 flex-shrink-0">
-          <div className="max-w-lg mx-auto flex items-center gap-3">
-            <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-1000"
-                style={{ width: `${restTotal > 0 ? (restSeconds / restTotal) * 100 : 0}%` }}
-              />
+        {/* Rest timer banner — inside the sheet flex column */}
+        {(restActive || restSeconds > 0) && (
+          <div className="border-t border-border bg-card px-4 py-2.5 flex-shrink-0">
+            <div className="max-w-lg mx-auto flex items-center gap-3">
+              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-1000"
+                  style={{ width: `${restTotal > 0 ? (restSeconds / restTotal) * 100 : 0}%` }}
+                />
+              </div>
+              <span className="text-sm font-mono font-bold text-primary w-10 text-right">
+                {restSeconds > 0 ? `${Math.floor(restSeconds / 60)}:${String(restSeconds % 60).padStart(2, "0")}` : "Done"}
+              </span>
+              <button
+                onClick={() => startRestTimer(restTotal)}
+                className="text-base text-muted-foreground hover:text-foreground transition-colors px-1"
+              >
+                ↺
+              </button>
+              <button
+                onClick={() => { clearInterval(restIntervalRef.current); setRestActive(false); setRestSeconds(0); }}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <span className="text-sm font-mono font-bold text-primary w-10 text-right">
-              {restSeconds > 0 ? `${Math.floor(restSeconds / 60)}:${String(restSeconds % 60).padStart(2, "0")}` : "Done"}
-            </span>
-            <button
-              onClick={() => startRestTimer(restTotal)}
-              className="text-base text-muted-foreground hover:text-foreground transition-colors px-1"
-            >
-              ↺
-            </button>
-            <button
-              onClick={() => { clearInterval(restIntervalRef.current); setRestActive(false); setRestSeconds(0); }}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <ConfirmDialog
         open={showCancelConfirm}
