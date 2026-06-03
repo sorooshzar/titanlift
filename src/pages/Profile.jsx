@@ -420,14 +420,14 @@ export default function Profile() {
                   </div>
                   <button
                     onClick={() => setShowRankTester(true)}
-                    className="-mt-6 w-[85%] flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
+                    className="-mt-14 w-[85%] flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
                   >
                     <FlaskConical className="w-4 h-4 text-primary" />
                     <span className="text-[10px] font-semibold text-foreground leading-tight text-center">Rank Tester</span>
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-2.5 justify-center flex-1">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">Recovery</p>
                   {[
                     { name: "Ready", color: "#22c55e" },
