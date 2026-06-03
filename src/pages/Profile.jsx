@@ -411,12 +411,21 @@ export default function Profile() {
             </div>
 
             {/* Legend + Rank Tester button — right of model */}
-            <div className="flex flex-col items-start justify-between ml-2 flex-1 self-stretch">
+            <div className="flex flex-col items-start ml-2 flex-1 self-stretch">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
                 {showRecovery ? "Recovery" : "Rank"}
               </p>
               {!showRecovery ? (
-                <RankLegend />
+                <div className="flex flex-col flex-1 w-full justify-between">
+                  <RankLegend />
+                  <button
+                    onClick={() => setShowRankTester(true)}
+                    className="mt-3 w-[85%] flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
+                  >
+                    <FlaskConical className="w-4 h-4 text-primary" />
+                    <span className="text-[10px] font-semibold text-foreground leading-tight text-center">Rank Tester</span>
+                  </button>
+                </div>
               ) : (
                 <div className="flex flex-col gap-2.5">
                   {[
@@ -432,17 +441,6 @@ export default function Profile() {
                     </div>
                   ))}
                 </div>
-              )}
-
-              {/* Rank Tester button — below the legend */}
-              {!showRecovery && (
-                <button
-                  onClick={() => setShowRankTester(true)}
-                  className="-mt-10 w-[85%] flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
-                >
-                  <FlaskConical className="w-4 h-4 text-primary" />
-                  <span className="text-[10px] font-semibold text-foreground leading-tight text-center">Rank Tester</span>
-                </button>
               )}
             </div>
           </div>
