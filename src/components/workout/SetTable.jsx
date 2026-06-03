@@ -107,7 +107,7 @@ function TapCell({ value, onTap, placeholder = "0", className = "" }) {
 }
 
 /* ── main component ────────────────────────────────────── */
-export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [], onSetCompleted, showRestEditor = false, muscleGroup = "" }) {
+export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [], onSetCompleted, showRestEditor = false, onCollapseRest, muscleGroup = "" }) {
   const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
 
   // activeKey: { setIndex, field } | null
@@ -120,7 +120,8 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
       : (currentValue != null && currentValue !== 0 ? String(currentValue) : "");
     setActiveKey({ setIndex, field });
     setKbValue(display);
-  }, [toDisplay]);
+    if (showRestEditor && onCollapseRest) onCollapseRest();
+  }, [toDisplay, showRestEditor, onCollapseRest]);
 
   const commitKb = useCallback(() => {
     if (!activeKey) return;

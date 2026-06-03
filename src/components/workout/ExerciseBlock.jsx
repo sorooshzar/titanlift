@@ -161,6 +161,7 @@ export default function ExerciseBlock({
           previousSets={previousSets}
           onSetCompleted={onSetCompleted}
           showRestEditor={showRestEditor}
+          onCollapseRest={() => setShowRestEditor(false)}
           muscleGroup={exercise.muscle_group}
         />
       </div>
