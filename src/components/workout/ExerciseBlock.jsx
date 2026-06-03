@@ -30,6 +30,7 @@ export default function ExerciseBlock({
   onMakeSuperset,     // () => void — open superset picker
   onLeaveSuperset,    // () => void — remove this exercise from its superset
   accentColor,        // override left border color when inside a SupersetBlock
+  onSetCompleted,     // (set) => void — fires when a set is toggled to completed
 }) {
   const [showNotes, setShowNotes] = useState(!!exercise.notes);
   const navigate = useNavigate();
@@ -151,7 +152,7 @@ export default function ExerciseBlock({
 
       {/* Sets */}
       <div className="px-2 pb-3">
-        <SetTable sets={exercise.sets || []} onChange={updateSets} isActive={isActive} previousSets={previousSets} />
+        <SetTable sets={exercise.sets || []} onChange={updateSets} isActive={isActive} previousSets={previousSets} onSetCompleted={onSetCompleted} />
       </div>
     </div>
   );

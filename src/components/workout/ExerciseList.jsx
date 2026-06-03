@@ -20,7 +20,7 @@ import {
  *  - prevSetsMap: { exercise_id -> sets[] }
  *  - droppableId: string
  */
-export default function ExerciseList({ exercises, onChange, isActive = false, prevSetsMap = {}, droppableId = "exercises" }) {
+export default function ExerciseList({ exercises, onChange, isActive = false, prevSetsMap = {}, droppableId = "exercises", onSetCompleted }) {
   const [supersetPickerFor, setSupersetPickerFor] = useState(null); // index of exercise opening the picker
 
   const labelMap = buildSupersetLabelMap(exercises);
@@ -106,6 +106,7 @@ export default function ExerciseList({ exercises, onChange, isActive = false, pr
                             dragHandleProps={dragProvided.dragHandleProps}
                             onMakeSuperset={() => handleMakeSuperset(index)}
                             onLeaveSuperset={null}
+                            onSetCompleted={onSetCompleted ? (set) => onSetCompleted(set, exercise) : undefined}
                           />
                         </div>
                       )}
@@ -131,15 +132,16 @@ export default function ExerciseList({ exercises, onChange, isActive = false, pr
                         className={`transition-shadow ${dragSnapshot.isDragging ? "shadow-2xl rounded-xl" : ""}`}
                       >
                         <SupersetBlock
-                          label={label}
-                          members={members}
-                          isActive={isActive}
-                          prevSetsMap={prevSetsMap}
-                          onDissolve={() => handleDissolve(supersetId)}
-                          onExerciseChange={handleExerciseChange}
-                          onExerciseRemove={handleRemoveExercise}
-                          onLeaveSuperset={handleLeaveSuperset}
-                          dragHandlePropsMap={{ [firstIndex]: dragProvided.dragHandleProps }}
+                         label={label}
+                         members={members}
+                         isActive={isActive}
+                         prevSetsMap={prevSetsMap}
+                         onDissolve={() => handleDissolve(supersetId)}
+                         onExerciseChange={handleExerciseChange}
+                         onExerciseRemove={handleRemoveExercise}
+                         onLeaveSuperset={handleLeaveSuperset}
+                         dragHandlePropsMap={{ [firstIndex]: dragProvided.dragHandleProps }}
+                         onSetCompleted={onSetCompleted}
                         />
                       </div>
                     )}

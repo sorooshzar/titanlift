@@ -89,7 +89,7 @@ function TapCell({ value, onTap, placeholder = "0", className = "" }) {
 }
 
 /* ── main component ────────────────────────────────────── */
-export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [] }) {
+export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [], onSetCompleted }) {
   const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
 
   // activeKey: { setIndex, field } | null
@@ -154,7 +154,13 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
   };
 
   const removeSet = (index) => onChange(sets.filter((_, i) => i !== index));
-  const toggleComplete = (index) => updateSet(index, "completed", !sets[index].completed);
+  const toggleComplete = (index) => {
+    const newCompleted = !sets[index].completed;
+    updateSet(index, "completed", newCompleted);
+    if (newCompleted && onSetCompleted) {
+      onSetCompleted(sets[index]);
+    }
+  };
 
   // pre-compute working labels
   const workingLabels = [];

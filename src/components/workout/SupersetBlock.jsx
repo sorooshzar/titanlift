@@ -5,7 +5,7 @@ import ExerciseBlock from "./ExerciseBlock";
 /**
  * Renders a group of exercises visually tied together as a superset.
  */
-export default function SupersetBlock({ label, members, onExerciseChange, onExerciseRemove, onExerciseReplace, onLeaveSuperset, onDissolve, isActive, prevSetsMap, dragHandlePropsMap }) {
+export default function SupersetBlock({ label, members, onExerciseChange, onExerciseRemove, onExerciseReplace, onLeaveSuperset, onDissolve, isActive, prevSetsMap, dragHandlePropsMap, onSetCompleted }) {
   const accentColor = "#8b5cf6"; // purple accent for supersets
 
   return (
@@ -49,6 +49,7 @@ export default function SupersetBlock({ label, members, onExerciseChange, onExer
               dragHandleProps={dragHandlePropsMap?.[index]}
               accentColor={accentColor}
               onLeaveSuperset={onLeaveSuperset ? () => onLeaveSuperset(index) : undefined}
+              onSetCompleted={onSetCompleted ? (set) => onSetCompleted(set, exercise) : undefined}
             />
           ))}
         </div>
