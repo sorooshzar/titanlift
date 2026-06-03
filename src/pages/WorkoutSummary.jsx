@@ -220,24 +220,30 @@ export default function WorkoutSummary() {
               <div className="px-4 py-3 border-b border-border/60 flex items-center gap-3">
                 {rankInfo ? (
                   <div
-                    className="w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center text-xs font-bold shadow-sm"
+                    className="w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center text-sm font-bold shadow-sm"
                     style={{ backgroundColor: rankInfo.color, color: rankInfo.textColor }}
                   >
                     {rankInfo.label[0]}
                   </div>
                 ) : (
-                  <div className={`w-7 h-7 flex-shrink-0 rounded-full bg-secondary ${loading ? "animate-pulse" : ""}`} />
+                  <div className={`w-8 h-8 flex-shrink-0 rounded-full bg-secondary ${loading ? "animate-pulse" : ""}`} />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{ex.exercise_name}</p>
+                  <p className="text-sm font-semibold truncate mb-1.5">
+                    {ex.exercise_name}
+                    {ex.is_personal_best && " 🏆"}
+                  </p>
                   {rankInfo ? (
-                    <p className="text-xs text-muted-foreground">
-                      {rankInfo.label}
-                      {ex.impressiveness_score > 0 && ` · score ${ex.impressiveness_score.toFixed(2)}`}
-                      {ex.is_personal_best && " · 🏆 PR"}
-                    </p>
-                  ) : !loading ? (
-                    <p className="text-xs text-muted-foreground">No rank data</p>
+                    <div
+                      className="inline-flex items-center px-2 py-0.5 rounded-sm"
+                      style={{ backgroundColor: rankInfo.color }}
+                    >
+                      <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: rankInfo.textColor }}>
+                        {rankInfo.label}
+                      </span>
+                    </div>
+                  ) : loading ? (
+                    <div className="h-4 w-16 rounded-sm bg-secondary animate-pulse" />
                   ) : null}
                 </div>
               </div>
