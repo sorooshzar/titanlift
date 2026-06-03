@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 const MINUTE_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const SECOND_OPTIONS = [0, 15, 30, 45];
-const ITEM_HEIGHT = 28;
+const ITEM_HEIGHT = 22;
 
 export default function IosWheelPicker({ value, onChange }) {
   const minRef = useRef(null);
@@ -84,14 +84,14 @@ export default function IosWheelPicker({ value, onChange }) {
   };
 
   return (
-    <div className="relative flex items-center justify-center bg-secondary/40 border border-border/50 rounded-xl overflow-hidden select-none w-36 h-[84px]">
+    <div className="relative flex items-center justify-center bg-secondary/40 border border-border/50 rounded-xl overflow-hidden select-none w-28 h-[66px]">
       {/* Selection Highlight */}
-      <div className="absolute left-2 right-2 h-7 top-1/2 -translate-y-1/2 bg-primary/10 border-t border-b border-primary/25 rounded-lg pointer-events-none z-10" />
+      <div className="absolute left-2 right-2 h-[22px] top-1/2 -translate-y-1/2 bg-primary/10 border-t border-b border-primary/25 rounded-lg pointer-events-none z-10" />
 
       {/* Top fade */}
-      <div className="absolute inset-x-0 top-0 h-5 bg-gradient-to-b from-card/90 to-transparent pointer-events-none z-20" />
+      <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-card/90 to-transparent pointer-events-none z-20" />
       {/* Bottom fade */}
-      <div className="absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-card/90 to-transparent pointer-events-none z-20" />
+      <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-card/90 to-transparent pointer-events-none z-20" />
 
       <div className="flex items-center w-full h-full">
         {/* Minutes */}

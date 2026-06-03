@@ -90,8 +90,10 @@ export default function ActiveWorkoutSheet() {
   }, [allExercises, workout?.startTime, updateWorkout]);
 
   const handleSetCompleted = (set, exercise) => {
-    // Always start rest timer when a set is completed
-    const duration = set.rest_duration || getRestDurationForSet(set.type, exercise?.muscle_group);
+    // Use locked duration if manually set, otherwise always read live from settings
+    const duration = set.rest_duration_locked
+      ? (set.rest_duration || getRestDurationForSet(set.type, exercise?.muscle_group))
+      : getRestDurationForSet(set.type, exercise?.muscle_group);
     startRestTimer(duration);
   };
 

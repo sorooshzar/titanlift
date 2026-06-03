@@ -58,7 +58,8 @@ export function ActiveWorkoutProvider({ children }) {
         sets: (ex.sets || []).map(s => ({
           ...s,
           completed: false,
-          rest_duration: s.rest_duration ?? getRestDurationForSet(s.type, ex.muscle_group || ex.primary_muscle),
+          rest_duration: s.rest_duration_locked ? s.rest_duration : getRestDurationForSet(s.type, ex.muscle_group || ex.primary_muscle),
+          rest_duration_locked: s.rest_duration_locked ?? false,
         })),
       })),
       startTime: new Date().toISOString(),
@@ -95,8 +96,8 @@ export function ActiveWorkoutProvider({ children }) {
         notes: exercise.notes || null,
         order: prev.exercises.length + i,
         sets: [
-          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false, rest_duration: getRestDurationForSet("warmup", exercise.primary_muscle) },
-          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false, rest_duration: getRestDurationForSet("working", exercise.primary_muscle) },
+          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false, rest_duration: getRestDurationForSet("warmup", exercise.primary_muscle), rest_duration_locked: false },
+          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false, rest_duration: getRestDurationForSet("working", exercise.primary_muscle), rest_duration_locked: false },
         ],
       }));
       const combined = [...prev.exercises, ...newExercises];

@@ -169,8 +169,7 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
 
   const addSet = (type = "working") => {
     const last = sets.filter(s => s.type !== "warmup").slice(-1)[0];
-    const rest_duration = getRestDurationForSet(type, muscleGroup);
-    onChange([...sets, { type, weight: last?.weight || 0, reps: last?.reps || 0, rir: last?.rir ?? 2, completed: false, rest_duration }]);
+    onChange([...sets, { type, weight: last?.weight || 0, reps: last?.reps || 0, rir: last?.rir ?? 2, completed: false, rest_duration: getRestDurationForSet(type, muscleGroup), rest_duration_locked: false }]);
   };
 
   const removeSet = (index) => onChange(sets.filter((_, i) => i !== index));
@@ -237,8 +236,10 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
               ? kbValue
               : (set.rir != null && set.rir !== "" ? String(set.rir) : "");
 
-            const defaultDuration = getRestDurationForSet(set.type, muscleGroup);
-            const currentRestDuration = set.rest_duration ?? defaultDuration;
+            // If user hasn't manually locked a rest time, always read live from settings
+            const currentRestDuration = set.rest_duration_locked
+              ? (set.rest_duration ?? getRestDurationForSet(set.type, muscleGroup))
+              : getRestDurationForSet(set.type, muscleGroup);
 
             return (
               <React.Fragment key={index}>
@@ -326,7 +327,9 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
                         <div className="flex items-center gap-2">
                           <Timer className="w-3.5 h-3.5 text-primary shrink-0" />
                           <div>
-                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-none">Rest</p>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-none">
+                              {set.rest_duration_locked ? "Rest (locked)" : "Rest (auto)"}
+                            </p>
                             <p className="text-xs font-black text-primary leading-tight">
                               {Math.floor(currentRestDuration / 60)}m {String(currentRestDuration % 60).padStart(2, "0")}s
                             </p>
@@ -336,7 +339,7 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
                           value={currentRestDuration}
                           onChange={(newVal) => {
                             const updated = [...sets];
-                            updated[index] = { ...set, rest_duration: newVal };
+                            updated[index] = { ...set, rest_duration: newVal, rest_duration_locked: true };
                             onChange(updated);
                           }}
                         />
