@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Plus, Dumbbell, Search, Library, Star, CheckCircle2, Link2 } from "lucide-react";
+import { X, Plus, Search, Library, Star, CheckCircle2, Link2 } from "lucide-react";
+import MuscleGroupIcon from "@/components/utils/MuscleGroupIcon";
 import { motion, AnimatePresence } from "framer-motion";
 import ExerciseFilters from "@/components/exercises/ExerciseFilters";
 import CreateExerciseModal from "@/components/exercises/CreateExerciseModal";
@@ -177,7 +178,7 @@ export default function ExerciseSelector() {
                       }`}>
                         {isSelected
                           ? <CheckCircle2 className="w-4 h-4 text-primary" />
-                          : <Dumbbell className="w-4 h-4 text-muted-foreground" />
+                          : <MuscleGroupIcon muscle={ex.primary_muscle} size={16} className="text-muted-foreground" />
                         }
                       </div>
                       <div className="flex-1 min-w-0">
