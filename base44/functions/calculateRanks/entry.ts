@@ -161,25 +161,31 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { workoutLogId, userGender } = await req.json();
+    const { workoutLogId, userGender, exercises: clientExercises } = await req.json();
 
     if (!workoutLogId) {
       return Response.json({ error: 'workoutLogId required' }, { status: 400 });
     }
 
     // Get the just-completed workout log
-    const workoutLog = await base44.entities.WorkoutLog.get(workoutLogId);
+    const [workoutLog] = await base44.entities.WorkoutLog.filter({ id: workoutLogId });
     if (!workoutLog) {
       return Response.json({ error: 'Workout not found' }, { status: 404 });
     }
 
     // Get latest body weight — default to 80kg if none logged
-    const bodyWeights = await base44.entities.BodyWeight.filter({ created_by: user.email }, "-date", 1);
+    // Load all exercises for muscle group lookup — run in parallel
+    const [bodyWeights, allExercises, allLogs] = await Promise.all([
+      base44.entities.BodyWeight.filter({ created_by: user.email }, "-date", 1),
+      base44.asServiceRole.entities.Exercise.list(null, 500),
+      base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 200),
+    ]);
     const rawBW = bodyWeights[0]?.weight;
     const bodyweightKg = (rawBW && rawBW > 0) ? rawBW : 80;
 
-    // Load ALL prior logs to find personal bests (for anchor lift detection)
-    const allLogs = await base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 200);
+    // Build exercise id → primary_muscle lookup
+    const exerciseMuscleMap = {};
+    allExercises.forEach(ex => { exerciseMuscleMap[ex.id] = ex.primary_muscle; });
 
     // Build a map: exercise_id → best historical e1RM (from ALL logs excluding current)
     const historicalBestE1RM = {};
@@ -196,8 +202,15 @@ Deno.serve(async (req) => {
       });
     });
 
+    // Use client-provided exercises (live data with completed sets) if available, else DB copy
+    const sourceExercises = clientExercises || workoutLog.exercises || [];
+
     // Calculate impressiveness score for each exercise in the new log
-    const updatedExercises = (workoutLog.exercises || []).map(ex => {
+    const updatedExercises = sourceExercises.map(ex => {
+      // Enrich muscle_group from Exercise entity if missing
+      if (!ex.muscle_group && ex.exercise_id) {
+        ex = { ...ex, muscle_group: exerciseMuscleMap[ex.exercise_id] || null };
+      }
       const workingSets = (ex.sets || []).filter(s => s.completed && s.type !== "warmup");
       if (workingSets.length === 0) {
         return { ...ex, impressiveness_score: 0, rank: "wood", is_anchor_lift: false };

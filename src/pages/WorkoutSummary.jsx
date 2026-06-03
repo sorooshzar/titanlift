@@ -42,7 +42,8 @@ export default function WorkoutSummary() {
         
         const response = await base44.functions.invoke('calculateRanks', {
           workoutLogId: completedLog.id,
-          userGender: user?.gender || "male"
+          userGender: user?.gender || "male",
+          exercises: completedLog.exercises, // send live data with completed:true sets
         });
         
         // Merge rank data from API back into the local completedLog
