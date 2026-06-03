@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Scale, ChevronRight, Settings, X, Target, Plus, Ruler, Users } from "lucide-react";
+import { Scale, ChevronRight, Settings, X, Target, Plus, Ruler, Users, FlaskConical } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import MedalsBook from "../components/profile/MedalsBook";
@@ -22,6 +22,7 @@ import { computeRecovery } from "@/components/utils/recoveryEngine";
 import { computeMuscleRanks } from "@/components/utils/rankEngine";
 import { computeMuscleRanksFromLogs } from "@/components/utils/muscleRankCalculator";
 import MuscleRankModal from "../components/profile/MuscleRankModal";
+import RankTester from "../components/profile/RankTester";
 import NutritionRankCard from "../components/macros/NutritionRank";
 import { computeNutritionStreak } from "../components/macros/NutritionRank";
 
@@ -148,6 +149,7 @@ export default function Profile() {
   const [showRecovery, setShowRecovery] = useState(false);
   const [showLogWeight, setShowLogWeight] = useState(false);
   const [rankModalMuscle, setRankModalMuscle] = useState(null);
+  const [showRankTester, setShowRankTester] = useState(false);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
   const [showGoalInput, setShowGoalInput] = useState(false);
   const [goalWeightInput, setGoalWeightInput] = useState("");
@@ -435,6 +437,21 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Rank Tester Button */}
+        <button
+          onClick={() => setShowRankTester(true)}
+          className="w-full flex items-center gap-3 bg-card rounded-2xl border border-border px-4 py-3.5 text-left active:scale-[0.98] transition-all duration-150"
+        >
+          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <FlaskConical className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold">Rank Tester</p>
+            <p className="text-xs text-muted-foreground">Check what rank a set would earn</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+        </button>
+
         {/* Nutrition Rank Card */}
         <NutritionRankCard streak={nutritionStreak} />
           </div>
@@ -446,6 +463,9 @@ export default function Profile() {
       {showLogWeight && <LogWeightModal onClose={() => setShowLogWeight(false)} />}
       {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} xp={xp} />}
       {showAddTracker && <AddTrackerModal onClose={() => setShowAddTracker(false)} onAdded={refetchTrackers} />}
+      {showRankTester && (
+        <RankTester onClose={() => setShowRankTester(false)} bodyWeightKg={latestWeightKg} />
+      )}
       {rankModalMuscle && (
         <MuscleRankModal
           muscle={rankModalMuscle}
