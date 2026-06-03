@@ -169,7 +169,7 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
 
   const addSet = (type = "working") => {
     const last = sets.filter(s => s.type !== "warmup").slice(-1)[0];
-    onChange([...sets, { type, weight: last?.weight || 0, reps: last?.reps || 0, rir: last?.rir ?? 2, completed: false, rest_duration: getRestDurationForSet(type, movementType), rest_duration_locked: false }]);
+    onChange([...sets, { type, weight: last?.weight || 0, reps: last?.reps || 0, rir: last?.rir ?? 2, completed: false, rest_duration: undefined, rest_duration_locked: false }]);
   };
 
   const removeSet = (index) => onChange(sets.filter((_, i) => i !== index));
