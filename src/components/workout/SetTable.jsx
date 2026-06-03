@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from "react";
-import { Check, Plus, Flame, ChevronDown } from "lucide-react";
+import { Check, Plus, Flame, ChevronDown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -41,13 +41,28 @@ function SwipeableSetRow({ children, onRemove }) {
   const [dragX, setDragX]   = useState(0);
   const [swiped, setSwiped] = useState(false);
   const startX   = useRef(null);
+  const startY   = useRef(null);
   const dragging = useRef(false);
 
-  const onTouchStart = (e) => { startX.current = e.touches[0].clientX; dragging.current = true; };
-  const onTouchMove  = (e) => {
+  const onTouchStart = (e) => {
+    startX.current = e.touches[0].clientX;
+    startY.current = e.touches[0].clientY;
+    dragging.current = true;
+  };
+  const onTouchMove = (e) => {
     if (!dragging.current) return;
-    const diff = e.touches[0].clientX - startX.current;
-    if (diff < 0) setDragX(Math.max(diff, -SWIPE_THRESHOLD * 1.5));
+    const diffX = e.touches[0].clientX - startX.current;
+    const diffY = Math.abs(e.touches[0].clientY - startY.current);
+    // Only treat as horizontal swipe if X movement dominates Y movement
+    if (diffY > Math.abs(diffX) * 0.8) {
+      dragging.current = false;
+      setDragX(0);
+      return;
+    }
+    if (diffX < 0) {
+      e.preventDefault();
+      setDragX(Math.max(diffX, -SWIPE_THRESHOLD * 1.5));
+    }
   };
   const onTouchEnd = () => {
     dragging.current = false;
@@ -64,9 +79,10 @@ function SwipeableSetRow({ children, onRemove }) {
     >
       {/* delete reveal */}
       <div
-        className="absolute inset-y-0 right-0 flex items-center justify-end pr-3 rounded-lg bg-destructive/80 pointer-events-none"
+        className="absolute inset-y-0 right-0 flex items-center justify-end gap-1 pr-3 rounded-lg bg-destructive pointer-events-none"
         style={{ width: Math.min(Math.abs(dragX), SWIPE_THRESHOLD * 1.5), opacity: Math.min(Math.abs(dragX) / SWIPE_THRESHOLD, 1) }}
       >
+        <Trash2 className="w-3.5 h-3.5 text-white" />
         <span className="text-white text-xs font-bold">Delete</span>
       </div>
       {children}
