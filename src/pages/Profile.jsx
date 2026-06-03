@@ -413,14 +413,14 @@ export default function Profile() {
             {/* Legend + Rank Tester button — right of model */}
             <div className="flex flex-col items-start ml-2 flex-1 self-stretch">
               {!showRecovery ? (
-                <div className="flex flex-col flex-1 w-full justify-between pt-8">
+                <div className="flex flex-col flex-1 w-full justify-between pt-10">
                   <div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">Rank</p>
                     <RankLegend />
                   </div>
                   <button
                     onClick={() => setShowRankTester(true)}
-                    className="mt-3 w-[85%] flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
+                    className="mt-1 w-[85%] flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
                   >
                     <FlaskConical className="w-4 h-4 text-primary" />
                     <span className="text-[10px] font-semibold text-foreground leading-tight text-center">Rank Tester</span>
