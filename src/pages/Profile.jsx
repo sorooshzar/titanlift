@@ -411,7 +411,7 @@ export default function Profile() {
             </div>
 
             {/* Legend + Rank Tester button — right of model */}
-            <div className="flex flex-col items-start justify-start ml-2 flex-1">
+            <div className="flex flex-col items-start justify-between ml-2 flex-1 self-stretch">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
                 {showRecovery ? "Recovery" : "Rank"}
               </p>
