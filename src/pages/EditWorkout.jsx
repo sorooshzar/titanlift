@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { X, Save, Plus, Link2, CheckSquare } from "lucide-react";
+import { X, Save, Plus, Link2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ExerciseList from "../components/workout/ExerciseList";
 import { EXERCISE_SELECTOR_KEY } from "./ExerciseSelector";
 import { createPageUrl } from "@/utils";
 import { createSuperset } from "../components/workout/supersetUtils";
+import { getRestDurationForSet } from "../components/workout/ActiveWorkoutContext";
 
 export default function EditWorkout() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -70,8 +71,8 @@ export default function EditWorkout() {
       superset_group: null,
       order: prev.length + i,
       sets: [
-        { type: "warmup", weight: 0, reps: 10, rir: 4 },
-        { type: "working", weight: 0, reps: 8, rir: 2 },
+        { type: "warmup", weight: 0, reps: 10, rir: 4, rest_duration: getRestDurationForSet("warmup", ex.primary_muscle) },
+        { type: "working", weight: 0, reps: 8, rir: 2, rest_duration: getRestDurationForSet("working", ex.primary_muscle) },
       ],
     }))]);
     isDirty.current = true;
@@ -96,8 +97,8 @@ export default function EditWorkout() {
             superset_group: null,
             order: prev.length + i,
             sets: [
-              { type: "warmup", weight: 0, reps: 10, rir: 4 },
-              { type: "working", weight: 0, reps: 8, rir: 2 },
+              { type: "warmup", weight: 0, reps: 10, rir: 4, rest_duration: getRestDurationForSet("warmup", ex.primary_muscle) },
+              { type: "working", weight: 0, reps: 8, rir: 2, rest_duration: getRestDurationForSet("working", ex.primary_muscle) },
             ],
           }));
           const combined = [...prev, ...newItems];
@@ -164,21 +165,21 @@ export default function EditWorkout() {
   return (
     <div className="max-w-lg mx-auto pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-lg border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between">
-          <button onClick={handleClose} className="p-1">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-lg border-b border-border px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3">
+        <div className="flex items-center gap-2">
+          <button onClick={handleClose} className="p-1 shrink-0">
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
           <input
             value={name}
             onChange={(e) => { isDirty.current = true; setName(e.target.value); }}
-            className="bg-transparent text-center text-sm font-bold focus:outline-none flex-1 mx-4"
+            className="bg-transparent text-center text-sm font-bold focus:outline-none flex-1 min-w-0"
             placeholder="Workout Name"
           />
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="h-10 px-5 rounded-xl text-sm font-semibold"
+            className="h-10 px-5 rounded-xl text-sm font-semibold shrink-0"
           >
             <Save className="w-4 h-4 mr-1.5" />
             {saving ? "Saving..." : "Save"}

@@ -15,7 +15,7 @@ import WorkoutCard from "./WorkoutCard";
 
 export default function FolderCard({
   folder, templates, folders = [],
-  onRenameFolder, onDeleteFolder,
+  onRenameFolder, onDeleteFolder, onWipeFolder,
   onEditWorkout, onDeleteWorkout, onDuplicateWorkout,
   onArchiveWorkout, onUnarchiveWorkout,
   onMoveToFolder, onUpdateNotes, onStartWorkout, onAddWorkout,
@@ -110,15 +110,23 @@ export default function FolderCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onAddWorkout && onAddWorkout(folder)}>
-                <Plus className="w-4 h-4 mr-2" /> Add Workout
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onRenameFolder(folder)}>
-                <Pencil className="w-4 h-4 mr-2" /> Rename
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDeleteFolder(folder)} className="text-destructive">
-                <Trash2 className="w-4 h-4 mr-2" /> Delete
-              </DropdownMenuItem>
+              {isArchiveFolder ? (
+                <DropdownMenuItem onClick={() => onWipeFolder && onWipeFolder(folder)} className="text-destructive">
+                  <Trash2 className="w-4 h-4 mr-2" /> Wipe Folder
+                </DropdownMenuItem>
+              ) : (
+                <>
+                  <DropdownMenuItem onClick={() => onAddWorkout && onAddWorkout(folder)}>
+                    <Plus className="w-4 h-4 mr-2" /> Add Workout
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onRenameFolder(folder)}>
+                    <Pencil className="w-4 h-4 mr-2" /> Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onDeleteFolder(folder)} className="text-destructive">
+                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

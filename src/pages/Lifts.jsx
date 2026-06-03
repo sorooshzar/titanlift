@@ -28,6 +28,7 @@ import { MUSCLE_HIERARCHY } from "../components/utils/muscleHierarchy";
 function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, setShowAiCoach }) {
   const [createType, setCreateType] = useState(null);
   const [folderToDelete, setFolderToDelete] = useState(null);
+  const [folderToWipe, setFolderToWipe] = useState(null);
   const [renamingFolder, setRenamingFolder] = useState(null); // folder object
   const [renameValue, setRenameValue] = useState("");
   const [addingWorkoutToFolder, setAddingWorkoutToFolder] = useState(null); // folder object
@@ -68,6 +69,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
   };
 
   const handleDeleteFolder = (folder) => setFolderToDelete(folder);
+  const handleWipeFolder = (folder) => setFolderToWipe(folder);
 
   const confirmDeleteFolder = async () => {
     const folder = folderToDelete;
@@ -76,6 +78,14 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
     await Promise.all(ft.map(t => base44.entities.WorkoutTemplate.delete(t.id)));
     await base44.entities.WorkoutFolder.delete(folder.id);
     queryClient.invalidateQueries({ queryKey: ["folders"] });
+    queryClient.invalidateQueries({ queryKey: ["templates"] });
+  };
+
+  const confirmWipeFolder = async () => {
+    const folder = folderToWipe;
+    setFolderToWipe(null);
+    const ft = templates.filter((t) => t.folder_id === folder.id);
+    await Promise.all(ft.map(t => base44.entities.WorkoutTemplate.delete(t.id)));
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
 
@@ -173,6 +183,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
   const folderProps = {
     templates, folders,
     onRenameFolder: handleRenameFolder, onDeleteFolder: handleDeleteFolder,
+    onWipeFolder: handleWipeFolder,
     onEditWorkout: handleEditWorkout, onDeleteWorkout: handleDeleteWorkout,
     onDuplicateWorkout: handleDuplicateWorkout, onArchiveWorkout: handleArchiveWorkout,
     onMoveToFolder: handleMoveToFolder, onUpdateNotes: handleUpdateNotes,
@@ -334,6 +345,25 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
             <div className="flex gap-2">
               <button onClick={() => setFolderToDelete(null)} className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">Cancel</button>
               <button onClick={confirmDeleteFolder} className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold">Delete All</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {folderToWipe && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 sm:items-center"
+          onClick={() => setFolderToWipe(null)}>
+          <div className="bg-card w-full max-w-sm rounded-2xl border border-border p-5 space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <div>
+              <h3 className="font-bold text-base">Wipe Archived Workouts?</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                This will permanently delete all {templates.filter(t => t.folder_id === folderToWipe.id).length} archived workout(s). The folder itself will remain. This cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setFolderToWipe(null)} className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">Cancel</button>
+              <button onClick={confirmWipeFolder} className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold">Wipe All</button>
             </div>
           </div>
         </div>

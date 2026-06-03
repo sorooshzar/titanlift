@@ -1,11 +1,22 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { createSuperset } from "./supersetUtils";
+import { userStorage } from "@/components/utils/userStorage";
 
-function getDefaultRestDurations() {
-  return {
-    warmup:  parseInt(localStorage.getItem("gym-warmup-rest")   || "60"),
-    working: parseInt(localStorage.getItem("gym-isolation-rest") || "90"),
-  };
+export function isCompoundMuscle(muscleGroup) {
+  if (!muscleGroup) return false;
+  const m = muscleGroup.toLowerCase();
+  return ["quads", "hamstrings", "glutes", "lats", "mid back", "erectors", "upper chest", "mid/low chest", "chest", "back", "legs", "shoulders"]
+    .some(comp => m.includes(comp));
+}
+
+export function getRestDurationForSet(setType, muscleGroup) {
+  if (setType === "warmup") {
+    return parseInt(userStorage.getItem("gym-warmup-rest") || "60");
+  }
+  if (isCompoundMuscle(muscleGroup)) {
+    return parseInt(userStorage.getItem("gym-compound-rest") || "180");
+  }
+  return parseInt(userStorage.getItem("gym-isolation-rest") || "90");
 }
 
 const STORAGE_KEY = "titanlift-active-workout";
@@ -39,7 +50,6 @@ export function ActiveWorkoutProvider({ children }) {
   }, [workout]);
 
   const startWorkout = useCallback((template) => {
-    const defaults = getDefaultRestDurations();
     const session = {
       name: template?.name || "Quick Workout",
       template_id: template?.id || null,
@@ -48,7 +58,7 @@ export function ActiveWorkoutProvider({ children }) {
         sets: (ex.sets || []).map(s => ({
           ...s,
           completed: false,
-          rest_duration: s.rest_duration ?? (s.type === "warmup" ? defaults.warmup : defaults.working),
+          rest_duration: s.rest_duration ?? getRestDurationForSet(s.type, ex.muscle_group || ex.primary_muscle),
         })),
       })),
       startTime: new Date().toISOString(),
@@ -76,7 +86,6 @@ export function ActiveWorkoutProvider({ children }) {
   const addExercisesToWorkout = useCallback((exercisesToAdd, asSuperset = false) => {
     setWorkout(prev => {
       if (!prev) return prev;
-      const defaults = getDefaultRestDurations();
       const newExercises = exercisesToAdd.map((exercise, i) => ({
         exercise_id: exercise.id,
         exercise_name: exercise.name,
@@ -86,8 +95,8 @@ export function ActiveWorkoutProvider({ children }) {
         notes: exercise.notes || null,
         order: prev.exercises.length + i,
         sets: [
-          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false, rest_duration: defaults.warmup },
-          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false, rest_duration: defaults.working },
+          { type: "warmup",  weight: 0, reps: 10, rir: 4, completed: false, rest_duration: getRestDurationForSet("warmup", exercise.primary_muscle) },
+          { type: "working", weight: 0, reps: 8,  rir: 2, completed: false, rest_duration: getRestDurationForSet("working", exercise.primary_muscle) },
         ],
       }));
       const combined = [...prev.exercises, ...newExercises];

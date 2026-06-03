@@ -9,11 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import SetTable from "./SetTable";
-import RestDurationPicker from "./RestDurationPicker";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { userStorage } from "@/components/utils/userStorage";
+
 
 const EXERCISE_COLORS = [
   null, "#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4",
@@ -38,8 +37,6 @@ export default function ExerciseBlock({
   const [showRestEditor, setShowRestEditor] = useState(false);
   const navigate = useNavigate();
   const notesDebounceRef = useRef(null);
-
-  const defaultRestDuration = parseInt(userStorage.getItem("gym-isolation-rest") || "90");
 
   const updateSets = (newSets) => onChange({ ...exercise, sets: newSets });
 
@@ -157,16 +154,16 @@ export default function ExerciseBlock({
 
       {/* Sets */}
       <div className="px-2 pb-3">
-        <SetTable sets={exercise.sets || []} onChange={updateSets} isActive={isActive} previousSets={previousSets} onSetCompleted={onSetCompleted} />
+        <SetTable
+          sets={exercise.sets || []}
+          onChange={updateSets}
+          isActive={isActive}
+          previousSets={previousSets}
+          onSetCompleted={onSetCompleted}
+          showRestEditor={showRestEditor}
+          muscleGroup={exercise.muscle_group}
+        />
       </div>
-
-      {/* Rest duration editor — collapsible */}
-      <RestDurationPicker
-        open={showRestEditor}
-        sets={exercise.sets || []}
-        onChange={updateSets}
-        defaultDuration={defaultRestDuration}
-      />
     </div>
   );
 }

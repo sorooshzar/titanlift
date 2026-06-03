@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { userStorage } from "@/components/utils/userStorage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Plus, Check, Timer, ChevronUp } from "lucide-react";
 import { useRestTimer } from "./RestTimerContext";
 import ExerciseList from "./ExerciseList";
-import { useActiveWorkout } from "@/components/workout/ActiveWorkoutContext";
+import { useActiveWorkout, getRestDurationForSet } from "@/components/workout/ActiveWorkoutContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { EXERCISE_SELECTOR_KEY } from "@/pages/ExerciseSelector";
@@ -91,18 +90,8 @@ export default function ActiveWorkoutSheet() {
   }, [allExercises, workout?.startTime, updateWorkout]);
 
   const handleSetCompleted = (set, exercise) => {
-    const autoStart = userStorage.getItem("gym-auto-start-rest") === "true";
-    if (!autoStart) return;
-    // Use per-set rest_duration if set, otherwise fall back to global settings
-    let duration = set.rest_duration;
-    if (!duration) {
-      const isCompound = ["quads", "hamstrings", "glutes", "lats", "mid back", "erectors", "upper chest", "mid/low chest"]
-        .some(m => (exercise?.muscle_group || "").toLowerCase().includes(m));
-      duration =
-        set.type === "warmup" ? parseInt(userStorage.getItem("gym-warmup-rest")   || "60") :
-        isCompound            ? parseInt(userStorage.getItem("gym-compound-rest") || "180") :
-                                parseInt(userStorage.getItem("gym-isolation-rest") || "90");
-    }
+    // Always start rest timer when a set is completed
+    const duration = set.rest_duration || getRestDurationForSet(set.type, exercise?.muscle_group);
     startRestTimer(duration);
   };
 

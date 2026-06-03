@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from "react";
-import { Check, Plus, Flame, ChevronDown, Trash2 } from "lucide-react";
+import { Check, Plus, Flame, ChevronDown, Trash2, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -7,6 +7,8 @@ import {
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
 import { motion, AnimatePresence } from "framer-motion";
 import NumericKeyboard from "./NumericKeyboard";
+import IosWheelPicker from "./IosWheelPicker";
+import { getRestDurationForSet } from "./ActiveWorkoutContext";
 
 /* ── helpers ───────────────────────────────────────────── */
 function getSetLabel(set, workingIndex) {
@@ -105,7 +107,7 @@ function TapCell({ value, onTap, placeholder = "0", className = "" }) {
 }
 
 /* ── main component ────────────────────────────────────── */
-export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [], onSetCompleted }) {
+export default function SetTable({ sets = [], onChange, isActive = false, previousSets = [], onSetCompleted, showRestEditor = false, muscleGroup = "" }) {
   const { unit: weightUnit, toDisplay, toKg } = useWeightUnit();
 
   // activeKey: { setIndex, field } | null
@@ -166,7 +168,8 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
 
   const addSet = (type = "working") => {
     const last = sets.filter(s => s.type !== "warmup").slice(-1)[0];
-    onChange([...sets, { type, weight: last?.weight || 0, reps: last?.reps || 0, rir: last?.rir ?? 2, completed: false }]);
+    const rest_duration = getRestDurationForSet(type, muscleGroup);
+    onChange([...sets, { type, weight: last?.weight || 0, reps: last?.reps || 0, rir: last?.rir ?? 2, completed: false, rest_duration }]);
   };
 
   const removeSet = (index) => onChange(sets.filter((_, i) => i !== index));
@@ -233,76 +236,114 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
               ? kbValue
               : (set.rir != null && set.rir !== "" ? String(set.rir) : "");
 
+            const defaultDuration = getRestDurationForSet(set.type, muscleGroup);
+            const currentRestDuration = set.rest_duration ?? defaultDuration;
+
             return (
-              <SwipeableSetRow key={index} onRemove={() => removeSet(index)}>
-                {isDropset && index > 0 && (
-                  <div className="flex items-center gap-1 pl-6 pb-0.5">
-                    <ChevronDown className="w-3 h-3 text-purple-400" />
-                    {sets[index - 1]?.weight && set.weight && sets[index - 1].weight > set.weight && (
-                      <span className="text-[10px] text-purple-400 font-medium">
-                        -{Math.round(((sets[index - 1].weight - set.weight) / sets[index - 1].weight) * 100)}%
-                      </span>
+              <React.Fragment key={index}>
+                <SwipeableSetRow onRemove={() => removeSet(index)}>
+                  {isDropset && index > 0 && (
+                    <div className="flex items-center gap-1 pl-6 pb-0.5">
+                      <ChevronDown className="w-3 h-3 text-purple-400" />
+                      {sets[index - 1]?.weight && set.weight && sets[index - 1].weight > set.weight && (
+                        <span className="text-[10px] text-purple-400 font-medium">
+                          -{Math.round(((sets[index - 1].weight - set.weight) / sets[index - 1].weight) * 100)}%
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className={`grid gap-1 px-1 py-1 items-center rounded-lg transition-colors ${isActive ? GRID_ACTIVE : GRID} ${getRowBg(set)}`}>
+                    {/* Set label — tappable in both modes */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="flex items-center justify-center w-full h-9 active:opacity-60 transition-opacity">
+                          <span className={`text-xs font-bold ${color}`}>{label}</span>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="text-xs">
+                        <DropdownMenuItem onClick={() => changeSetType(index, "working")}>Working Set</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeSetType(index, "warmup")} className="text-amber-500">Warm-up</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeSetType(index, "failure")} className="text-destructive">Failure Set</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeSetType(index, "dropset")} className="text-purple-400">Drop Set</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Previous */}
+                    <span className="text-xs text-muted-foreground truncate text-center tracking-wide">{prevLabel}</span>
+
+                    {/* Weight */}
+                    <TapCell
+                      value={displayWeight}
+                      onTap={() => openKb(index, "weight", set.weight)}
+                      placeholder="0"
+                      className={isActiveField("weight") ? "ring-1 ring-primary" : set.type === "failure" ? "text-destructive" : ""}
+                    />
+
+                    {/* Reps */}
+                    <TapCell
+                      value={displayReps}
+                      onTap={() => openKb(index, "reps", set.reps)}
+                      placeholder="0"
+                      className={isActiveField("reps") ? "ring-1 ring-primary" : ""}
+                    />
+
+                    {/* RIR */}
+                    <TapCell
+                      value={displayRir}
+                      onTap={() => openKb(index, "rir", set.rir)}
+                      placeholder="2"
+                      className={isActiveField("rir") ? "ring-1 ring-primary" : ""}
+                    />
+
+                    {/* 1RM% */}
+                    <span className={`text-[10px] font-semibold text-center ${pctColor}`}>{pctLabel}</span>
+
+                    {/* Complete checkbox */}
+                    {isActive && (
+                      <button onClick={() => toggleComplete(index)}
+                        className={`w-6 h-6 rounded-md flex items-center justify-center transition-all duration-150 active:scale-90 mx-auto ${
+                          set.completed ? "bg-primary text-white" : "bg-secondary text-muted-foreground"
+                        }`}>
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
                     )}
                   </div>
-                )}
+                </SwipeableSetRow>
 
-                <div className={`grid gap-1 px-1 py-1 items-center rounded-lg transition-colors ${isActive ? GRID_ACTIVE : GRID} ${getRowBg(set)}`}>
-                  {/* Set label — tappable in both modes */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="flex items-center justify-center w-full h-9 active:opacity-60 transition-opacity">
-                        <span className={`text-xs font-bold ${color}`}>{label}</span>
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="text-xs">
-                      <DropdownMenuItem onClick={() => changeSetType(index, "working")}>Working Set</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => changeSetType(index, "warmup")} className="text-amber-500">Warm-up</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => changeSetType(index, "failure")} className="text-destructive">Failure Set</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => changeSetType(index, "dropset")} className="text-purple-400">Drop Set</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Previous */}
-                  <span className="text-xs text-muted-foreground truncate text-center tracking-wide">{prevLabel}</span>
-
-                  {/* Weight */}
-                  <TapCell
-                    value={displayWeight}
-                    onTap={() => openKb(index, "weight", set.weight)}
-                    placeholder="0"
-                    className={isActiveField("weight") ? "ring-1 ring-primary" : set.type === "failure" ? "text-destructive" : ""}
-                  />
-
-                  {/* Reps */}
-                  <TapCell
-                    value={displayReps}
-                    onTap={() => openKb(index, "reps", set.reps)}
-                    placeholder="0"
-                    className={isActiveField("reps") ? "ring-1 ring-primary" : ""}
-                  />
-
-                  {/* RIR */}
-                  <TapCell
-                    value={displayRir}
-                    onTap={() => openKb(index, "rir", set.rir)}
-                    placeholder="2"
-                    className={isActiveField("rir") ? "ring-1 ring-primary" : ""}
-                  />
-
-                  {/* 1RM% */}
-                  <span className={`text-[10px] font-semibold text-center ${pctColor}`}>{pctLabel}</span>
-
-                  {/* Complete checkbox */}
-                  {isActive && (
-                    <button onClick={() => toggleComplete(index)}
-                      className={`w-6 h-6 rounded-md flex items-center justify-center transition-all duration-150 active:scale-90 mx-auto ${
-                        set.completed ? "bg-primary text-white" : "bg-secondary text-muted-foreground"
-                      }`}>
-                      <Check className="w-3.5 h-3.5" />
-                    </button>
+                {/* Inline rest timer row */}
+                <AnimatePresence initial={false}>
+                  {showRestEditor && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mx-1 mb-1 px-3 py-2 bg-secondary/30 rounded-lg border border-border/30 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <Timer className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <div>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-none">Rest</p>
+                            <p className="text-xs font-black text-primary leading-tight">
+                              {Math.floor(currentRestDuration / 60)}m {String(currentRestDuration % 60).padStart(2, "0")}s
+                            </p>
+                          </div>
+                        </div>
+                        <IosWheelPicker
+                          value={currentRestDuration}
+                          onChange={(newVal) => {
+                            const updated = [...sets];
+                            updated[index] = { ...set, rest_duration: newVal };
+                            onChange(updated);
+                          }}
+                        />
+                      </div>
+                    </motion.div>
                   )}
-                </div>
-              </SwipeableSetRow>
+                </AnimatePresence>
+              </React.Fragment>
             );
           })}
         </AnimatePresence>
