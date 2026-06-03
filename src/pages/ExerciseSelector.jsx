@@ -112,7 +112,7 @@ export default function ExerciseSelector() {
           </h1>
           <Button
             size="sm"
-            onClick={handleConfirm}
+            onClick={() => handleConfirm(false)}
             disabled={selected.length === 0}
             className="h-8 px-3 rounded-lg text-xs font-semibold shrink-0"
           >
