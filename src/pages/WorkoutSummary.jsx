@@ -229,7 +229,7 @@ export default function WorkoutSummary() {
                   <div className={`w-8 h-8 flex-shrink-0 rounded-full bg-secondary ${loading ? "animate-pulse" : ""}`} />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate mb-1">
+                  <p className="text-sm font-semibold truncate mb-0.5">
                     {ex.exercise_name}
                     {ex.is_personal_best && " 🏆"}
                   </p>
