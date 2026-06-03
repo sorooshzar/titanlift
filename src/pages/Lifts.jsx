@@ -27,6 +27,10 @@ import { MUSCLE_HIERARCHY } from "../components/utils/muscleHierarchy";
 function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, setShowAiCoach }) {
   const [createType, setCreateType] = useState(null);
   const [folderToDelete, setFolderToDelete] = useState(null);
+  const [renamingFolder, setRenamingFolder] = useState(null); // folder object
+  const [renameValue, setRenameValue] = useState("");
+  const [addingWorkoutToFolder, setAddingWorkoutToFolder] = useState(null); // folder object
+  const [addWorkoutValue, setAddWorkoutValue] = useState("");
   const [isDraggingOuter, setIsDraggingOuter] = useState(false);
 
   const archivedFolder = folders.find(f => f.name === SPECIAL_FOLDERS.ARCHIVED);
@@ -74,12 +78,16 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
 
-  const handleRenameFolder = async (folder) => {
-    const newName = prompt("Rename folder:", folder.name);
-    if (newName?.trim()) {
-      await base44.entities.WorkoutFolder.update(folder.id, { name: newName.trim() });
-      queryClient.invalidateQueries({ queryKey: ["folders"] });
-    }
+  const handleRenameFolder = (folder) => {
+    setRenameValue(folder.name);
+    setRenamingFolder(folder);
+  };
+
+  const confirmRenameFolder = async () => {
+    if (!renameValue.trim()) return;
+    await base44.entities.WorkoutFolder.update(renamingFolder.id, { name: renameValue.trim() });
+    queryClient.invalidateQueries({ queryKey: ["folders"] });
+    setRenamingFolder(null);
   };
 
   const handleEditWorkout = (t) => navigate(createPageUrl(`EditWorkout?id=${t.id}`));
@@ -113,11 +121,16 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
     queryClient.invalidateQueries({ queryKey: ["templates"] });
   };
   const handleStartWorkout = (t) => { startWorkout(t); navigate(createPageUrl("ActiveWorkout")); };
-  const handleAddWorkoutToFolder = async (folder) => {
-    const name = prompt("Workout name:");
-    if (!name?.trim()) return;
-    await base44.entities.WorkoutTemplate.create({ name: name.trim(), folder_id: folder.id, order: templates.length, exercises: [] });
+  const handleAddWorkoutToFolder = (folder) => {
+    setAddWorkoutValue("");
+    setAddingWorkoutToFolder(folder);
+  };
+
+  const confirmAddWorkoutToFolder = async () => {
+    if (!addWorkoutValue.trim()) return;
+    await base44.entities.WorkoutTemplate.create({ name: addWorkoutValue.trim(), folder_id: addingWorkoutToFolder.id, order: templates.length, exercises: [] });
     queryClient.invalidateQueries({ queryKey: ["templates"] });
+    setAddingWorkoutToFolder(null);
   };
 
   const handleOuterDragStart = () => setIsDraggingOuter(true);
@@ -260,6 +273,51 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
 
       <CreateDialog open={!!createType} onClose={() => setCreateType(null)} type={createType}
         folders={folders} onSubmit={createType === "folder" ? handleCreateFolder : handleCreateWorkout} />
+
+      {/* Rename Folder Modal */}
+      {renamingFolder && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 sm:items-center"
+          onClick={() => setRenamingFolder(null)}>
+          <div className="bg-card w-full max-w-sm rounded-2xl border border-border p-5 space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-base">Rename Folder</h3>
+            <Input
+              value={renameValue}
+              onChange={e => setRenameValue(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && confirmRenameFolder()}
+              className="bg-secondary border-0"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button onClick={() => setRenamingFolder(null)} className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">Cancel</button>
+              <button onClick={confirmRenameFolder} className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Workout to Folder Modal */}
+      {addingWorkoutToFolder && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 sm:items-center"
+          onClick={() => setAddingWorkoutToFolder(null)}>
+          <div className="bg-card w-full max-w-sm rounded-2xl border border-border p-5 space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-base">New Workout in "{addingWorkoutToFolder.name}"</h3>
+            <Input
+              placeholder="Workout name"
+              value={addWorkoutValue}
+              onChange={e => setAddWorkoutValue(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && confirmAddWorkoutToFolder()}
+              className="bg-secondary border-0"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button onClick={() => setAddingWorkoutToFolder(null)} className="flex-1 py-2.5 rounded-xl bg-secondary text-sm font-semibold">Cancel</button>
+              <button onClick={confirmAddWorkoutToFolder} className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {folderToDelete && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center p-4 sm:items-center"
