@@ -338,8 +338,10 @@ export default function SetTable({ sets = [], onChange, isActive = false, previo
                         <IosWheelPicker
                           value={currentRestDuration}
                           onChange={(newVal) => {
+                            const autoVal = getRestDurationForSet(set.type, movementType);
                             const updated = [...sets];
-                            updated[index] = { ...set, rest_duration: newVal, rest_duration_locked: true };
+                            // If user dials back to the auto value, unlock it
+                            updated[index] = { ...set, rest_duration: newVal === autoVal ? undefined : newVal, rest_duration_locked: newVal !== autoVal };
                             onChange(updated);
                           }}
                         />

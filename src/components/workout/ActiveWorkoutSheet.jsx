@@ -53,7 +53,7 @@ export default function ActiveWorkoutSheet() {
     enabled: !!workout,
   });
 
-  // Load exercises to get saved notes
+  // Load exercises to get saved notes + movement_type
   const { data: allExercises = [] } = useQuery({
     queryKey: ["exercises"],
     queryFn: () => base44.entities.Exercise.list(),
@@ -70,7 +70,7 @@ export default function ActiveWorkoutSheet() {
     });
   });
 
-  // Patch saved notes from Exercise entity into workout exercises — runs once per workout session
+  // Patch saved notes + movement_type from Exercise entity into workout exercises — runs once per workout session
   useEffect(() => {
     if (!workout || !allExercises.length) return;
     const workoutKey = workout.startTime;
@@ -85,6 +85,8 @@ export default function ActiveWorkoutSheet() {
       exercises: prev.exercises.map(ex => ({
         ...ex,
         notes: ex.notes || exerciseMap[ex.exercise_id]?.notes || null,
+        // Enrich with movement_type from Exercise entity if not already present
+        movement_type: ex.movement_type || exerciseMap[ex.exercise_id]?.movement_type || null,
       })),
     }));
   }, [allExercises, workout?.startTime, updateWorkout]);

@@ -8,7 +8,6 @@ import ExerciseList from "../components/workout/ExerciseList";
 import { EXERCISE_SELECTOR_KEY } from "./ExerciseSelector";
 import { createPageUrl } from "@/utils";
 import { createSuperset } from "../components/workout/supersetUtils";
-import { getRestDurationForSet } from "../components/workout/ActiveWorkoutContext";
 
 export default function EditWorkout() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -67,12 +66,13 @@ export default function EditWorkout() {
       exercise_id: ex.id,
       exercise_name: ex.name,
       muscle_group: ex.primary_muscle,
+      movement_type: ex.movement_type || null,
       color: null,
       superset_group: null,
       order: prev.length + i,
       sets: [
-        { type: "warmup", weight: 0, reps: 10, rir: 4, rest_duration: getRestDurationForSet("warmup", ex.primary_muscle) },
-        { type: "working", weight: 0, reps: 8, rir: 2, rest_duration: getRestDurationForSet("working", ex.primary_muscle) },
+        { type: "warmup", weight: 0, reps: 10, rir: 4 },
+        { type: "working", weight: 0, reps: 8, rir: 2 },
       ],
     }))]);
     isDirty.current = true;
@@ -93,12 +93,13 @@ export default function EditWorkout() {
             exercise_id: ex.id,
             exercise_name: ex.name,
             muscle_group: ex.primary_muscle,
+            movement_type: ex.movement_type || null,
             color: null,
             superset_group: null,
             order: prev.length + i,
             sets: [
-              { type: "warmup", weight: 0, reps: 10, rir: 4, rest_duration: getRestDurationForSet("warmup", ex.primary_muscle) },
-              { type: "working", weight: 0, reps: 8, rir: 2, rest_duration: getRestDurationForSet("working", ex.primary_muscle) },
+              { type: "warmup", weight: 0, reps: 10, rir: 4 },
+              { type: "working", weight: 0, reps: 8, rir: 2 },
             ],
           }));
           const combined = [...prev, ...newItems];
