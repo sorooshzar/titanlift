@@ -404,14 +404,14 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-start">
             {/* Muscle model — pushed left, given less width so legend fits */}
             <div className="shrink-0 -ml-4" style={{ width: 230 }}>
               <MuscleModel muscleRanks={muscleRankNames} recoveryData={recoveryData} showRecovery={showRecovery} onMuscleRank={setRankModalMuscle} compact />
             </div>
 
-            {/* Legend — right of model, vertically centered */}
-            <div className="flex flex-col items-start justify-center ml-2">
+            {/* Legend + Rank Tester button — right of model */}
+            <div className="flex flex-col items-start justify-start ml-2 flex-1">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
                 {showRecovery ? "Recovery" : "Rank"}
               </p>
@@ -433,24 +433,20 @@ export default function Profile() {
                   ))}
                 </div>
               )}
+
+              {/* Rank Tester button — below the legend */}
+              {!showRecovery && (
+                <button
+                  onClick={() => setShowRankTester(true)}
+                  className="mt-3 w-full flex flex-col items-center justify-center gap-1 bg-secondary/80 border border-border/60 rounded-xl px-2 py-2.5 active:scale-[0.97] transition-all duration-150"
+                >
+                  <FlaskConical className="w-4 h-4 text-primary" />
+                  <span className="text-[10px] font-semibold text-foreground leading-tight text-center">Rank Tester</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Rank Tester Button */}
-        <button
-          onClick={() => setShowRankTester(true)}
-          className="w-full flex items-center gap-3 bg-card rounded-2xl border border-border px-4 py-3.5 text-left active:scale-[0.98] transition-all duration-150"
-        >
-          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <FlaskConical className="w-4 h-4 text-primary" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold">Rank Tester</p>
-            <p className="text-xs text-muted-foreground">Check what rank a set would earn</p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-        </button>
 
         {/* Nutrition Rank Card */}
         <NutritionRankCard streak={nutritionStreak} />

@@ -70,9 +70,12 @@ export default function RankTester({ onClose, bodyWeightKg }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center px-4"
+      onClick={onClose}>
+      <div className="bg-card w-full max-w-sm rounded-3xl border border-border shadow-2xl flex flex-col max-h-[85vh]"
+        onClick={e => e.stopPropagation()}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-3 border-b border-border/40">
+      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border/40 shrink-0">
         <div className="flex items-center gap-2">
           <FlaskConical className="w-4 h-4 text-primary" />
           <h2 className="text-base font-bold">Rank Tester</h2>
@@ -82,7 +85,7 @@ export default function RankTester({ onClose, bodyWeightKg }) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
+      <div className="overflow-y-auto px-5 py-5 space-y-4">
         {/* Exercise Selector */}
         <div>
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Exercise</label>
@@ -178,6 +181,7 @@ export default function RankTester({ onClose, bodyWeightKg }) {
             </p>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
