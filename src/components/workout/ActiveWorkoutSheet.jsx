@@ -143,7 +143,7 @@ export default function ActiveWorkoutSheet() {
       ex.sets?.forEach(s => {
         if (s.completed) {
           totalVolume += (s.weight || 0) * (s.reps || 0);
-          totalSets++;
+          if (s.type !== "warmup") totalSets++;
         }
       });
     });

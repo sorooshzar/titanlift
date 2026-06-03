@@ -35,7 +35,7 @@ export default function WorkoutCard({
 }) {
   const queryClient = useQueryClient();
 
-  const setCount = template.exercises?.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0) || 0;
+  const setCount = template.exercises?.reduce((acc, ex) => acc + (ex.sets?.filter(s => s.type !== "warmup").length || 0), 0) || 0;
   const accentColor = template.color || null;
   const [editingNote, setEditingNote] = useState(false);
   const [noteValue, setNoteValue] = useState(template.notes || "");
