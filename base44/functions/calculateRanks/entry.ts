@@ -219,7 +219,7 @@ Deno.serve(async (req) => {
       const maxE1rm = getBestE1RM(ex.sets);
       if (maxE1rm === 0) return { ...ex, impressiveness_score: 0, rank: "wood", is_anchor_lift: false };
 
-      const score = calculateImpressivenessScore(maxE1rm, bodyweightKg, ex.exercise_name, userGender || user.gender || "male");
+      const score = calculateImpressivenessScore(maxE1rm, bodyweightKg, ex.exercise_name, userGender || user.sex || "male");
       const rank = getRankFromScore(score, ex.muscle_group);
 
       // Anchor lift: check if this exercise matches the canonical anchor for its muscle

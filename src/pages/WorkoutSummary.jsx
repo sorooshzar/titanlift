@@ -26,11 +26,19 @@ export default function WorkoutSummary() {
   const [userGender, setUserGender] = useState("male");
   const [loading, setLoading] = useState(false);
   const [displayLog, setDisplayLog] = useState(null);
+  const [redirectTimer, setRedirectTimer] = useState(false);
+
+  // Delay redirect check to avoid race with context propagation
+  useEffect(() => {
+    const t = setTimeout(() => setRedirectTimer(true), 300);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
-    // Only redirect if we truly have no log AND haven't loaded yet
-    if (!completedLog && !displayLog) navigate(createPageUrl("Lifts"), { replace: true });
-  }, [completedLog, displayLog]);
+    if (redirectTimer && !completedLog && !displayLog) {
+      navigate(createPageUrl("Lifts"), { replace: true });
+    }
+  }, [redirectTimer, completedLog, displayLog]);
 
   useEffect(() => {
     const fetchUserAndCalculate = async () => {
@@ -42,23 +50,28 @@ export default function WorkoutSummary() {
         
         const response = await base44.functions.invoke('calculateRanks', {
           workoutLogId: completedLog.id,
-          userGender: user?.gender || "male",
+          userGender: user?.sex || "male",
           exercises: completedLog.exercises, // send live data with completed:true sets
         });
         
-        // Merge rank data from API back into the local completedLog
-        // (the API returns the DB version which may have stale set data)
+        // Use the updatedLog exercises directly from the API (they have completed sets + ranks)
         if (response.data.updatedLog) {
+          const apiExercises = response.data.updatedLog.exercises || [];
+          console.log("[WorkoutSummary] API exercises with ranks:", apiExercises.map(e => ({ name: e.exercise_name, rank: e.rank, score: e.impressiveness_score })));
+          // Build rank map from API response
           const rankMap = {};
-          response.data.updatedLog.exercises?.forEach(ex => {
+          apiExercises.forEach(ex => {
             const key = ex.exercise_id || ex.exercise_name;
-            rankMap[key] = { rank: ex.rank, impressiveness_score: ex.impressiveness_score };
+            rankMap[key] = { rank: ex.rank, impressiveness_score: ex.impressiveness_score, is_personal_best: ex.is_personal_best };
           });
+          // Merge rank fields onto the local (completed) exercises so set data stays correct
           const merged = {
             ...completedLog,
             exercises: completedLog.exercises?.map(ex => {
               const key = ex.exercise_id || ex.exercise_name;
-              return { ...ex, ...(rankMap[key] || {}) };
+              const rankData = rankMap[key] || {};
+              console.log("[WorkoutSummary] merging ex:", ex.exercise_name, "key:", key, "rankData:", rankData);
+              return { ...ex, ...rankData };
             }),
           };
           setDisplayLog(merged);
@@ -74,7 +87,7 @@ export default function WorkoutSummary() {
     fetchUserAndCalculate();
   }, [completedLog?.id]);
 
-  if (!completedLog) return null;
+  if (!completedLog && !displayLog) return null;
 
   const handleDone = () => {
     clearCompletedLog();
@@ -145,7 +158,7 @@ export default function WorkoutSummary() {
 
           const rankInfo = ex.rank ? RANKS.find(r => r.name === ex.rank) : null;
           return (
-            <motion.div key={exIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 + exIdx * 0.04, type: "spring", stiffness: 300, damping: 25 }}
+            <motion.div key={`${exIdx}-${ex.rank || 'norank'}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 + exIdx * 0.04, type: "spring", stiffness: 300, damping: 25 }}
               className="bg-card rounded-xl border border-border overflow-hidden"
               style={ex.color ? { borderLeftWidth: "3px", borderLeftColor: ex.color } : {}}>
               <div className="px-4 py-3 border-b border-border/60 flex items-center gap-2">
@@ -154,14 +167,16 @@ export default function WorkoutSummary() {
                     style={{ backgroundColor: rankInfo.color }}>
                     {rankInfo.label[0]}
                   </div>
+                ) : loading ? (
+                  <div className="w-6 h-6 flex-shrink-0 rounded-full bg-secondary animate-pulse" />
                 ) : (
                   <div className="w-6 h-6 flex-shrink-0 rounded-full bg-secondary" />
                 )}
                 <div className="flex-1">
                   <p className="text-sm font-semibold">{ex.exercise_name}</p>
-                  {ex.impressiveness_score > 0 && (
+                  {rankInfo && (
                     <p className="text-xs text-muted-foreground">
-                      {rankInfo?.label || "—"} · score {ex.impressiveness_score.toFixed(1)}
+                      {rankInfo.label} · score {ex.impressiveness_score?.toFixed(1)}
                     </p>
                   )}
                 </div>
