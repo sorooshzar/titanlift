@@ -45,9 +45,22 @@ export default function WorkoutSummary() {
           userGender: user?.gender || "male"
         });
         
-        // Update display log with calculated ranks
+        // Merge rank data from API back into the local completedLog
+        // (the API returns the DB version which may have stale set data)
         if (response.data.updatedLog) {
-          setDisplayLog(response.data.updatedLog);
+          const rankMap = {};
+          response.data.updatedLog.exercises?.forEach(ex => {
+            const key = ex.exercise_id || ex.exercise_name;
+            rankMap[key] = { rank: ex.rank, impressiveness_score: ex.impressiveness_score };
+          });
+          const merged = {
+            ...completedLog,
+            exercises: completedLog.exercises?.map(ex => {
+              const key = ex.exercise_id || ex.exercise_name;
+              return { ...ex, ...(rankMap[key] || {}) };
+            }),
+          };
+          setDisplayLog(merged);
         }
       } catch (err) {
         console.error("Error calculating ranks:", err);
