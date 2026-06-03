@@ -1,15 +1,38 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { createSuperset } from "./supersetUtils";
+
+const STORAGE_KEY = "titanlift-active-workout";
 
 const ActiveWorkoutContext = createContext(null);
 
 export function ActiveWorkoutProvider({ children }) {
-  const [workout, setWorkout] = useState(null);
-  const [minimized, setMinimized] = useState(false);
+  const [workout, setWorkout] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [minimized, setMinimized] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) !== null : false;
+    } catch {
+      return false;
+    }
+  });
   const [completedLog, setCompletedLog] = useState(null);
 
+  // Persist workout to localStorage on every change
+  useEffect(() => {
+    if (workout) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(workout));
+    }
+  }, [workout]);
+
   const startWorkout = useCallback((template) => {
-    setWorkout({
+    const session = {
       name: template?.name || "Quick Workout",
       template_id: template?.id || null,
       exercises: (template?.exercises || []).map(ex => ({
@@ -17,11 +40,14 @@ export function ActiveWorkoutProvider({ children }) {
         sets: (ex.sets || []).map(s => ({ ...s, completed: false })),
       })),
       startTime: new Date().toISOString(),
-    });
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    setWorkout(session);
     setMinimized(false);
   }, []);
 
   const endWorkout = useCallback((logData) => {
+    localStorage.removeItem(STORAGE_KEY);
     setWorkout(null);
     setMinimized(false);
     if (logData) setCompletedLog(logData);
