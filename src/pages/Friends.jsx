@@ -97,9 +97,17 @@ export default function Friends() {
     enabled: !!currentUser,
   });
 
+  // Fetch all body weights with no user filter (to get friends' data too)
   const { data: allBodyWeights = [] } = useQuery({
     queryKey: ["allBodyWeights"],
-    queryFn: () => base44.entities.BodyWeight.list(),
+    queryFn: async () => {
+      try {
+        // Try to fetch all - RLS will handle what we can see
+        return await base44.entities.BodyWeight.list(undefined, undefined, 10000);
+      } catch {
+        return [];
+      }
+    },
     enabled: !!currentUser,
   });
 
