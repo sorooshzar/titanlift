@@ -104,11 +104,11 @@ export default function FriendWorkoutHistory({ workoutLogs = [], friend }) {
               <button
                 key={dateKey}
                 onClick={() => setSelectedDate(date)}
-                className={`aspect-square text-xs font-semibold rounded-lg transition-all flex items-center justify-center ${
+                className={`aspect-square text-xs font-black rounded-lg transition-all flex items-center justify-center ${
                   selected
                     ? 'bg-primary text-primary-foreground'
                     : hasWorkout
-                    ? 'bg-primary/20 text-primary'
+                    ? 'bg-secondary text-primary'
                     : today
                     ? 'border-2 border-primary text-foreground'
                     : 'bg-secondary text-foreground hover:bg-secondary/80'
