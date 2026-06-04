@@ -2,11 +2,24 @@
   "name": "Food",
   "type": "object",
   "properties": {
+    "icon": {
+      "type": "string",
+      "description": "Food emoji icon"
+    },
     "name": {
       "type": "string"
     },
     "brand": {
       "type": "string"
+    },
+    "serving_description": {
+      "type": "string",
+      "description": "e.g., 1 Slice, 1 Cup, Quarter Cup"
+    },
+    "serving_size": {
+      "type": "number",
+      "default": 100,
+      "description": "Gram weight of serving"
     },
     "calories_per_100g": {
       "type": "number"
@@ -23,13 +36,68 @@
     "fiber_per_100g": {
       "type": "number"
     },
-    "serving_size": {
-      "type": "number",
-      "default": 100
+    "sugar_per_100g": {
+      "type": "number"
     },
-    "serving_unit": {
-      "type": "string",
-      "default": "g"
+    "saturated_fat_per_100g": {
+      "type": "number"
+    },
+    "trans_fat_per_100g": {
+      "type": "number"
+    },
+    "polyunsaturated_fat_per_100g": {
+      "type": "number"
+    },
+    "monounsaturated_fat_per_100g": {
+      "type": "number"
+    },
+    "sodium_per_100g": {
+      "type": "number"
+    },
+    "potassium_per_100g": {
+      "type": "number"
+    },
+    "cholesterol_per_100g": {
+      "type": "number"
+    },
+    "vitamin_a": {
+      "type": "number"
+    },
+    "vitamin_c": {
+      "type": "number"
+    },
+    "vitamin_d": {
+      "type": "number"
+    },
+    "vitamin_e": {
+      "type": "number"
+    },
+    "vitamin_k": {
+      "type": "number"
+    },
+    "calcium": {
+      "type": "number"
+    },
+    "iron": {
+      "type": "number"
+    },
+    "magnesium": {
+      "type": "number"
+    },
+    "zinc": {
+      "type": "number"
+    },
+    "phosphorus": {
+      "type": "number"
+    },
+    "selenium": {
+      "type": "number"
+    },
+    "folate": {
+      "type": "number"
+    },
+    "b12": {
+      "type": "number"
     },
     "is_custom": {
       "type": "boolean",

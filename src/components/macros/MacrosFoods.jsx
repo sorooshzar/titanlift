@@ -7,21 +7,23 @@ import { Button } from "@/components/ui/button";
 import { getFoodIcon } from "./foodIcons";
 import FoodDetailModal from "./FoodDetailModal";
 import ScanFoodModal from "./ScanFoodModal";
+import CreateFoodModal from "./CreateFoodModal";
 import RecipesTab from "./RecipesTab";
 import { motion, AnimatePresence } from "framer-motion";
 
-const PROTEIN_COLOR = "#FF0055";
-const CARBS_COLOR = "#00AAFF";
-const FAT_COLOR = "#00CC66";
-const KCAL_COLOR = "#FFD700";
+
 
 function FoodRow({ food, onSelect }) {
-  const icon = getFoodIcon(food.name);
+  const icon = food.icon || getFoodIcon(food.name);
   const ratio = (food.serving_size || 100) / 100;
   const cal = Math.round((food.calories_per_100g || 0) * ratio);
   const protein = Math.round((food.protein_per_100g || 0) * ratio);
   const carbs = Math.round((food.carbs_per_100g || 0) * ratio);
   const fat = Math.round((food.fat_per_100g || 0) * ratio);
+  const PROTEIN_COLOR = "#FF0055";
+  const CARBS_COLOR = "#00AAFF";
+  const FAT_COLOR = "#00CC66";
+  const KCAL_COLOR = "#FFD700";
   return (
     <button
       onClick={() => onSelect(food)}
@@ -50,99 +52,7 @@ function FoodRow({ food, onSelect }) {
   );
 }
 
-function AddFoodForm({ onClose, onCreate, prefill }) {
-  const [form, setForm] = useState({
-    name: prefill?.name || "",
-    brand: prefill?.brand || "",
-    calories_per_100g: prefill?.calories_per_100g || "",
-    protein_per_100g: prefill?.protein_per_100g || "",
-    carbs_per_100g: prefill?.carbs_per_100g || "",
-    fat_per_100g: prefill?.fat_per_100g || "",
-    fiber_per_100g: prefill?.fiber_per_100g || "",
-  });
 
-  const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
-
-  const macroFields = [
-    { key: "calories_per_100g", label: "Calories", unit: "kcal", color: KCAL_COLOR },
-    { key: "protein_per_100g", label: "Protein", unit: "g", color: PROTEIN_COLOR },
-    { key: "carbs_per_100g", label: "Carbs", unit: "g", color: CARBS_COLOR },
-    { key: "fat_per_100g", label: "Fat", unit: "g", color: FAT_COLOR },
-    { key: "fiber_per_100g", label: "Fiber", unit: "g", color: "#8B5CF6" },
-  ];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 10 }}
-      className="bg-card rounded-2xl border border-border overflow-hidden"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-secondary/30">
-        <p className="text-sm font-bold">New Food</p>
-        <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
-          <X className="w-3.5 h-3.5" />
-        </button>
-      </div>
-
-      <div className="p-4 space-y-3">
-        {/* Name & Brand */}
-        <div className="space-y-2">
-          <Input
-            placeholder="Food name *"
-            value={form.name}
-            onChange={e => set("name", e.target.value)}
-            className="bg-secondary border-0 h-11 rounded-xl font-medium"
-          />
-          <Input
-            placeholder="Brand (optional)"
-            value={form.brand}
-            onChange={e => set("brand", e.target.value)}
-            className="bg-secondary border-0 rounded-xl text-sm"
-          />
-        </div>
-
-        {/* Per 100g label */}
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-[10px] text-muted-foreground font-semibold px-2">Per 100g</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-
-        {/* Macro inputs — card style */}
-        <div className="grid grid-cols-1 gap-2">
-          {macroFields.map(f => (
-            <div key={f.key} className="flex items-center gap-3 bg-secondary/50 rounded-xl px-3 py-2.5">
-              <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
-              <span className="text-xs font-semibold text-muted-foreground w-16 shrink-0">{f.label}</span>
-              <Input
-                type="number"
-                placeholder="0"
-                value={form[f.key]}
-                onChange={e => set(f.key, e.target.value)}
-                className="flex-1 bg-transparent border-0 text-right font-bold h-7 p-0 focus:ring-0"
-              />
-              <span className="text-[10px] text-muted-foreground w-6 shrink-0">{f.unit}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Buttons */}
-        <div className="flex gap-2 pt-1">
-          <Button variant="outline" className="flex-1 rounded-xl" onClick={onClose}>Cancel</Button>
-          <Button
-            className="flex-1 rounded-xl font-bold"
-            disabled={!form.name || !form.calories_per_100g}
-            onClick={() => onCreate(form)}
-          >
-            Save Food
-          </Button>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal, onAdd, onClearMeal }) {
   const [foodsView, setFoodsView] = useState("foods"); // "foods" | "recipes"
@@ -190,14 +100,9 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
 
   const saved = foods.filter(f => f.is_custom);
 
-  const handleCreate = async (form) => {
+  const handleCreate = async (foodData) => {
     await base44.entities.Food.create({
-      ...form,
-      calories_per_100g: parseFloat(form.calories_per_100g) || 0,
-      protein_per_100g: parseFloat(form.protein_per_100g) || 0,
-      carbs_per_100g: parseFloat(form.carbs_per_100g) || 0,
-      fat_per_100g: parseFloat(form.fat_per_100g) || 0,
-      fiber_per_100g: parseFloat(form.fiber_per_100g) || 0,
+      ...foodData,
       is_custom: true,
     });
     queryClient.invalidateQueries({ queryKey: ["foods"] });
@@ -275,10 +180,10 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
         </button>
       </div>
 
-      {/* Add Food Form */}
+      {/* Create Food Modal */}
       <AnimatePresence>
         {showAddForm && (
-          <AddFoodForm
+          <CreateFoodModal
             onClose={() => { setShowAddForm(false); setPrefillData(null); }}
             onCreate={handleCreate}
             prefill={prefillData}
