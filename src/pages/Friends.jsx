@@ -69,6 +69,12 @@ export default function Friends() {
     base44.auth.me().then(u => setCurrentUser(u)).catch(() => {});
   }, []);
 
+  const { data: allFriendships = [], refetch: refetchFriendships } = useQuery({
+    queryKey: ["friendships"],
+    queryFn: () => base44.entities.Friendship.list(),
+    enabled: !!currentUser,
+  });
+
   // Subscribe to friendship changes to auto-refetch for both parties
   useEffect(() => {
     const unsubscribe = base44.entities.Friendship.subscribe((event) => {
@@ -78,12 +84,6 @@ export default function Friends() {
     });
     return () => unsubscribe();
   }, [refetchFriendships]);
-
-  const { data: allFriendships = [], refetch: refetchFriendships } = useQuery({
-    queryKey: ["friendships"],
-    queryFn: () => base44.entities.Friendship.list(),
-    enabled: !!currentUser,
-  });
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ["allUsers"],
