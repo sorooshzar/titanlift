@@ -1,0 +1,72 @@
+{
+  "name": "Recipe",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Recipe name"
+    },
+    "ingredients": {
+      "type": "array",
+      "description": "List of food ingredients with quantities",
+      "items": {
+        "type": "object",
+        "properties": {
+          "food_id": {
+            "type": "string"
+          },
+          "food_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "calories_per_100g": {
+            "type": "number"
+          },
+          "protein_per_100g": {
+            "type": "number"
+          },
+          "carbs_per_100g": {
+            "type": "number"
+          },
+          "fat_per_100g": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "total_calories": {
+      "type": "number"
+    },
+    "total_protein": {
+      "type": "number"
+    },
+    "total_carbs": {
+      "type": "number"
+    },
+    "total_fat": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}
