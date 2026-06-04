@@ -6,6 +6,10 @@
       "type": "string",
       "description": "Recipe name"
     },
+    "icon": {
+      "type": "string",
+      "description": "Food emoji icon for the recipe"
+    },
     "servings": {
       "type": "number",
       "default": 1,

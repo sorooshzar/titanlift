@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { X, Plus, Trash2, Search, ChevronLeft, ScanLine } from "lucide-react";
@@ -11,6 +11,66 @@ const FAT_COLOR = "#00CC66";
 const KCAL_COLOR = "#FFD700";
 
 const BASE_UNITS = ["g", "serving", "cup", "tsp", "tbsp", "fl oz", "ml", "oz", "lb"];
+
+const FOOD_EMOJIS = [
+  "🍕","🍔","🌮","🌯","🥗","🥙","🥪","🌭","🍟","🍿",
+  "🍳","🥚","🥞","🧇","🥓","🥩","🍗","🍖","🌽","🥦",
+  "🥕","🥑","🍅","🍆","🥔","🧅","🧄","🫑","🫒","🥝",
+  "🍇","🍓","🫐","🍌","🍉","🍎","🍊","🍋","🍑","🍒",
+  "🥣","🍲","🫕","🍜","🍝","🍛","🍱","🍣","🍤","🦐",
+  "🦞","🦀","🦑","🥘","🫔","🥫","🧆","🧀","🫙","🧂",
+  "🍰","🎂","🧁","🍩","🍪","🍫","🍬","🍭","🍮","🥧",
+  "🍦","🍨","🍧","🫖","☕","🧃","🥤","🍵","🧋","🍺",
+];
+
+function AutoGrowTextarea({ value, onChange, placeholder }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, [value]);
+  return (
+    <textarea
+      ref={ref}
+      rows={1}
+      placeholder={placeholder}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className="flex-1 bg-secondary border-0 rounded-xl text-sm p-3 resize-none outline-none focus:ring-1 focus:ring-primary/40 leading-relaxed overflow-hidden"
+      style={{ fontSize: "16px", minHeight: "44px" }}
+    />
+  );
+}
+
+function EmojiPicker({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center text-3xl border-2 border-border hover:border-primary/50 transition-colors shrink-0"
+      >
+        {value || "🍽️"}
+      </button>
+      {open && (
+        <div className="absolute top-16 left-0 z-20 bg-card border border-border rounded-2xl p-3 shadow-xl w-72">
+          <div className="grid grid-cols-8 gap-1 max-h-52 overflow-y-auto">
+            {FOOD_EMOJIS.map(e => (
+              <button key={e} type="button"
+                onClick={() => { onChange(e); setOpen(false); }}
+                className={`w-8 h-8 flex items-center justify-center text-xl rounded-lg hover:bg-secondary transition-colors ${value === e ? "bg-primary/20 ring-1 ring-primary" : ""}`}>
+                {e}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 const UNIT_TO_G = { cup: 240, tsp: 5, tbsp: 15, "fl oz": 30, ml: 1, oz: 28.35, lb: 453.6, g: 1 };
 
 function toGrams(qty, unit, servingSize = 100) {
@@ -229,7 +289,7 @@ function FoodPicker({ foods, onSelect, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[70] flex items-end justify-center">
-      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 flex flex-col" style={{ maxHeight: "82vh" }}>
+      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 flex flex-col" style={{ maxHeight: "95vh" }}>
         {/* Handle */}
         <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto mt-3 mb-1 shrink-0" />
 
@@ -317,6 +377,7 @@ function FoodPicker({ foods, onSelect, onClose }) {
 
 export default function RecipeBuilder({ recipe, onClose, onSaved }) {
   const [name, setName] = useState(recipe?.name || "");
+  const [icon, setIcon] = useState(recipe?.icon || "");
   const [servings, setServings] = useState(recipe?.servings || 1);
   const [ingredients, setIngredients] = useState(
     (recipe?.ingredients || []).map(ing => ({
@@ -369,6 +430,7 @@ export default function RecipeBuilder({ recipe, onClose, onSaved }) {
     setSaving(true);
     const payload = {
       name: name.trim(),
+      icon: icon || "",
       servings: servings || 1,
       ingredients: ingredients.map(ing => ({
         ...ing,
@@ -401,13 +463,16 @@ export default function RecipeBuilder({ recipe, onClose, onSaved }) {
       </div>
 
       <div className="overflow-y-auto flex-1 px-4 py-4 space-y-5 pb-32">
-        {/* Recipe Name */}
-        <Input
-          placeholder="Recipe name (e.g. Ham Sandwich)"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          className="bg-secondary border-0 h-12 rounded-xl font-semibold text-base"
-        />
+        {/* Recipe Icon + Name */}
+        <div className="flex items-center gap-3">
+          <EmojiPicker value={icon} onChange={setIcon} />
+          <Input
+            placeholder="Recipe name (e.g. Ham Sandwich)"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            className="bg-secondary border-0 h-14 rounded-xl font-semibold text-base flex-1"
+          />
+        </div>
 
         {/* Servings */}
         <div className="flex items-center justify-between bg-secondary/60 rounded-xl px-4 py-3">
@@ -543,13 +608,10 @@ export default function RecipeBuilder({ recipe, onClose, onSaved }) {
                 <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-2.5">
                   <span className="text-[10px] font-bold text-primary">{idx + 1}</span>
                 </div>
-                <textarea
+                <AutoGrowTextarea
                   placeholder={`Step ${idx + 1}…`}
                   value={step}
-                  rows={2}
-                  onChange={e => updateStep(idx, e.target.value)}
-                  className="flex-1 bg-secondary border-0 rounded-xl text-sm p-3 resize-none outline-none focus:ring-1 focus:ring-primary/40 leading-relaxed"
-                  style={{ fontSize: "16px" }}
+                  onChange={val => updateStep(idx, val)}
                 />
                 <button onClick={() => removeStep(idx)}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-destructive/10 mt-1 shrink-0">

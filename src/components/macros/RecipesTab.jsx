@@ -82,7 +82,9 @@ function RecipeCard({ recipe, onEdit, onDelete, onLog }) {
   return (
     <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
+        <div className="flex items-start gap-2 flex-1 min-w-0">
+          {recipe.icon && <span className="text-2xl shrink-0 mt-0.5">{recipe.icon}</span>}
+          <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="font-bold text-sm">{recipe.name}</p>
             {servings > 1 && (
@@ -94,6 +96,7 @@ function RecipeCard({ recipe, onEdit, onDelete, onLog }) {
               {ingredientPreview}{moreCount > 0 ? ` +${moreCount} more` : ""}
             </p>
           )}
+          </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <button onClick={() => onEdit(recipe)} className="w-7 h-7 flex items-center justify-center rounded-full bg-secondary hover:bg-border transition-colors">
