@@ -227,7 +227,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
           {/* Serving Information */}
           <CollapsibleSection title="Serving Size" defaultOpen={true}>
-           <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1 mt-1">
+           <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
              {/* Base serving size number */}
              <Input
                type="number"
@@ -255,7 +255,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
              {/* Portion quantity dropdown */}
              <Select value={form.portion_quantity} onValueChange={val => set("portion_quantity", val)}>
                <SelectTrigger className="w-14 h-7 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
-                 <SelectValue placeholder="#" />
+                 <SelectValue placeholder="-" />
                </SelectTrigger>
                <SelectContent>
                  <SelectItem value={null}>-</SelectItem>
@@ -275,7 +275,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
                }
              }}>
                <SelectTrigger className="w-14 h-7 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
-                 <SelectValue placeholder="1/2" />
+                 <SelectValue placeholder="-" />
                </SelectTrigger>
                <SelectContent>
                  <SelectItem value={null}>-</SelectItem>
