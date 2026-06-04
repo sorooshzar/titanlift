@@ -73,18 +73,38 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs })
             </button>
           </div>
 
-          {/* Avatar + name */}
-          <div className="flex flex-col items-center gap-3 pt-2">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/30">
-              <span className="text-2xl font-black text-primary">
-                {friend.full_name?.[0]?.toUpperCase() || "?"}
-              </span>
+          {/* Avatar + name + action buttons */}
+          <div className="flex items-start justify-between gap-4 pt-2">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/30 flex-shrink-0">
+                <span className="text-xl font-black text-primary">
+                  {friend.full_name?.[0]?.toUpperCase() || "?"}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold text-sm">{friend.full_name || "Unknown"}</p>
+                {friend.username && (
+                  <p className="text-xs text-muted-foreground mt-0.5">@{friend.username}</p>
+                )}
+              </div>
             </div>
-            <div className="text-center">
-              <p className="font-bold text-base">{friend.full_name || "Unknown"}</p>
-              {friend.username && (
-                <p className="text-xs text-muted-foreground mt-0.5">@{friend.username}</p>
-              )}
+            <div className="flex gap-2 flex-shrink-0">
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-xl w-10 h-10"
+                onClick={() => setShowBodyModel(true)}
+              >
+                <User className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-xl w-10 h-10"
+                onClick={() => setShowWorkoutHistory(true)}
+              >
+                <Zap className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
@@ -120,23 +140,7 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs })
             ))}
           </div>
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <Button
-              variant="outline"
-              className="rounded-2xl"
-              onClick={() => setShowBodyModel(true)}
-            >
-              <User className="w-4 h-4 mr-2" /> Body Model
-            </Button>
-            <Button
-              variant="outline"
-              className="rounded-2xl"
-              onClick={() => setShowWorkoutHistory(true)}
-            >
-              <Zap className="w-4 h-4 mr-2" /> History
-            </Button>
-          </div>
+
 
           {/* Medals */}
           <div>
