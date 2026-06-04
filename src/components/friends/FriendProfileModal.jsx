@@ -218,7 +218,7 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-y-auto">
               <FriendWorkoutHistory workoutLogs={workoutLogs} friend={friend} />
             </div>
           </div>
