@@ -37,8 +37,6 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
      ? bodyWeights.sort((a, b) => new Date(b.date) - new Date(a.date))[0]
      : null;
 
-   console.log('Friend:', friend.email, 'Bodyweights:', bodyWeights, 'Latest:', latestBodyWeight);
-
   // Get nutrition rank (highest rank by impressiveness score)
   const nutritionRank = nutritionRanks.length > 0
     ? nutritionRanks.sort((a, b) => (b.impressiveness_score || 0) - (a.impressiveness_score || 0))[0]
@@ -93,14 +91,11 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
              <div className="flex items-center gap-3 flex-shrink-0">
                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/30 flex-shrink-0">
                  <span className="text-xl font-black text-primary">
-                   {friend.full_name?.[0]?.toUpperCase() || "?"}
+                   {(friend.username || "?")?.[0]?.toUpperCase()}
                  </span>
                </div>
                <div>
-                 <p className="font-bold text-sm">{friend.full_name || "Unknown"}</p>
-                 {friend.username && (
-                   <p className="text-xs text-muted-foreground">@{friend.username}</p>
-                 )}
+                 <p className="font-bold text-sm">@{friend.username || "unknown"}</p>
                  {latestBodyWeight && (
                    <p className="text-xs text-primary font-semibold mt-0.5">
                      {(() => {
