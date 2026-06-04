@@ -142,7 +142,7 @@ export default function Friends() {
 
   useEffect(() => {
     if (friends.length === 0) return;
-    
+
     const fetchAllFriendsData = async () => {
         const data = {};
         for (const friend of friends) {
@@ -154,7 +154,7 @@ export default function Friends() {
             console.error(`Error fetching data for ${friend.email}:`, err);
             data[friend.email] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
           }
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
         console.log('All friends data:', data);
         setFriendsData(data);
@@ -162,6 +162,13 @@ export default function Friends() {
 
     fetchAllFriendsData();
   }, [friends]);
+
+  const handleViewFriend = (friend, xp) => {
+    const data = friendsData[friend.email] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [], xp: getLevelData(0) };
+    console.log('Opening friend modal with data:', data);
+    setViewingFriend({ friend, xp: data.xp || xp });
+    setFriendData(data);
+  };
 
   const friendsWithXp = friends.map(friend => {
     const friendXpData = friendsData[friend.email];
@@ -176,12 +183,6 @@ export default function Friends() {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["friendships"] });
-  };
-
-  const handleViewFriend = (friend, xp) => {
-    const data = friendsData[friend.email] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [], xp: getLevelData(0) };
-    setViewingFriend({ friend, xp: data.xp || xp });
-    setFriendData(data);
   };
 
   return (
