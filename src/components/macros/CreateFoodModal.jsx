@@ -253,8 +253,8 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
           </CollapsibleSection>
 
           {/* Macronutrients */}
-          <div className="border border-border rounded-xl overflow-hidden">
-            <div className="p-4 bg-secondary/50 space-y-4">
+          <div className="border border-border rounded-lg overflow-hidden">
+            <div className="p-3 bg-secondary/50 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground">Per 100g</p>
               <NumericInput
                 label="Calories"
@@ -264,22 +264,14 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
                 required={true}
                 color="#FFD700"
               />
-              <MacroDropdown
-                title="Protein"
+              <NumericInput
+                label="Protein"
                 value={form.protein_per_100g}
                 onChange={e => set("protein_per_100g", e.target.value)}
                 unit="g"
+                required={false}
                 color="#FF0055"
-                expanded={expandedMacros.protein}
-                onToggle={() => setExpandedMacros(p => ({ ...p, protein: !p.protein }))}
-              >
-                <NumericInput
-                  label="(none)"
-                  value={form.protein_per_100g}
-                  onChange={e => set("protein_per_100g", e.target.value)}
-                  unit="g"
-                />
-              </MacroDropdown>
+              />
               <MacroDropdown
                 title="Carbs"
                 value={form.carbs_per_100g}
@@ -336,12 +328,26 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
                   unit="g"
                 />
               </MacroDropdown>
+              <NumericInput
+                label="Sodium"
+                value={form.sodium_per_100g}
+                onChange={e => set("sodium_per_100g", e.target.value)}
+                unit="mg"
+                color="#9370DB"
+              />
+              <NumericInput
+                label="Cholesterol"
+                value={form.cholesterol_per_100g}
+                onChange={e => set("cholesterol_per_100g", e.target.value)}
+                unit="mg"
+                color="#FF6B6B"
+              />
             </div>
           </div>
 
           {/* Micronutrients */}
           <CollapsibleSection title="Micronutrients" defaultOpen={false}>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1.5">
               <NumericInput label="Vitamin A" value={form.vitamin_a} onChange={e => set("vitamin_a", e.target.value)} unit="IU" />
               <NumericInput label="Vitamin C" value={form.vitamin_c} onChange={e => set("vitamin_c", e.target.value)} unit="mg" />
               <NumericInput label="Vitamin D" value={form.vitamin_d} onChange={e => set("vitamin_d", e.target.value)} unit="IU" />
@@ -368,12 +374,12 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 flex gap-2 px-4 py-4 border-t border-border bg-background/95 backdrop-blur">
-          <Button variant="outline" className="flex-1 rounded-lg" onClick={onClose}>
+        <div className="sticky bottom-0 flex gap-2 px-4 py-3 border-t border-border bg-background/95 backdrop-blur">
+          <Button variant="outline" className="flex-1 rounded-md text-sm" onClick={onClose}>
             Cancel
           </Button>
           <Button
-            className="flex-1 rounded-lg font-semibold"
+            className="flex-1 rounded-md font-semibold text-sm"
             disabled={errors.length > 0}
             onClick={handleSave}
           >
