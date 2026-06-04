@@ -83,26 +83,33 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
             </button>
           </div>
 
-          {/* Avatar + name + action buttons */}
-          <div className="flex items-start justify-between gap-4 pt-2">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Avatar + name + username + action buttons */}
+          <div className="flex items-start justify-between gap-3 pt-2">
+            {/* Left: Avatar + Name */}
+            <div className="flex items-center gap-3 flex-shrink-0">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/30 flex-shrink-0">
                 <span className="text-xl font-black text-primary">
                   {friend.full_name?.[0]?.toUpperCase() || "?"}
                 </span>
               </div>
-              <div className="min-w-0">
+              <div>
                 <p className="font-bold text-sm">{friend.full_name || "Unknown"}</p>
-                {friend.username && (
-                  <p className="text-xs text-muted-foreground mt-0.5">@{friend.username}</p>
-                )}
-                {latestBodyWeight && (
-                  <p className="text-xs text-primary font-semibold mt-2">
-                    {toDisplay(latestBodyWeight.weight) || latestBodyWeight.weight} {latestBodyWeight.unit}
-                  </p>
-                )}
               </div>
             </div>
+
+            {/* Center: Username + Bodyweight */}
+            <div className="flex flex-col items-center justify-start flex-1 min-w-0">
+              {friend.username && (
+                <p className="text-xs text-muted-foreground">@{friend.username}</p>
+              )}
+              {latestBodyWeight && (
+                <p className="text-xs text-primary font-semibold mt-1">
+                  {toDisplay(latestBodyWeight.weight) || latestBodyWeight.weight} {latestBodyWeight.unit}
+                </p>
+              )}
+            </div>
+
+            {/* Right: Buttons */}
             <div className="flex flex-col gap-2 flex-shrink-0">
               <Button
                 variant="outline"
@@ -110,7 +117,7 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
                 className="rounded-xl text-xs px-3"
                 onClick={() => setShowBodyModel(true)}
               >
-                <User className="w-3 h-3 mr-1.5" /> Body
+                <User className="w-3 h-3 mr-1.5" /> Rank
               </Button>
               <Button
                 variant="outline"
