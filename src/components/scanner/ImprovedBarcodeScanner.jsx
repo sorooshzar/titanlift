@@ -11,17 +11,34 @@ import { useNavigate } from "react-router-dom";
  * - Visual feedback on detection
  * - Result screen with complete nutrition data
  */
-export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraManager, onClose }) {
+export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraManager, onClose, onSwitchToLabel }) {
   const [state, setState] = useState("scanning"); // scanning | detected | loading | result | notfound
   const [scannedBarcode, setScannedBarcode] = useState(null);
   const [productData, setProductData] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const scanIntervalRef = useRef(null);
   const hasDetectedRef = useRef(false);
+  const [cameraReady, setCameraReady] = useState(false);
+
+  // Wait for camera to be ready
+  useEffect(() => {
+    if (!videoRef.current || !cameraManager.isActive()) return;
+    
+    const checkCameraReady = () => {
+      if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_FUTURE_FRAME) {
+        setCameraReady(true);
+      }
+    };
+    
+    const interval = setInterval(checkCameraReady, 100);
+    checkCameraReady();
+    
+    return () => clearInterval(interval);
+  }, [videoRef, cameraManager]);
 
   // Start barcode detection loop
   useEffect(() => {
-    if (!videoRef.current || !cameraManager.isActive()) return;
+    if (!videoRef.current || !cameraManager.isActive() || !cameraReady) return;
 
     const detectBarcode = async () => {
       if (hasDetectedRef.current) return; // Prevent duplicate detection
@@ -63,7 +80,7 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
     return () => {
       if (scanIntervalRef.current) clearInterval(scanIntervalRef.current);
     };
-  }, [videoRef, cameraManager, canvasRef]);
+  }, [videoRef, cameraManager, canvasRef, cameraReady]);
 
   const lookupBarcode = async (barcode) => {
     setState("loading");
@@ -242,16 +259,31 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
 
       {/* Footer buttons */}
       <canvas ref={canvasRef} className="hidden" />
-      <div className="px-4 py-4 border-t border-border space-y-3 shrink-0">
+      <div className="px-4 py-4 border-t border-border space-y-2 shrink-0">
         {state === "result" && (
           <Button onClick={handleLogFood} className="w-full h-12 rounded-2xl font-bold">
             Add to Log
           </Button>
         )}
-        {(state === "notfound" || state === "scanning") && (
-          <Button variant="outline" onClick={onClose} className="w-full h-12 rounded-2xl font-bold">
-            Cancel
-          </Button>
+        {(state === "notfound" || state === "scanning" || state === "detected" || state === "loading") && (
+          <>
+            {onSwitchToLabel && (
+              <Button 
+                variant="outline" 
+                onClick={onSwitchToLabel} 
+                className="w-full h-11 rounded-xl font-semibold text-sm"
+              >
+                Scan Nutrition Label
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              onClick={onClose} 
+              className="w-full h-11 rounded-xl font-semibold text-sm"
+            >
+              Cancel
+            </Button>
+          </>
         )}
       </div>
     </div>

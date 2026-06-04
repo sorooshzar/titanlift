@@ -22,10 +22,22 @@ export class CameraManager {
     });
     if (this.videoRef) {
       this.videoRef.srcObject = this.stream;
-      await new Promise(resolve => {
-        this.videoRef.onloadedmetadata = resolve;
+      // Wait for video to load metadata before playing
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error("Video loading timeout")), 5000);
+        const onLoadedMetadata = () => {
+          this.videoRef.removeEventListener("loadedmetadata", onLoadedMetadata);
+          clearTimeout(timeout);
+          resolve();
+        };
+        this.videoRef.addEventListener("loadedmetadata", onLoadedMetadata);
       });
-      this.videoRef.play();
+      // Ensure video is playing
+      try {
+        await this.videoRef.play();
+      } catch (e) {
+        // Autoplay might be blocked, continue anyway
+      }
     }
   }
 

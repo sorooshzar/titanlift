@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Camera, AlertCircle, Loader2 } from "lucide-react";
+import { Camera, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 
@@ -9,7 +9,7 @@ import { base44 } from "@/api/base44Client";
  * - Uses OCR and structured extraction
  * - Manual capture (user must frame label clearly)
  */
-export default function LabelScanner({ videoRef, canvasRef, cameraManager, onFound, onError }) {
+export default function LabelScanner({ videoRef, canvasRef, cameraManager, onFound, onError, onBack }) {
   const [scanning, setScanning] = useState(false);
 
   const handleCapture = async () => {
@@ -88,11 +88,26 @@ export default function LabelScanner({ videoRef, canvasRef, cameraManager, onFou
 
       <canvas ref={canvasRef} className="hidden" />
 
-      {/* Capture button */}
-      <Button onClick={handleCapture} disabled={scanning} className="w-full h-12 rounded-2xl text-sm font-bold gap-2">
-        <Camera className="w-4 h-4" />
-        {scanning ? "Processing Label..." : "Capture Label"}
-      </Button>
+      {/* Buttons */}
+      <div className="flex gap-2">
+        {onBack && (
+          <Button 
+            variant="outline" 
+            onClick={onBack} 
+            className="px-3 h-12 rounded-2xl text-sm font-bold"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+        )}
+        <Button 
+          onClick={handleCapture} 
+          disabled={scanning} 
+          className="flex-1 h-12 rounded-2xl text-sm font-bold gap-2"
+        >
+          <Camera className="w-4 h-4" />
+          {scanning ? "Processing..." : "Capture"}
+        </Button>
+      </div>
     </div>
   );
 }

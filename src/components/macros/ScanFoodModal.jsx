@@ -8,53 +8,72 @@ import { CameraManager } from "@/components/scanner/CameraManager";
 
 /**
  * Scan Food Modal
- * - Choice between Barcode or Nutrition Label
- * - Keeps both as completely separate flows
+ * - Opens directly to barcode scanner (no choice screen)
+ * - User can switch to nutrition label scanning from bottom button
+ * - Keeps both flows completely separate
  */
 export default function ScanFoodModal({ onClose }) {
-  const [mode, setMode] = useState("choice"); // choice | barcode | label | error
+  const [mode, setMode] = useState("barcode"); // barcode | label | error
   const [errorMsg, setErrorMsg] = useState("");
+  const [isInitializing, setIsInitializing] = useState(true);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const cameraManagerRef = useRef(new CameraManager());
 
-  // Cleanup on unmount
+  // Initialize camera immediately on mount
   useEffect(() => {
+    const initCamera = async () => {
+      try {
+        setIsInitializing(true);
+        await cameraManagerRef.current.start(videoRef.current, "environment");
+        setIsInitializing(false);
+      } catch (e) {
+        setErrorMsg("Camera access denied. Please allow camera permissions.");
+        setMode("error");
+        setIsInitializing(false);
+      }
+    };
+    initCamera();
+    
     return () => cameraManagerRef.current.stop();
   }, []);
 
-  const startBarcodeMode = async () => {
-    setErrorMsg("");
-    setMode("barcode");
-    try {
-      await cameraManagerRef.current.start(videoRef.current, "environment");
-    } catch (e) {
-      setErrorMsg("Camera access denied. Please allow camera permissions.");
-      setMode("error");
+  const handleSwitchToLabel = async () => {
+    // Ensure camera is still active when switching
+    if (!cameraManagerRef.current.isActive()) {
+      try {
+        await cameraManagerRef.current.start(videoRef.current, "environment");
+      } catch (e) {
+        setErrorMsg("Failed to access camera");
+        setMode("error");
+        return;
+      }
     }
+    setMode("label");
   };
 
-  const startLabelMode = async () => {
-    setErrorMsg("");
-    setMode("label");
-    try {
-      if (!cameraManagerRef.current.isActive()) {
+  const handleBackToBarcode = async () => {
+    // Ensure camera is still active when switching back
+    if (!cameraManagerRef.current.isActive()) {
+      try {
         await cameraManagerRef.current.start(videoRef.current, "environment");
+      } catch (e) {
+        setErrorMsg("Failed to access camera");
+        setMode("error");
+        return;
       }
-    } catch (e) {
-      setErrorMsg("Camera access denied. Please allow camera permissions.");
-      setMode("error");
     }
+    setMode("barcode");
+  };
+
+  const handleLabelFound = () => {
+    // Label scanning found data, close modal
+    onClose();
   };
 
   const handleError = (msg) => {
     setErrorMsg(msg);
     setMode("error");
-  };
-
-  const handleRetry = () => {
-    setErrorMsg("");
-    setMode("choice");
   };
 
   return (
@@ -70,64 +89,43 @@ export default function ScanFoodModal({ onClose }) {
 
         <div className="flex-1 overflow-auto flex flex-col">
           <AnimatePresence mode="wait">
-            {/* Choice screen */}
-            {mode === "choice" && (
+            {/* Loading state */}
+            {isInitializing && mode === "barcode" && (
               <motion.div
-                key="choice"
+                key="loading"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex-1 p-4 space-y-3 flex flex-col justify-center"
+                className="flex-1 flex flex-col items-center justify-center gap-3 p-4"
               >
-                <p className="text-center text-xs text-muted-foreground mb-4">Choose how to scan your food</p>
-                <button
-                  onClick={startBarcodeMode}
-                  className="w-full flex items-center gap-4 bg-card border border-border rounded-2xl p-4 text-left hover:border-primary/50 transition-colors"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="text-2xl">📱</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">Scan Barcode</p>
-                    <p className="text-xs text-muted-foreground">Auto-detect product barcode</p>
-                  </div>
-                </button>
-                <button
-                  onClick={startLabelMode}
-                  className="w-full flex items-center gap-4 bg-card border border-border rounded-2xl p-4 text-left hover:border-primary/50 transition-colors"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="text-2xl">🏷️</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">Scan Nutrition Label</p>
-                    <p className="text-xs text-muted-foreground">Take photo of nutrition facts</p>
-                  </div>
-                </button>
+                <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-muted-foreground">Opening camera...</p>
               </motion.div>
             )}
 
             {/* Barcode scanner */}
-            {mode === "barcode" && (
+            {mode === "barcode" && !isInitializing && (
               <motion.div key="barcode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col">
                 <ImprovedBarcodeScanner
                   videoRef={videoRef}
                   canvasRef={canvasRef}
                   cameraManager={cameraManagerRef.current}
                   onClose={onClose}
+                  onSwitchToLabel={handleSwitchToLabel}
                 />
               </motion.div>
             )}
 
             {/* Label scanner */}
             {mode === "label" && (
-              <motion.div key="label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col">
+              <motion.div key="label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col p-4 justify-center">
                 <LabelScanner
                   videoRef={videoRef}
                   canvasRef={canvasRef}
                   cameraManager={cameraManagerRef.current}
-                  onFound={() => onClose()}
+                  onFound={handleLabelFound}
                   onError={handleError}
+                  onBack={handleBackToBarcode}
                 />
               </motion.div>
             )}
@@ -142,10 +140,12 @@ export default function ScanFoodModal({ onClose }) {
                 className="flex-1 flex flex-col items-center justify-center gap-4 p-4"
               >
                 <AlertCircle className="w-10 h-10 text-destructive" />
-                <p className="text-sm font-semibold">Scan Failed</p>
-                <p className="text-xs text-muted-foreground text-center">{errorMsg}</p>
-                <Button variant="outline" onClick={handleRetry} className="rounded-xl px-6">
-                  Back
+                <div className="text-center">
+                  <p className="text-sm font-semibold mb-1">Error</p>
+                  <p className="text-xs text-muted-foreground">{errorMsg}</p>
+                </div>
+                <Button variant="outline" onClick={onClose} className="rounded-xl px-6">
+                  Close
                 </Button>
               </motion.div>
             )}
