@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ALL_MEDALS } from "@/components/profile/MedalsBook";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
 import FriendWorkoutHistory from "./FriendWorkoutHistory";
+import FriendBodyModel from "./FriendBodyModel";
 
 function MedalTile({ medal, unlocked }) {
   return (
@@ -196,14 +197,14 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
           {/* Body Model Modal */}
           {showBodyModel && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setShowBodyModel(false)}>
-          <div className="w-full max-w-sm bg-card rounded-3xl border border-border/40 p-6" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-lg bg-card rounded-3xl border border-border/40 p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-base">Body Model</h3>
+              <h3 className="font-bold text-base">Muscle Ranks</h3>
               <button onClick={() => setShowBodyModel(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary/80">
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </div>
-            <p className="text-xs text-muted-foreground text-center py-8">Body model view coming soon</p>
+            <FriendBodyModel nutritionRanks={nutritionRanks} />
           </div>
           </div>
           )}
