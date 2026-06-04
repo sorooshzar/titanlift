@@ -137,42 +137,29 @@ export default function Friends() {
   // Map to user objects
   const friends = allUsers.filter(u => friendEmails.includes(u.email));
 
-  // Fetch friend data for XP calculation - cached to prevent flickering
-  const [friendsData, setFriendsData] = useState({});
-  const [loadingFriends, setLoadingFriends] = useState(new Set());
-
+  // Preload all friend data in parallel using React Query
   useEffect(() => {
-    if (friends.length === 0) return;
-
-    const fetchAllFriendsData = async () => {
-      const data = { ...friendsData }; // Keep existing data to prevent flicker
-      for (const friend of friends) {
-        if (data[friend.email]) continue; // Skip if already loaded
-        setLoadingFriends(prev => new Set([...prev, friend.email]));
-        try {
+    friends.forEach(friend => {
+      queryClient.prefetchQuery({
+        queryKey: ['friendData', friend.email],
+        queryFn: async () => {
           const res = await base44.functions.invoke('getFriendData', { friendEmail: friend.email });
-          data[friend.email] = res.data;
-        } catch (err) {
-          console.error(`Error fetching data for ${friend.email}:`, err);
-          data[friend.email] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
-        }
-        setLoadingFriends(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(friend.email);
-          return newSet;
-        });
-        await new Promise(resolve => setTimeout(resolve, 200));
-      }
-      setFriendsData(data);
-    };
-
-    fetchAllFriendsData();
-  }, [friends]);
+          return res.data;
+        },
+        staleTime: 30000,
+      });
+    });
+  }, [friends, queryClient]);
 
   const handleViewFriend = (friend, xp) => {
-    const data = friendsData[friend.email] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [], xp };
-    setViewingFriend({ friend, xp: data.xp || xp });
-    setFriendData(data);
+    const cachedData = queryClient.getQueryData(['friendData', friend.email]) || {
+      workoutLogs: [],
+      bodyWeights: [],
+      nutritionRanks: [],
+      xp,
+    };
+    setViewingFriend({ friend, xp: cachedData.xp || xp });
+    setFriendData(cachedData);
   };
 
   const friendsWithXp = friends.map(friend => {
