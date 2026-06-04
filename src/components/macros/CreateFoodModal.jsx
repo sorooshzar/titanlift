@@ -48,7 +48,7 @@ function MacroDropdown({ title, value, onChange, unit, color, expanded, onToggle
     <div>
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-2 bg-muted hover:bg-muted/80 rounded-md px-2.5 py-1.5 transition-colors"
+        className="w-full flex items-center gap-2 bg-secondary/60 hover:bg-secondary/80 rounded-md px-2.5 py-1.5 transition-colors"
       >
         <span className="text-xs font-bold w-20 shrink-0" style={color ? { color } : {}}>{title}</span>
         <Input
@@ -217,130 +217,121 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
           </div>
 
           {/* Serving Information */}
-          <CollapsibleSection title="Serving Information" defaultOpen={true}>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-1 block">Serving Description</label>
-                <Input
-                  placeholder="e.g., 1 Slice, 1 Cup, Quarter Cup"
-                  value={form.serving_description}
-                  onChange={e => set("serving_description", e.target.value)}
-                  className="bg-secondary border-0 h-11 rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-1 block">Gram Weight</label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    placeholder="30"
-                    step="1"
-                    value={form.serving_size}
-                    onChange={e => set("serving_size", e.target.value)}
-                    className="flex-1 bg-secondary border-0 h-11 rounded-lg"
-                  />
-                  <span className="text-sm font-semibold text-muted-foreground px-3">g</span>
-                </div>
-              </div>
-              {form.serving_description && (
-                <div className="text-xs text-muted-foreground bg-primary/5 p-2 rounded-lg border border-primary/10">
-                  Per Serving: {form.serving_description} / {form.serving_size}g
-                </div>
-              )}
-            </div>
+          <CollapsibleSection title="Serving" defaultOpen={true}>
+           <div className="space-y-2">
+             <div>
+               <Input
+                 placeholder="e.g., 1 Slice"
+                 value={form.serving_description}
+                 onChange={e => set("serving_description", e.target.value)}
+                 className="bg-muted border-0 h-8 rounded-md text-xs"
+               />
+             </div>
+             <div className="flex items-center gap-2">
+               <Input
+                 type="number"
+                 placeholder="100"
+                 step="1"
+                 value={form.serving_size}
+                 onChange={e => set("serving_size", e.target.value)}
+                 className="flex-1 bg-muted border-0 h-8 rounded-md text-xs"
+               />
+               <span className="text-xs font-semibold text-muted-foreground px-2">g</span>
+             </div>
+           </div>
           </CollapsibleSection>
 
           {/* Macronutrients */}
-          <div className="border border-border rounded-lg overflow-hidden">
-            <div className="p-3 bg-secondary/50 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground">Per 100g</p>
-              <NumericInput
-                label="Calories"
-                value={form.calories_per_100g}
-                onChange={e => set("calories_per_100g", e.target.value)}
-                unit="kcal"
-                required={true}
-                color="#FFD700"
-              />
-              <NumericInput
-                label="Protein"
-                value={form.protein_per_100g}
-                onChange={e => set("protein_per_100g", e.target.value)}
-                unit="g"
-                required={false}
-                color="#FF0055"
-              />
-              <MacroDropdown
-                title="Carbs"
-                value={form.carbs_per_100g}
-                onChange={e => set("carbs_per_100g", e.target.value)}
-                unit="g"
-                color="#00AAFF"
-                expanded={expandedMacros.carbs}
-                onToggle={() => setExpandedMacros(p => ({ ...p, carbs: !p.carbs }))}
-              >
-                <NumericInput
-                  label="Fiber"
-                  value={form.fiber_per_100g}
-                  onChange={e => set("fiber_per_100g", e.target.value)}
-                  unit="g"
-                />
-                <NumericInput
-                  label="Sugar"
-                  value={form.sugar_per_100g}
-                  onChange={e => set("sugar_per_100g", e.target.value)}
-                  unit="g"
-                />
-              </MacroDropdown>
-              <MacroDropdown
-                title="Fat"
-                value={form.fat_per_100g}
-                onChange={e => set("fat_per_100g", e.target.value)}
-                unit="g"
-                color="#00CC66"
-                expanded={expandedMacros.fat}
-                onToggle={() => setExpandedMacros(p => ({ ...p, fat: !p.fat }))}
-              >
-                <NumericInput
-                  label="Saturated"
-                  value={form.saturated_fat_per_100g}
-                  onChange={e => set("saturated_fat_per_100g", e.target.value)}
-                  unit="g"
-                />
-                <NumericInput
-                  label="Trans"
-                  value={form.trans_fat_per_100g}
-                  onChange={e => set("trans_fat_per_100g", e.target.value)}
-                  unit="g"
-                />
-                <NumericInput
-                  label="Polyunsat"
-                  value={form.polyunsaturated_fat_per_100g}
-                  onChange={e => set("polyunsaturated_fat_per_100g", e.target.value)}
-                  unit="g"
-                />
-                <NumericInput
-                  label="Monounsat"
-                  value={form.monounsaturated_fat_per_100g}
-                  onChange={e => set("monounsaturated_fat_per_100g", e.target.value)}
-                  unit="g"
-                />
-              </MacroDropdown>
-              <NumericInput
-                label="Sodium"
-                value={form.sodium_per_100g}
-                onChange={e => set("sodium_per_100g", e.target.value)}
-                unit="mg"
-                color="#9370DB"
-              />
-              <NumericInput
-                label="Cholesterol"
-                value={form.cholesterol_per_100g}
-                onChange={e => set("cholesterol_per_100g", e.target.value)}
-                unit="mg"
-                color="#FF6B6B"
-              />
-            </div>
+          <div className="space-y-2">
+           <p className="text-xs font-semibold text-muted-foreground px-0.5">Per 100g</p>
+           <div className="space-y-2">
+             <NumericInput
+               label="Calories"
+               value={form.calories_per_100g}
+               onChange={e => set("calories_per_100g", e.target.value)}
+               unit="kcal"
+               required={true}
+               color="#FFD700"
+             />
+             <NumericInput
+               label="Protein"
+               value={form.protein_per_100g}
+               onChange={e => set("protein_per_100g", e.target.value)}
+               unit="g"
+               required={false}
+               color="#FF0055"
+             />
+             <MacroDropdown
+               title="Carbs"
+               value={form.carbs_per_100g}
+               onChange={e => set("carbs_per_100g", e.target.value)}
+               unit="g"
+               color="#00AAFF"
+               expanded={expandedMacros.carbs}
+               onToggle={() => setExpandedMacros(p => ({ ...p, carbs: !p.carbs }))}
+             >
+               <NumericInput
+                 label="Fiber"
+                 value={form.fiber_per_100g}
+                 onChange={e => set("fiber_per_100g", e.target.value)}
+                 unit="g"
+               />
+               <NumericInput
+                 label="Sugar"
+                 value={form.sugar_per_100g}
+                 onChange={e => set("sugar_per_100g", e.target.value)}
+                 unit="g"
+               />
+             </MacroDropdown>
+             <MacroDropdown
+               title="Fat"
+               value={form.fat_per_100g}
+               onChange={e => set("fat_per_100g", e.target.value)}
+               unit="g"
+               color="#00CC66"
+               expanded={expandedMacros.fat}
+               onToggle={() => setExpandedMacros(p => ({ ...p, fat: !p.fat }))}
+             >
+               <NumericInput
+                 label="Saturated"
+                 value={form.saturated_fat_per_100g}
+                 onChange={e => set("saturated_fat_per_100g", e.target.value)}
+                 unit="g"
+               />
+               <NumericInput
+                 label="Trans"
+                 value={form.trans_fat_per_100g}
+                 onChange={e => set("trans_fat_per_100g", e.target.value)}
+                 unit="g"
+               />
+               <NumericInput
+                 label="Polyunsat"
+                 value={form.polyunsaturated_fat_per_100g}
+                 onChange={e => set("polyunsaturated_fat_per_100g", e.target.value)}
+                 unit="g"
+               />
+               <NumericInput
+                 label="Monounsat"
+                 value={form.monounsaturated_fat_per_100g}
+                 onChange={e => set("monounsaturated_fat_per_100g", e.target.value)}
+                 unit="g"
+               />
+             </MacroDropdown>
+             <NumericInput
+               label="Sodium"
+               value={form.sodium_per_100g}
+               onChange={e => set("sodium_per_100g", e.target.value)}
+               unit="mg"
+               color="#9370DB"
+             />
+             <NumericInput
+               label="Cholesterol"
+               value={form.cholesterol_per_100g}
+               onChange={e => set("cholesterol_per_100g", e.target.value)}
+               unit="mg"
+               color="#FF6B6B"
+             />
+           </div>
           </div>
 
           {/* Micronutrients */}
