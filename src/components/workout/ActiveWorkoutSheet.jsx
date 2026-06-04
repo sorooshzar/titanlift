@@ -160,6 +160,9 @@ export default function ActiveWorkoutSheet() {
       });
     });
 
+    const weightUnit = localStorage.getItem('gym-weight-unit') || 'kg';
+    const totalVolumeKg = weightUnit === 'lbs' ? totalVolume / 2.20462 : totalVolume;
+
     const logData = {
       name: workout.name,
       template_id: workout.template_id || null,
@@ -167,7 +170,7 @@ export default function ActiveWorkoutSheet() {
       finished_at: finished.toISOString(),
       duration_minutes: duration,
       exercises: workout.exercises,
-      total_volume: totalVolume,
+      total_volume: Math.round(totalVolumeKg),
       total_sets: totalSets,
     };
 

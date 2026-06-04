@@ -43,6 +43,23 @@ const THRESHOLDS = {
   sore:     45,
 };
 
+function getMuscleCategory(muscleGroup) {
+  if (!muscleGroup) return null;
+  const m = muscleGroup.toLowerCase();
+  if (m.includes('chest')) return 'chest';
+  if (m.includes('lat')) return 'lats';
+  if (m.includes('mid back') || m.includes('erector') || m.includes('trap')) return 'back';
+  if (m.includes('rear delt') || m.includes('front delt') || m.includes('side delt')) return 'shoulders';
+  if (m.includes('bicep') || m.includes('brachioradialis') || m.includes('wrist')) return 'forearms';
+  if (m.includes('tricep')) return 'triceps';
+  if (m.includes('quad') || m.includes('adduct') || m.includes('abduct')) return 'quads';
+  if (m.includes('hamstring')) return 'hamstrings';
+  if (m.includes('glute')) return 'glutes';
+  if (m.includes('calf') || m.includes('calve')) return 'calves';
+  if (m.includes('abs') || m.includes('oblique') || m.includes('core')) return 'abs';
+  return null;
+}
+
 export function computeRecovery(workoutLogs) {
   const now = Date.now();
   const cutoff = now - 7 * 24 * 60 * 60 * 1000; // only look at last 7 days
@@ -57,7 +74,7 @@ export function computeRecovery(workoutLogs) {
     const hoursAgo = (now - logTime) / (1000 * 60 * 60);
 
     log.exercises?.forEach(ex => {
-      const muscle = ex.muscle_group?.toLowerCase();
+      const muscle = getMuscleCategory(ex.muscle_group);
       if (!muscle) return;
 
       const halfLife = HALF_LIVES[muscle] || 48;
