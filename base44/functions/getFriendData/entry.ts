@@ -32,13 +32,17 @@ Deno.serve(async (req) => {
     }
 
     // Use service role to bypass RLS
-    const [workoutLogs, bodyWeights, muscleRankRecords, sbdCacheList, allUsers] = await Promise.all([
+    const [workoutLogs, bodyWeights, allMuscleRankRecords, allSbdCaches, allUsers] = await Promise.all([
       base44.asServiceRole.entities.WorkoutLog.filter({ created_by: friendEmail }),
       base44.asServiceRole.entities.BodyWeight.filter({ created_by: friendEmail }),
-      base44.asServiceRole.entities.UserMuscleRank.filter({ created_by: friendEmail }),
-      base44.asServiceRole.entities.UserSBDCache.filter({ created_by: friendEmail }),
+      base44.asServiceRole.entities.UserMuscleRank.list(),
+      base44.asServiceRole.entities.UserSBDCache.list(),
       base44.asServiceRole.entities.User.list(),
     ]);
+
+    // Filter in JS — created_by is a system field that may not be filterable directly
+    const muscleRankRecords = allMuscleRankRecords.filter(r => r.created_by === friendEmail);
+    const sbdCacheList = allSbdCaches.filter(r => r.created_by === friendEmail);
 
     const sbdCache = sbdCacheList[0] || null;
     const friendUser = allUsers.find(u => u.email === friendEmail) || null;
