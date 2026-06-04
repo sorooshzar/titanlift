@@ -23,7 +23,7 @@ export default function FoodEmojiPickerModal({ open, current, onSelect, onClose 
       >
         <h3 className="text-sm font-bold mb-4 text-center">Choose Food Icon</h3>
 
-        <div className="grid grid-cols-6 gap-2 max-h-96 overflow-y-auto pr-1">
+        <div className="grid grid-cols-6 gap-2 max-h-96 overflow-y-auto pr-1 p-1">
           {FOOD_EMOJIS.map((emoji) => (
             <button
               key={emoji}
