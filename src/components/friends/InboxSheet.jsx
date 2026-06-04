@@ -11,7 +11,7 @@ export default function InboxSheet({ currentUser, requests, onClose, onRefresh }
   const handleAccept = async (req) => {
     await base44.entities.Friendship.update(req.id, {
       status: "accepted",
-      recipient_username: currentUser.username || currentUser.email,
+      recipient_username: currentUser.username || null,
     });
     onRefresh();
   };
@@ -51,7 +51,7 @@ export default function InboxSheet({ currentUser, requests, onClose, onRefresh }
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">{req.requester_username || req.requester_email}</p>
+                  <p className="text-sm font-semibold truncate">{req.requester_username ? `@${req.requester_username}` : "Unknown user"}</p>
                   <p className="text-xs text-muted-foreground">Wants to be friends</p>
                 </div>
                 <div className="flex gap-1.5">

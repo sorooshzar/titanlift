@@ -28,11 +28,11 @@ function FriendCard({ friend, xp, onView }) {
   return (
     <div className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5">
       <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-primary/20">
-        <span className="text-sm font-bold text-primary">{friend.username?.[0]?.toUpperCase() || "?"}</span>
+        <span className="text-sm font-bold text-primary">{friend.username?.[0]?.toUpperCase() ?? "?"}</span>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-0.5">
-          <p className="text-sm font-semibold truncate">@{friend.username || "unknown"}</p>
+          <p className="text-sm font-semibold truncate">{friend.username ? `@${friend.username}` : "Unknown user"}</p>
           <span className="text-xs font-bold text-primary ml-2 shrink-0">Lv {xp.level}</span>
         </div>
         <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
@@ -97,9 +97,43 @@ export default function Friends() {
     return {
       id: friendEmail,
       email: friendEmail,
-      username: friendUsername || friendEmail,
+      username: friendUsername || null, // never fall back to email
     };
   });
+
+  // Backfill missing usernames on friendship records
+  useEffect(() => {
+    if (!currentUser) return;
+    acceptedFriendships.forEach(async (f) => {
+      const isRequester = f.requester_email === currentUser.email;
+      const myUsernameField = isRequester ? "requester_username" : "recipient_username";
+      const friendUsernameField = isRequester ? "recipient_username" : "requester_username";
+      const myCurrentUsername = isRequester ? f.requester_username : f.recipient_username;
+      const friendCurrentUsername = isRequester ? f.recipient_username : f.requester_username;
+
+      const updates = {};
+
+      // Patch my own username if missing or stale
+      if (currentUser.username && myCurrentUsername !== currentUser.username) {
+        updates[myUsernameField] = currentUser.username;
+      }
+
+      // Patch friend's username if missing — look up from User list
+      if (!friendCurrentUsername) {
+        const friendEmail = isRequester ? f.recipient_email : f.requester_email;
+        const users = await base44.entities.User.list();
+        const friendUser = users.find(u => u.email === friendEmail);
+        if (friendUser?.username) {
+          updates[friendUsernameField] = friendUser.username;
+        }
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await base44.entities.Friendship.update(f.id, updates);
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [acceptedFriendships.length, currentUser?.username]);
 
   // Preload all friend data in parallel using React Query
   useEffect(() => {

@@ -77,8 +77,8 @@ export default function AddFriendSheet({ currentUser, onClose, onRequestSent }) 
     await base44.entities.Friendship.create({
       requester_email: currentUser.email,
       recipient_email: result.user.email,
-      requester_username: currentUser.username || currentUser.email,
-      recipient_username: result.user.username || result.user.email,
+      requester_username: currentUser.username || null,
+      recipient_username: result.user.username || null,
       status: "pending",
     });
 
@@ -161,11 +161,10 @@ export default function AddFriendSheet({ currentUser, onClose, onRequestSent }) 
         {result?.found && !sent && (
           <div className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3.5">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="text-sm font-bold text-primary">{result.user.full_name?.[0]?.toUpperCase() || "?"}</span>
+              <span className="text-sm font-bold text-primary">{result.user.username?.[0]?.toUpperCase() || "?"}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">{result.user.full_name}</p>
-              {result.user.username && <p className="text-xs text-muted-foreground">@{result.user.username}</p>}
+              <p className="text-sm font-semibold truncate">@{result.user.username || "Unknown user"}</p>
             </div>
             <Button size="sm" onClick={handleSendRequest} disabled={sending} className="rounded-xl px-3 text-xs">
               {sending ? "Sending..." : "Add"}
