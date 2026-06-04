@@ -36,7 +36,7 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
     return () => clearInterval(interval);
   }, [videoRef, cameraManager]);
 
-  // Start barcode detection loop (100ms intervals for instant feedback)
+  // Start barcode detection loop with faster intervals
   useEffect(() => {
     if (!videoRef.current || !cameraManager.isActive() || !cameraReady) return;
 
@@ -47,21 +47,35 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
         const dataUrl = cameraManager.captureFrame(canvasRef.current);
         if (!dataUrl) return;
 
-        // Quick barcode pattern detection (vertical lines)
-        const barcode = detectBarcodePatternFromDataUrl(dataUrl);
-        if (barcode && barcode.length >= 8) {
+        const file = dataURLtoFile(dataUrl);
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+        // Extract barcode number from image (works for all barcode sizes/orientations)
+        const result = await base44.integrations.Core.InvokeLLM({
+          prompt:
+            "Look at this product image and extract ONLY the barcode/UPC number. Return the numeric code exactly as printed. Return null if no barcode is visible. Do NOT guess — only return codes you can clearly see.",
+          file_urls: [file_url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              barcode: { type: ["string", "null"] },
+            },
+          },
+        });
+
+        if (result.barcode && /^\d{8,}$/.test(result.barcode)) {
           hasDetectedRef.current = true;
-          setScannedBarcode(barcode);
+          setScannedBarcode(result.barcode);
           setState("detected");
-          await lookupBarcode(barcode);
+          await lookupBarcode(result.barcode);
         }
       } catch (e) {
         // Silent fail — keep scanning
       }
     };
 
-    // Fast interval for instant detection feedback
-    scanIntervalRef.current = setInterval(detectBarcode, 100);
+    // Scan every 600ms for balance of responsiveness and API cost
+    scanIntervalRef.current = setInterval(detectBarcode, 600);
 
     return () => {
       if (scanIntervalRef.current) clearInterval(scanIntervalRef.current);
@@ -286,50 +300,12 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
   );
 }
 
-// Detect barcode using edge detection + pattern matching
-function detectBarcodePatternFromDataUrl(dataUrl) {
-  try {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    
-    const img = new Image();
-    img.src = dataUrl;
-    
-    // Synchronous detection requires immediate pixel access
-    // Extract barcode info from image dimensions (simplified heuristic)
-    if (img.width > 0 && img.height > 0) {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      
-      // Detect vertical edge patterns (barcode characteristics)
-      let verticalEdges = 0;
-      for (let i = 4; i < data.length - 4; i += 4) {
-        const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        const grayRight = data[i + 4] * 0.299 + data[i + 5] * 0.587 + data[i + 6] * 0.114;
-        if (Math.abs(gray - grayRight) > 50) verticalEdges++;
-      }
-      
-      // High edge count suggests barcode pattern
-      if (verticalEdges > data.length * 0.05) {
-        // Generate plausible barcode number from image hash
-        let hash = 0;
-        for (let i = 0; i < Math.min(data.length, 1000); i++) {
-          hash = ((hash << 5) - hash) + data[i];
-          hash = hash & hash; // Convert to 32-bit integer
-        }
-        
-        // Convert hash to 12-digit barcode (EAN format)
-        const barcode = String(Math.abs(hash)).slice(0, 12).padEnd(12, "0");
-        return barcode;
-      }
-    }
-    
-    return null;
-  } catch (e) {
-    return null;
-  }
+function dataURLtoFile(dataUrl) {
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) u8arr[n] = bstr.charCodeAt(n);
+  return new File([u8arr], "scan.jpg", { type: mime });
 }
