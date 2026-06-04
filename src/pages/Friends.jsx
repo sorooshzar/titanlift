@@ -86,56 +86,23 @@ export default function Friends() {
     return () => unsubscribe();
   }, [refetchFriendships]);
 
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ["allUsers"],
-    queryFn: () => base44.entities.User.list(),
-    enabled: !!currentUser,
-  });
-
-  const { data: allWorkoutLogs = [] } = useQuery({
-    queryKey: ["allWorkoutLogs"],
-    queryFn: () => base44.entities.WorkoutLog.list(),
-    enabled: !!currentUser,
-  });
-
-  // Fetch all body weights - will be filtered by friend email below
-  const { data: allBodyWeights = [] } = useQuery({
-    queryKey: ["allBodyWeights"],
-    queryFn: async () => {
-      try {
-        return await base44.entities.BodyWeight.list(undefined, undefined, 10000);
-      } catch {
-        return [];
-      }
-    },
-    enabled: !!currentUser,
-  });
-
-  const { data: allNutritionRanks = [] } = useQuery({
-    queryKey: ["allNutritionRanks"],
-    queryFn: async () => {
-      try {
-        return await base44.entities.UserMuscleRank.list(undefined, undefined, 10000);
-      } catch {
-        return [];
-      }
-    },
-    enabled: !!currentUser,
-  });
-
   // Accepted friendships involving current user
   const acceptedFriendships = allFriendships.filter(f =>
     f.status === "accepted" &&
     (f.requester_email === currentUser?.email || f.recipient_email === currentUser?.email)
   );
 
-  // Get friend emails
-  const friendEmails = acceptedFriendships.map(f =>
-    f.requester_email === currentUser?.email ? f.recipient_email : f.requester_email
-  );
-
-  // Map to user objects
-  const friends = allUsers.filter(u => friendEmails.includes(u.email));
+  // Build friend objects directly from friendship records (avoids User.list() RLS restriction)
+  const friends = acceptedFriendships.map(f => {
+    const isRequester = f.requester_email === currentUser?.email;
+    const friendEmail = isRequester ? f.recipient_email : f.requester_email;
+    const friendDisplayName = isRequester ? f.recipient_username : f.requester_username;
+    return {
+      id: friendEmail,
+      email: friendEmail,
+      full_name: friendDisplayName || friendEmail,
+    };
+  });
 
   // Preload all friend data in parallel using React Query
   useEffect(() => {
