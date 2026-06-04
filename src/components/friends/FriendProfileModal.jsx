@@ -98,8 +98,8 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
                   <p className="text-xs text-muted-foreground">@{friend.username}</p>
                 )}
                 {latestBodyWeight && (
-                  <p className="text-xs text-primary font-semibold mt-2">
-                    {toDisplay(latestBodyWeight.unit === 'kg' ? latestBodyWeight.weight : latestBodyWeight.weight * 2.20462)} {weightUnit}
+                  <p className="text-xs text-primary font-semibold mt-1">
+                    {toDisplay(latestBodyWeight.unit === 'kg' ? latestBodyWeight.weight : latestBodyWeight.weight / 2.20462)} {weightUnit}
                   </p>
                 )}
               </div>
