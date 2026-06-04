@@ -31,9 +31,11 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
   const [showWorkoutHistory, setShowWorkoutHistory] = useState(false);
 
   // Get latest body weight
-  const latestBodyWeight = bodyWeights.length > 0 
-    ? bodyWeights.sort((a, b) => new Date(b.date) - new Date(a.date))[0]
-    : null;
+   const latestBodyWeight = bodyWeights.length > 0 
+     ? bodyWeights.sort((a, b) => new Date(b.date) - new Date(a.date))[0]
+     : null;
+
+   console.log('Friend:', friend.email, 'Bodyweights:', bodyWeights, 'Latest:', latestBodyWeight);
 
   // Get nutrition rank (highest rank by impressiveness score)
   const nutritionRank = nutritionRanks.length > 0
@@ -84,51 +86,48 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
           </div>
 
           {/* Avatar + name + username + action buttons */}
-          <div className="flex items-start justify-between gap-3 pt-2">
-            {/* Left: Avatar + Name */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/30 flex-shrink-0">
-                <span className="text-xl font-black text-primary">
-                  {friend.full_name?.[0]?.toUpperCase() || "?"}
-                </span>
-              </div>
-              <div>
-                <p className="font-bold text-sm">{friend.full_name || "Unknown"}</p>
-              </div>
-            </div>
+           <div className="flex items-center justify-between gap-3 pt-2">
+             {/* Left: Buttons */}
+             <div className="flex flex-col gap-2 flex-shrink-0">
+               <Button
+                 variant="outline"
+                 size="sm"
+                 className="rounded-xl text-xs px-3"
+                 onClick={() => setShowBodyModel(true)}
+               >
+                 <User className="w-3 h-3 mr-1.5" /> Rank
+               </Button>
+               <Button
+                 variant="outline"
+                 size="sm"
+                 className="rounded-xl text-xs px-3"
+                 onClick={() => setShowWorkoutHistory(true)}
+               >
+                 <Zap className="w-3 h-3 mr-1.5" /> History
+               </Button>
+             </div>
 
-            {/* Center: Username + Bodyweight */}
-            <div className="flex flex-col items-center justify-start flex-1 min-w-0">
-              {friend.username && (
-                <p className="text-xs text-muted-foreground">@{friend.username}</p>
-              )}
-              {latestBodyWeight && (
-                <p className="text-xs text-primary font-semibold mt-1">
-                  {latestBodyWeight.unit === 'kg' && weightUnit === 'kg' ? toDisplay(latestBodyWeight.weight) : latestBodyWeight.unit === 'kg' ? toDisplay(latestBodyWeight.weight * 2.20462) : toDisplay(latestBodyWeight.weight / 2.20462)} {weightUnit}
-                </p>
-              )}
-            </div>
+             {/* Center: Avatar + Name + Username + Bodyweight */}
+             <div className="flex flex-col items-center flex-1">
+               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/30 mb-2">
+                 <span className="text-xl font-black text-primary">
+                   {friend.full_name?.[0]?.toUpperCase() || "?"}
+                 </span>
+               </div>
+               <p className="font-bold text-sm text-center">{friend.full_name || "Unknown"}</p>
+               {friend.username && (
+                 <p className="text-xs text-muted-foreground">@{friend.username}</p>
+               )}
+               {latestBodyWeight && (
+                 <p className="text-xs text-primary font-semibold mt-1">
+                   {latestBodyWeight.unit === 'kg' && weightUnit === 'kg' ? toDisplay(latestBodyWeight.weight) : latestBodyWeight.unit === 'kg' ? toDisplay(latestBodyWeight.weight * 2.20462) : toDisplay(latestBodyWeight.weight / 2.20462)} {weightUnit}
+                 </p>
+               )}
+             </div>
 
-            {/* Right: Buttons */}
-            <div className="flex flex-col gap-2 flex-shrink-0">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl text-xs px-3"
-                onClick={() => setShowBodyModel(true)}
-              >
-                <User className="w-3 h-3 mr-1.5" /> Rank
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl text-xs px-3"
-                onClick={() => setShowWorkoutHistory(true)}
-              >
-                <Zap className="w-3 h-3 mr-1.5" /> History
-              </Button>
-            </div>
-          </div>
+             {/* Right: Empty spacer */}
+             <div className="w-20"></div>
+           </div>
 
           {/* Level card - full width */}
           <div className="bg-secondary rounded-2xl px-4 py-3">
