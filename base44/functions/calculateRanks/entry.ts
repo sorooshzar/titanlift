@@ -178,7 +178,7 @@ Deno.serve(async (req) => {
     const [bodyWeights, allExercises, allLogs] = await Promise.all([
       base44.entities.BodyWeight.filter({ created_by: user.email }, "-date", 1),
       base44.asServiceRole.entities.Exercise.list(null, 500),
-      base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 200),
+      base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 2000),
     ]);
     const rawBW = bodyWeights[0]?.weight;
     const bodyweightKg = (rawBW && rawBW > 0) ? rawBW : 80;
@@ -296,19 +296,34 @@ Deno.serve(async (req) => {
       const last15 = pool.slice(0, 15);
       const top5 = [...last15].sort((a, b) => b - a).slice(0, 5);
       const avg = top5.length > 0 ? top5.reduce((a, b) => a + b, 0) / top5.length : 0;
+      if (avg <= 0) return; // don't write a zero-score muscle rank
       muscleRanks[muscle] = {
         rank: getRankFromScore(avg, muscle),
         score: Math.round(avg * 100) / 100
       };
     });
 
-    // Persist muscle ranks to UserMuscleRank entity
+    // Upsert muscle ranks — update if exists, create if new, never delete
     const existing = await base44.entities.UserMuscleRank.filter({ created_by: user.email }, null, 1000);
-    await Promise.all(existing.map(e => base44.entities.UserMuscleRank.delete(e.id)));
+    const existingByMuscle = {};
+    existing.forEach(e => { existingByMuscle[e.muscle] = e; });
+
     await Promise.all(
-      Object.entries(muscleRanks).map(([muscle, { rank, score }]) =>
-        base44.entities.UserMuscleRank.create({ muscle, rank, impressiveness_score: score })
-      )
+      Object.entries(muscleRanks).map(([muscle, { rank, score }]) => {
+        const existingRow = existingByMuscle[muscle];
+        if (existingRow) {
+          return base44.entities.UserMuscleRank.update(existingRow.id, {
+            rank,
+            impressiveness_score: score,
+          });
+        } else {
+          return base44.entities.UserMuscleRank.create({
+            muscle,
+            rank,
+            impressiveness_score: score,
+          });
+        }
+      })
     );
 
     return Response.json({
