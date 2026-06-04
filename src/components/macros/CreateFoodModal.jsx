@@ -309,7 +309,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
           {/* Macronutrients */}
           <div className="space-y-2">
-           <p className="text-xs font-semibold text-muted-foreground px-0.5">Per 100g</p>
+           <p className="text-xs font-semibold text-muted-foreground px-0.5">Per serving</p>
            <div className="space-y-2">
              <NumericInput
                label="Calories"
@@ -443,16 +443,15 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
         </div>
 
         {/* Icon Picker Modal */}
-        {showIconPicker && (
-          <IconPickerModal
-            onSelect={(icon) => {
-              set("icon", icon);
-              setShowIconPicker(false);
-            }}
-            onClose={() => setShowIconPicker(false)}
-            presetEmojis={ICON_PRESET}
-          />
-        )}
+        <IconPickerModal
+          open={showIconPicker}
+          current={form.icon}
+          onSelect={(icon) => {
+            set("icon", icon);
+            setShowIconPicker(false);
+          }}
+          onClose={() => setShowIconPicker(false)}
+        />
       </motion.div>
     </motion.div>
   );
