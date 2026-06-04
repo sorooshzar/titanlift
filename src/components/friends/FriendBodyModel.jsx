@@ -2,15 +2,8 @@ import React from "react";
 import MuscleModel from "../profile/MuscleModel";
 import RankLegend from "../profile/RankLegend";
 
-export default function FriendBodyModel({ nutritionRanks = [] }) {
-  // Convert nutritionRanks to muscleRanks format for MuscleModel
-  const muscleRanks = nutritionRanks.reduce((acc, rank) => {
-    if (rank.muscle && rank.rank) {
-      acc[rank.muscle] = rank.rank;
-    }
-    return acc;
-  }, {});
-
+// Accepts muscleRanks as a plain map: { "Quads": "gold", "Lats": "silver", ... }
+export default function FriendBodyModel({ muscleRanks = {} }) {
   return (
     <div className="flex gap-6">
       {/* Body Model — left side */}

@@ -32,22 +32,22 @@ Deno.serve(async (req) => {
     }
 
     // Use service role to bypass RLS
-    const workoutLogs = await base44.asServiceRole.entities.WorkoutLog.filter({
-      created_by: friendEmail
-    });
+    const [workoutLogs, bodyWeights, muscleRankRecords, sbdCacheList, allUsers] = await Promise.all([
+      base44.asServiceRole.entities.WorkoutLog.filter({ created_by: friendEmail }),
+      base44.asServiceRole.entities.BodyWeight.filter({ created_by: friendEmail }),
+      base44.asServiceRole.entities.UserMuscleRank.filter({ created_by: friendEmail }),
+      base44.asServiceRole.entities.UserSBDCache.filter({ created_by: friendEmail }),
+      base44.asServiceRole.entities.User.list(),
+    ]);
 
-    const bodyWeights = await base44.asServiceRole.entities.BodyWeight.filter({
-      created_by: friendEmail
-    });
-
-    const nutritionRanks = await base44.asServiceRole.entities.UserMuscleRank.filter({
-      created_by: friendEmail
-    });
-
-    const sbdCacheList = await base44.asServiceRole.entities.UserSBDCache.filter({
-      created_by: friendEmail
-    });
     const sbdCache = sbdCacheList[0] || null;
+    const friendUser = allUsers.find(u => u.email === friendEmail) || null;
+
+    // Build muscle rank map: { "Quads": "gold", "Lats": "silver", ... }
+    const muscleRanks = muscleRankRecords.reduce((acc, r) => {
+      if (r.muscle && r.rank) acc[r.muscle] = r.rank;
+      return acc;
+    }, {});
 
     // Calculate total volume and XP
     const totalVolume = (workoutLogs || []).reduce((sum, log) => sum + (log.total_volume || 0), 0);
@@ -56,8 +56,11 @@ Deno.serve(async (req) => {
     return Response.json({
       workoutLogs,
       bodyWeights,
-      nutritionRanks,
+      muscleRanks,
+      // keep nutritionRanks as alias for backward compat
+      nutritionRanks: muscleRankRecords,
       sbdCache,
+      friendUser,
       totalVolume,
       xp
     });

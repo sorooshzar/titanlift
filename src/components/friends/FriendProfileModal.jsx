@@ -27,7 +27,7 @@ function MedalTile({ medal, unlocked }) {
   );
 }
 
-export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, bodyWeights = [], nutritionRanks = [], sbdCache = null }) {
+export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, bodyWeights = [], muscleRanks = {}, nutritionRanks = [], sbdCache = null }) {
   const { unit: weightUnit, toDisplay } = useWeightUnit();
   const [showBodyModel, setShowBodyModel] = useState(false);
   const [showWorkoutHistory, setShowWorkoutHistory] = useState(false);
@@ -186,7 +186,7 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </div>
-            <FriendBodyModel nutritionRanks={nutritionRanks} />
+            <FriendBodyModel muscleRanks={muscleRanks} />
           </div>
           </div>
           )}

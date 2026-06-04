@@ -176,10 +176,15 @@ export default function Friends() {
     const cachedData = queryClient.getQueryData(['friendData', friend.email]) || {
       workoutLogs: [],
       bodyWeights: [],
+      muscleRanks: {},
       nutritionRanks: [],
       xp,
     };
-    setViewingFriend({ friend, xp: cachedData.xp || xp });
+    // Merge friendUser data (unlockedMedals etc.) into the friend object
+    const enrichedFriend = cachedData.friendUser
+      ? { ...friend, ...cachedData.friendUser }
+      : friend;
+    setViewingFriend({ friend: enrichedFriend, xp: cachedData.xp || xp });
     setFriendData(cachedData);
   };
 
@@ -274,6 +279,7 @@ export default function Friends() {
           onClose={() => setViewingFriend(null)}
           workoutLogs={friendData?.workoutLogs || []}
           bodyWeights={friendData?.bodyWeights || []}
+          muscleRanks={friendData?.muscleRanks || {}}
           nutritionRanks={friendData?.nutritionRanks || []}
           sbdCache={friendData?.sbdCache || null}
         />
