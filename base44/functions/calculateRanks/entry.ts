@@ -280,21 +280,27 @@ Deno.serve(async (req) => {
       const last15 = pool.slice(0, 15);
       const top5 = [...last15].sort((a, b) => b - a).slice(0, 5);
       const avg = top5.length > 0 ? top5.reduce((a, b) => a + b, 0) / top5.length : 0;
-      muscleRanks[muscle] = getRankFromScore(avg, muscle);
+      muscleRanks[muscle] = {
+        rank: getRankFromScore(avg, muscle),
+        score: Math.round(avg * 100) / 100
+      };
     });
 
     // Persist muscle ranks to UserMuscleRank entity
     const existing = await base44.entities.UserMuscleRank.filter({ created_by: user.email }, null, 1000);
     await Promise.all(existing.map(e => base44.entities.UserMuscleRank.delete(e.id)));
     await Promise.all(
-      Object.entries(muscleRanks).map(([muscle, rank]) =>
-        base44.entities.UserMuscleRank.create({ muscle, rank })
+      Object.entries(muscleRanks).map(([muscle, { rank, score }]) =>
+        base44.entities.UserMuscleRank.create({ muscle, rank, impressiveness_score: score })
       )
     );
 
     return Response.json({
       updatedLog: { ...workoutLog, exercises: updatedExercises },
-      muscleRanks,
+      muscleRanks: Object.entries(muscleRanks).reduce((acc, [muscle, data]) => {
+        acc[muscle] = data.rank;
+        return acc;
+      }, {}),
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
