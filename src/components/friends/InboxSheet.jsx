@@ -11,7 +11,7 @@ export default function InboxSheet({ currentUser, requests, onClose, onRefresh }
   const handleAccept = async (req) => {
     await base44.entities.Friendship.update(req.id, {
       status: "accepted",
-      recipient_username: currentUser.full_name || currentUser.username || currentUser.email,
+      recipient_username: currentUser.username || currentUser.email,
     });
     onRefresh();
   };

@@ -77,8 +77,8 @@ export default function AddFriendSheet({ currentUser, onClose, onRequestSent }) 
     await base44.entities.Friendship.create({
       requester_email: currentUser.email,
       recipient_email: result.user.email,
-      requester_username: currentUser.full_name || currentUser.username || currentUser.email,
-      recipient_username: result.user.full_name || result.user.username || result.user.email,
+      requester_username: currentUser.username || currentUser.email,
+      recipient_username: result.user.username || result.user.email,
       status: "pending",
     });
 

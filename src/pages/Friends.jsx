@@ -28,16 +28,13 @@ function FriendCard({ friend, xp, onView }) {
   return (
     <div className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5">
       <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0 ring-2 ring-primary/20">
-        <span className="text-sm font-bold text-primary">{friend.full_name?.[0]?.toUpperCase() || "?"}</span>
+        <span className="text-sm font-bold text-primary">{friend.username?.[0]?.toUpperCase() || "?"}</span>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-0.5">
-          <p className="text-sm font-semibold truncate">{friend.full_name || "Unknown"}</p>
+          <p className="text-sm font-semibold truncate">@{friend.username || "unknown"}</p>
           <span className="text-xs font-bold text-primary ml-2 shrink-0">Lv {xp.level}</span>
         </div>
-        {friend.username && (
-          <p className="text-xs text-muted-foreground mb-1">@{friend.username}</p>
-        )}
         <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
           <div
             className="h-full bg-primary rounded-full transition-all duration-500"
@@ -96,11 +93,11 @@ export default function Friends() {
   const friends = acceptedFriendships.map(f => {
     const isRequester = f.requester_email === currentUser?.email;
     const friendEmail = isRequester ? f.recipient_email : f.requester_email;
-    const friendDisplayName = isRequester ? f.recipient_username : f.requester_username;
+    const friendUsername = isRequester ? f.recipient_username : f.requester_username;
     return {
       id: friendEmail,
       email: friendEmail,
-      full_name: friendDisplayName || friendEmail,
+      username: friendUsername || friendEmail,
     };
   });
 
