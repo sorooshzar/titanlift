@@ -58,12 +58,13 @@ function FriendCard({ friend, xp, onView }) {
 }
 
 export default function Friends() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [currentUser, setCurrentUser] = useState(null);
-  const [showAddFriend, setShowAddFriend] = useState(false);
-  const [showInbox, setShowInbox] = useState(false);
-  const [viewingFriend, setViewingFriend] = useState(null); // { friend, xp }
+   const navigate = useNavigate();
+   const queryClient = useQueryClient();
+   const [currentUser, setCurrentUser] = useState(null);
+   const [showAddFriend, setShowAddFriend] = useState(false);
+   const [showInbox, setShowInbox] = useState(false);
+   const [viewingFriend, setViewingFriend] = useState(null); // { friend, xp }
+   const [friendData, setFriendData] = useState(null); // { workoutLogs, bodyWeights, nutritionRanks }
 
   useEffect(() => {
     base44.auth.me().then(u => setCurrentUser(u)).catch(() => {});
@@ -97,12 +98,11 @@ export default function Friends() {
     enabled: !!currentUser,
   });
 
-  // Fetch all body weights with no user filter (to get friends' data too)
+  // Fetch all body weights - will be filtered by friend email below
   const { data: allBodyWeights = [] } = useQuery({
     queryKey: ["allBodyWeights"],
     queryFn: async () => {
       try {
-        // Try to fetch all - RLS will handle what we can see
         return await base44.entities.BodyWeight.list(undefined, undefined, 10000);
       } catch {
         return [];
@@ -113,7 +113,13 @@ export default function Friends() {
 
   const { data: allNutritionRanks = [] } = useQuery({
     queryKey: ["allNutritionRanks"],
-    queryFn: () => base44.entities.UserMuscleRank.list(),
+    queryFn: async () => {
+      try {
+        return await base44.entities.UserMuscleRank.list(undefined, undefined, 10000);
+      } catch {
+        return [];
+      }
+    },
     enabled: !!currentUser,
   });
 
@@ -146,6 +152,17 @@ export default function Friends() {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["friendships"] });
+  };
+
+  const handleViewFriend = async (friend, xp) => {
+    setViewingFriend({ friend, xp });
+    try {
+      const res = await base44.functions.invoke('getFriendData', { friendId: friend.id });
+      setFriendData(res.data);
+    } catch (err) {
+      console.error('Error fetching friend data:', err);
+      setFriendData({ workoutLogs: [], bodyWeights: [], nutritionRanks: [] });
+    }
   };
 
   return (
@@ -206,25 +223,25 @@ export default function Friends() {
           </div>
         ) : (
           friendsWithXp.map(({ friend, xp }) => (
-            <FriendCard
-              key={friend.id}
-              friend={friend}
-              xp={xp}
-              onView={(f, x) => setViewingFriend({ friend: f, xp: x })}
-            />
-          ))
+             <FriendCard
+               key={friend.id}
+               friend={friend}
+               xp={xp}
+               onView={handleViewFriend}
+             />
+           ))
         )}
       </div>
 
       {/* Friend Profile Modal */}
-      {viewingFriend && (
+      {viewingFriend && friendData && (
         <FriendProfileModal
           friend={viewingFriend.friend}
           xp={viewingFriend.xp}
           onClose={() => setViewingFriend(null)}
-          workoutLogs={allWorkoutLogs.filter(l => l.created_by === viewingFriend.friend.email)}
-          bodyWeights={allBodyWeights.filter(b => b.created_by === viewingFriend.friend.email)}
-          nutritionRanks={allNutritionRanks.filter(r => r.created_by === viewingFriend.friend.email)}
+          workoutLogs={friendData.workoutLogs || []}
+          bodyWeights={friendData.bodyWeights || []}
+          nutritionRanks={friendData.nutritionRanks || []}
         />
       )}
 
