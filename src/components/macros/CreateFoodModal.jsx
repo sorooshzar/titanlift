@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import IconPickerModal from "@/components/workouts/IconPickerModal";
-import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const ICON_PRESET = ["🍎", "🥕", "🥬", "🍌", "🍊", "🍋", "🥑", "🍅", "🥦", "🌽", "🥒", "🍞", "🥐", "🥯", "🧀", "🥛", "🍶", "☕", "🍺", "🥤", "🍊", "🥃", "🍲", "🥘", "🍛", "🍜", "🍝", "🍔", "🍟", "🌭", "🍿", "🥓", "🍖", "🍗", "🥩", "🍤", "🦐", "🐙", "🦑", "🦞", "🦀", "🐟", "🐠", "🐡", "🦈", "🥮", "🍱", "🍙", "🍚", "🍛", "🍜", "🍲", "🥞", "🧇", "🥟", "🦪", "🍗", "🍖", "🌭", "🍔", "🍟", "🍕", "🥪", "🥙", "🧆", "🌮", "🌯", "🥗", "🥘", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙", "🍚", "🍘", "🍥", "🥠", "🥮", "🍢", "🍡", "🍧", "🍨", "🍦", "🍰", "🎂", "🧁", "🍮", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "🌰", "🥜"];
 
@@ -76,6 +76,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
     brand: prefill?.brand || "",
     serving_description: prefill?.serving_description || "",
     serving_size: prefill?.serving_size || 100,
+    serving_unit: prefill?.serving_unit || "g",
     calories_per_100g: prefill?.calories_per_100g || "",
     protein_per_100g: prefill?.protein_per_100g || "",
     carbs_per_100g: prefill?.carbs_per_100g || "",
@@ -127,6 +128,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
       brand: form.brand || null,
       serving_description: form.serving_description || null,
       serving_size: parseFloat(form.serving_size) || 100,
+      serving_unit: form.serving_unit || "g",
       calories_per_100g: parseFloat(form.calories_per_100g) || 0,
       protein_per_100g: parseFloat(form.protein_per_100g) || 0,
       carbs_per_100g: parseFloat(form.carbs_per_100g) || 0,
@@ -218,38 +220,44 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
           </div>
 
           {/* Serving Information */}
-          <CollapsibleSection title="Serving" defaultOpen={true}>
-           <div className="flex items-center gap-3 bg-muted rounded-md px-3 py-2">
-             <div className="flex-1 flex items-center gap-1">
+          <CollapsibleSection title="Serving Size" defaultOpen={true}>
+           <div className="flex items-center gap-2 bg-muted rounded-md px-3 py-2">
+             <div className="flex items-center gap-1">
                <Input
                  type="number"
                  placeholder="100"
                  step="1"
                  value={form.serving_size}
                  onChange={e => set("serving_size", e.target.value)}
-                 className="w-16 bg-background border-0 h-8 rounded-md text-xs font-semibold text-right p-0 focus:ring-0"
+                 className="w-14 bg-background border-0 h-8 rounded-md text-xs font-semibold text-right p-0 focus:ring-0"
                />
-               <span className="text-xs font-semibold text-muted-foreground shrink-0">g</span>
+               <Select value={form.serving_unit} onValueChange={val => set("serving_unit", val)}>
+                 <SelectTrigger className="w-14 h-8 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
+                   <SelectValue />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="g">g</SelectItem>
+                   <SelectItem value="ml">ml</SelectItem>
+                 </SelectContent>
+               </Select>
              </div>
 
-             <Separator orientation="vertical" className="h-6" />
+             <span className="text-muted-foreground text-xs shrink-0">|</span>
 
-             <div className="flex items-center gap-2 flex-1">
-               <span className="text-xs font-semibold text-muted-foreground shrink-0">Per</span>
-               <Input
-                 type="number"
-                 placeholder="1"
-                 step="0.5"
-                 defaultValue="1"
-                 className="w-12 bg-background border-0 h-8 rounded-md text-xs font-semibold text-center p-0 focus:ring-0"
-               />
-               <Input
-                 placeholder="slice"
-                 value={form.serving_description}
-                 onChange={e => set("serving_description", e.target.value)}
-                 className="flex-1 bg-background border-0 h-8 rounded-md text-xs font-semibold p-2 focus:ring-0"
-               />
-             </div>
+             <span className="text-xs font-semibold text-muted-foreground shrink-0">Per</span>
+             <Input
+               type="number"
+               placeholder="1"
+               step="0.5"
+               defaultValue="1"
+               className="w-12 bg-background border-0 h-8 rounded-md text-xs font-semibold text-center p-0 focus:ring-0"
+             />
+             <Input
+               placeholder="slice"
+               value={form.serving_description}
+               onChange={e => set("serving_description", e.target.value)}
+               className="flex-1 bg-background border-0 h-8 rounded-md text-xs font-semibold p-2 focus:ring-0"
+             />
            </div>
           </CollapsibleSection>
 
