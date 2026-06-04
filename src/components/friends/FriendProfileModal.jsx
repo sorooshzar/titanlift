@@ -157,14 +157,6 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
             </p>
           </div>
 
-          {/* Nutrition Rank card */}
-          {nutritionRank && (
-            <div className="bg-secondary rounded-2xl px-4 py-3 flex flex-col items-center justify-center">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-2">Nutrition</p>
-              <p className="text-lg font-black text-primary capitalize">{nutritionRank.rank}</p>
-            </div>
-          )}
-
           {/* SBD Section */}
           <div className="grid grid-cols-4 gap-2.5">
             {[
