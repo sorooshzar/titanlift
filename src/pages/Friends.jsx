@@ -137,35 +137,40 @@ export default function Friends() {
   // Map to user objects
   const friends = allUsers.filter(u => friendEmails.includes(u.email));
 
-  // Fetch friend data for XP calculation
+  // Fetch friend data for XP calculation - cached to prevent flickering
   const [friendsData, setFriendsData] = useState({});
+  const [loadingFriends, setLoadingFriends] = useState(new Set());
 
   useEffect(() => {
     if (friends.length === 0) return;
 
     const fetchAllFriendsData = async () => {
-        const data = {};
-        for (const friend of friends) {
-          try {
-            const res = await base44.functions.invoke('getFriendData', { friendEmail: friend.email });
-            console.log(`Fetched data for ${friend.email}:`, res.data);
-            data[friend.email] = res.data;
-          } catch (err) {
-            console.error(`Error fetching data for ${friend.email}:`, err);
-            data[friend.email] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
-          }
-          await new Promise(resolve => setTimeout(resolve, 200));
+      const data = { ...friendsData }; // Keep existing data to prevent flicker
+      for (const friend of friends) {
+        if (data[friend.email]) continue; // Skip if already loaded
+        setLoadingFriends(prev => new Set([...prev, friend.email]));
+        try {
+          const res = await base44.functions.invoke('getFriendData', { friendEmail: friend.email });
+          data[friend.email] = res.data;
+        } catch (err) {
+          console.error(`Error fetching data for ${friend.email}:`, err);
+          data[friend.email] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
         }
-        console.log('All friends data:', data);
-        setFriendsData(data);
-      };
+        setLoadingFriends(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(friend.email);
+          return newSet;
+        });
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+      setFriendsData(data);
+    };
 
     fetchAllFriendsData();
   }, [friends]);
 
   const handleViewFriend = (friend, xp) => {
-    const data = friendsData[friend.email] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [], xp: getLevelData(0) };
-    console.log('Opening friend modal with data:', data);
+    const data = friendsData[friend.email] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [], xp };
     setViewingFriend({ friend, xp: data.xp || xp });
     setFriendData(data);
   };
