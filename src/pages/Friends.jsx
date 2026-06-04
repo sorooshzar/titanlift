@@ -183,7 +183,7 @@ export default function Friends() {
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-3">
         <div className="relative flex items-center justify-between">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/Profile')}
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
           >
             <X className="w-5 h-5 text-muted-foreground" />
