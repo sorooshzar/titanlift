@@ -77,8 +77,8 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
     serving_description: prefill?.serving_description || "",
     serving_size: prefill?.serving_size || 100,
     serving_unit: prefill?.serving_unit || "g",
-    portion_quantity: prefill?.portion_quantity || 1,
-    portion_fraction: prefill?.portion_fraction || 0,
+    portion_quantity: prefill?.portion_quantity || "",
+    portion_fraction: prefill?.portion_fraction || "",
     portion_unit: prefill?.portion_unit || "serving",
     calories_per_100g: prefill?.calories_per_100g || "",
     protein_per_100g: prefill?.protein_per_100g || "",
@@ -227,7 +227,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
           {/* Serving Information */}
           <CollapsibleSection title="Serving Size" defaultOpen={true}>
-           <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
+           <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1 -mt-2">
              {/* Base serving size number */}
              <Input
                type="number"
