@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
-import { X, Plus, Trash2, Search, ChevronLeft, Delete, GripVertical } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { X, Plus, Trash2, Search, ChevronLeft, ScanLine } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -125,43 +125,192 @@ function IngredientQtyPicker({ ingredient, onConfirm, onClose }) {
   );
 }
 
+function FoodPickerAddForm({ prefill, onCreate, onClose }) {
+  const [form, setForm] = useState({
+    name: prefill?.name || "",
+    brand: "",
+    calories_per_100g: "",
+    protein_per_100g: "",
+    carbs_per_100g: "",
+    fat_per_100g: "",
+    fiber_per_100g: "",
+  });
+  const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
+  const macroFields = [
+    { key: "calories_per_100g", label: "Calories", unit: "kcal", color: KCAL_COLOR },
+    { key: "protein_per_100g", label: "Protein", unit: "g", color: PROTEIN_COLOR },
+    { key: "carbs_per_100g", label: "Carbs", unit: "g", color: CARBS_COLOR },
+    { key: "fat_per_100g", label: "Fat", unit: "g", color: FAT_COLOR },
+    { key: "fiber_per_100g", label: "Fiber", unit: "g", color: "#8B5CF6" },
+  ];
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-bold">New Food</p>
+        <button onClick={onClose} className="text-xs text-muted-foreground underline">Cancel</button>
+      </div>
+      <Input placeholder="Food name *" value={form.name} onChange={e => set("name", e.target.value)}
+        className="bg-secondary border-0 h-11 rounded-xl font-medium" />
+      <Input placeholder="Brand (optional)" value={form.brand} onChange={e => set("brand", e.target.value)}
+        className="bg-secondary border-0 rounded-xl text-sm" />
+      <div className="flex items-center gap-2">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-[10px] text-muted-foreground font-semibold px-2">Per 100g</span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+      {macroFields.map(f => (
+        <div key={f.key} className="flex items-center gap-3 bg-secondary/50 rounded-xl px-3 py-2.5">
+          <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: f.color }} />
+          <span className="text-xs font-semibold text-muted-foreground w-16 shrink-0">{f.label}</span>
+          <Input type="number" placeholder="0" value={form[f.key]} onChange={e => set(f.key, e.target.value)}
+            className="flex-1 bg-transparent border-0 text-right font-bold h-7 p-0 focus:ring-0" />
+          <span className="text-[10px] text-muted-foreground w-6 shrink-0">{f.unit}</span>
+        </div>
+      ))}
+      <Button className="w-full rounded-xl font-bold" disabled={!form.name || !form.calories_per_100g}
+        onClick={() => onCreate(form)}>
+        Save Food
+      </Button>
+    </div>
+  );
+}
+
+function FoodPickerRow({ food, onSelect }) {
+  const ratio = (food.serving_size || 100) / 100;
+  const cal = Math.round((food.calories_per_100g || 0) * ratio);
+  const protein = Math.round((food.protein_per_100g || 0) * ratio);
+  const carbs = Math.round((food.carbs_per_100g || 0) * ratio);
+  const fat = Math.round((food.fat_per_100g || 0) * ratio);
+  return (
+    <button onClick={() => onSelect(food)}
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary hover:bg-border transition-colors text-left active:scale-[0.98]">
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold truncate">{food.name}</p>
+        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+          {food.brand && <span className="text-[10px] text-muted-foreground italic">{food.brand} ·</span>}
+          <span className="text-[10px] font-bold" style={{ color: PROTEIN_COLOR }}>P:{protein}g</span>
+          <span className="text-[10px] text-muted-foreground">·</span>
+          <span className="text-[10px] font-bold" style={{ color: CARBS_COLOR }}>C:{carbs}g</span>
+          <span className="text-[10px] text-muted-foreground">·</span>
+          <span className="text-[10px] font-bold" style={{ color: FAT_COLOR }}>F:{fat}g</span>
+        </div>
+      </div>
+      <span className="text-sm font-bold shrink-0" style={{ color: KCAL_COLOR }}>🔥{cal}</span>
+    </button>
+  );
+}
+
 function FoodPicker({ foods, onSelect, onClose }) {
   const [search, setSearch] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addPrefill, setAddPrefill] = useState(null);
+  const [showScan, setShowScan] = useState(false);
+  const queryClient = useQueryClient();
+
   const filtered = foods.filter(f => !search || f.name.toLowerCase().includes(search.toLowerCase()));
+  const recent = foods.filter(f => f.is_custom).slice(0, 5);
+
+  const handleCreate = async (form) => {
+    const food = await base44.entities.Food.create({
+      ...form,
+      calories_per_100g: parseFloat(form.calories_per_100g) || 0,
+      protein_per_100g: parseFloat(form.protein_per_100g) || 0,
+      carbs_per_100g: parseFloat(form.carbs_per_100g) || 0,
+      fat_per_100g: parseFloat(form.fat_per_100g) || 0,
+      fiber_per_100g: parseFloat(form.fiber_per_100g) || 0,
+      is_custom: true,
+    });
+    queryClient.invalidateQueries({ queryKey: ["foods"] });
+    onSelect({ ...food, ...form, calories_per_100g: parseFloat(form.calories_per_100g) || 0 });
+  };
+
+  // Lazy-import ScanFoodModalNew to avoid circular
+  const ScanFoodModalNew = React.lazy(() => import("./ScanFoodModalNew"));
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[70] flex items-end justify-center">
-      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 flex flex-col" style={{ maxHeight: "75vh" }}>
-        <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto mt-3 mb-2" />
-        <div className="flex items-center justify-between px-4 pb-3">
-          <p className="font-bold text-sm">Select Food</p>
+      <div className="w-full max-w-lg bg-card rounded-t-3xl border-t border-border/40 flex flex-col" style={{ maxHeight: "82vh" }}>
+        {/* Handle */}
+        <div className="w-9 h-1 bg-muted-foreground/25 rounded-full mx-auto mt-3 mb-1 shrink-0" />
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-2 shrink-0">
+          <p className="font-bold text-sm">Add Ingredient</p>
           <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full bg-secondary">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="px-4 pb-3">
-          <div className="relative">
+
+        {/* Search + scan + add row */}
+        <div className="px-4 pb-3 flex gap-2 items-center shrink-0">
+          <button onClick={() => setShowScan(true)}
+            className="h-10 w-10 shrink-0 rounded-xl bg-secondary border border-border flex items-center justify-center hover:border-primary/50 transition-colors">
+            <ScanLine className="w-4 h-4 text-primary" />
+          </button>
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <Input placeholder="Search foods..." value={search} onChange={e => setSearch(e.target.value)}
               className="pl-9 bg-secondary border-0 rounded-xl h-10" autoFocus />
           </div>
+          <button onClick={() => { setAddPrefill(search ? { name: search } : null); setShowAddForm(v => !v); }}
+            className="h-10 px-3 shrink-0 rounded-xl bg-primary text-primary-foreground flex items-center gap-1.5 text-xs font-bold hover:bg-primary/90 transition-colors">
+            <Plus className="w-3.5 h-3.5" /> Add
+          </button>
         </div>
-        <div className="overflow-y-auto flex-1 px-4 pb-6 space-y-1.5">
-          {filtered.slice(0, 40).map(food => (
-            <button key={food.id} onClick={() => onSelect(food)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary hover:bg-border transition-colors text-left">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{food.name}</p>
-                {food.brand && <p className="text-[10px] text-muted-foreground">{food.brand}</p>}
+
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1 px-4 pb-6 space-y-4">
+          {/* Add form inline */}
+          {showAddForm && (
+            <div className="bg-secondary/40 rounded-2xl p-4 border border-border/50">
+              <FoodPickerAddForm
+                prefill={addPrefill}
+                onCreate={handleCreate}
+                onClose={() => setShowAddForm(false)}
+              />
+            </div>
+          )}
+
+          {search ? (
+            <div className="space-y-1.5">
+              <p className="text-xs text-muted-foreground font-semibold">Results ({filtered.length})</p>
+              {filtered.slice(0, 40).map(food => (
+                <FoodPickerRow key={food.id} food={food} onSelect={onSelect} />
+              ))}
+              {filtered.length === 0 && (
+                <div className="text-center py-6">
+                  <p className="text-2xl mb-2">🔍</p>
+                  <p className="text-sm text-muted-foreground">No foods found for "{search}"</p>
+                  <button onClick={() => { setAddPrefill({ name: search }); setShowAddForm(true); }}
+                    className="mt-2 text-xs text-primary underline">
+                    Add "{search}" as new food
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              {recent.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground font-semibold">My Foods</p>
+                  {recent.map(food => <FoodPickerRow key={food.id} food={food} onSelect={onSelect} />)}
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <p className="text-xs text-muted-foreground font-semibold">All Foods ({foods.length})</p>
+                {foods.slice(0, 30).map(food => <FoodPickerRow key={food.id} food={food} onSelect={onSelect} />)}
               </div>
-              <span className="text-xs font-bold shrink-0" style={{ color: KCAL_COLOR }}>
-                🔥{Math.round(food.calories_per_100g || 0)}/100g
-              </span>
-            </button>
-          ))}
-          {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No foods found</p>}
+            </>
+          )}
         </div>
       </div>
+
+      {/* Scan modal */}
+      {showScan && (
+        <React.Suspense fallback={null}>
+          <ScanFoodModalNew onClose={() => setShowScan(false)} />
+        </React.Suspense>
+      )}
     </div>
   );
 }
@@ -177,6 +326,7 @@ export default function RecipeBuilder({ recipe, onClose, onSaved }) {
     }))
   );
   const [steps, setSteps] = useState(recipe?.steps || []);
+  const [macroView, setMacroView] = useState("total"); // "total" | "serving"
   const [showPicker, setShowPicker] = useState(false);
   const [editingIngredientIdx, setEditingIngredientIdx] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -335,16 +485,33 @@ export default function RecipeBuilder({ recipe, onClose, onSaved }) {
         {/* Live Totals */}
         {ingredients.length > 0 && (
           <div className="bg-secondary rounded-2xl p-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
-              Total Macros {servings > 1 && <span className="normal-case">· per serving: {Math.round(totals.calories / servings)} kcal</span>}
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
+                {macroView === "serving" && servings > 1 ? `Per Serving (÷${servings})` : "Total Macros"}
+              </p>
+              {servings > 1 && (
+                <div className="flex bg-background rounded-lg p-0.5 gap-0.5">
+                  {["total", "serving"].map(v => (
+                    <button key={v} onClick={() => setMacroView(v)}
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-semibold transition-all ${
+                        macroView === v ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                      }`}>
+                      {v === "total" ? "Total" : "Serving"}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-4 gap-2">
-              {[
-                { label: "Calories", val: Math.round(totals.calories), color: KCAL_COLOR },
-                { label: "Protein", val: `${Math.round(totals.protein)}g`, color: PROTEIN_COLOR },
-                { label: "Carbs", val: `${Math.round(totals.carbs)}g`, color: CARBS_COLOR },
-                { label: "Fat", val: `${Math.round(totals.fat)}g`, color: FAT_COLOR },
-              ].map(m => (
+              {(() => {
+                const div = macroView === "serving" && servings > 1 ? servings : 1;
+                return [
+                  { label: "Calories", val: Math.round(totals.calories / div), color: KCAL_COLOR },
+                  { label: "Protein", val: `${Math.round(totals.protein / div)}g`, color: PROTEIN_COLOR },
+                  { label: "Carbs", val: `${Math.round(totals.carbs / div)}g`, color: CARBS_COLOR },
+                  { label: "Fat", val: `${Math.round(totals.fat / div)}g`, color: FAT_COLOR },
+                ];
+              })().map(m => (
                 <div key={m.label} className="text-center">
                   <p className="text-sm font-black" style={{ color: m.color }}>{m.val}</p>
                   <p className="text-[9px] text-muted-foreground">{m.label}</p>
@@ -373,14 +540,16 @@ export default function RecipeBuilder({ recipe, onClose, onSaved }) {
           <div className="space-y-2">
             {steps.map((step, idx) => (
               <div key={idx} className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-2">
+                <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-2.5">
                   <span className="text-[10px] font-bold text-primary">{idx + 1}</span>
                 </div>
-                <Input
+                <textarea
                   placeholder={`Step ${idx + 1}…`}
                   value={step}
+                  rows={2}
                   onChange={e => updateStep(idx, e.target.value)}
-                  className="flex-1 bg-secondary border-0 rounded-xl text-sm"
+                  className="flex-1 bg-secondary border-0 rounded-xl text-sm p-3 resize-none outline-none focus:ring-1 focus:ring-primary/40 leading-relaxed"
+                  style={{ fontSize: "16px" }}
                 />
                 <button onClick={() => removeStep(idx)}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-destructive/10 mt-1 shrink-0">
