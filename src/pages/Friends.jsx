@@ -254,14 +254,14 @@ export default function Friends() {
       </div>
 
       {/* Friend Profile Modal */}
-      {viewingFriend && friendData && (
+      {viewingFriend && (
         <FriendProfileModal
           friend={viewingFriend.friend}
           xp={viewingFriend.xp}
           onClose={() => setViewingFriend(null)}
-          workoutLogs={friendData.workoutLogs || []}
-          bodyWeights={friendData.bodyWeights || []}
-          nutritionRanks={friendData.nutritionRanks || []}
+          workoutLogs={friendData?.workoutLogs || []}
+          bodyWeights={friendData?.bodyWeights || []}
+          nutritionRanks={friendData?.nutritionRanks || []}
         />
       )}
 
