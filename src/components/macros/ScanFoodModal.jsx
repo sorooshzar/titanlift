@@ -21,10 +21,12 @@ export default function ScanFoodModal({ onClose }) {
   const cameraManagerRef = useRef(new CameraManager());
 
   // Initialize camera immediately on mount
+  // VIDEO ELEMENT IS NOW ALWAYS MOUNTED BELOW, SO videoRef WILL BE READY
   useEffect(() => {
     const initCamera = async () => {
       try {
         setIsInitializing(true);
+        // Video element is now persistently mounted, so ref will exist
         await cameraManagerRef.current.start(videoRef.current, "environment");
         setIsInitializing(false);
       } catch (e) {
@@ -33,9 +35,14 @@ export default function ScanFoodModal({ onClose }) {
         setIsInitializing(false);
       }
     };
-    initCamera();
     
-    return () => cameraManagerRef.current.stop();
+    // Give DOM time to mount the video element first
+    const timeout = setTimeout(initCamera, 100);
+    
+    return () => {
+      clearTimeout(timeout);
+      cameraManagerRef.current.stop();
+    };
   }, []);
 
   const handleSwitchToLabel = async () => {
@@ -87,69 +94,75 @@ export default function ScanFoodModal({ onClose }) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-auto flex flex-col">
-          <AnimatePresence mode="wait">
-            {/* Loading state */}
-            {isInitializing && mode === "barcode" && (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex-1 flex flex-col items-center justify-center gap-3 p-4"
-              >
-                <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm text-muted-foreground">Opening camera...</p>
-              </motion.div>
-            )}
+        {/* PERSISTENT VIDEO ELEMENT - Always mounted, never destroyed */}
+        <div className="flex-1 relative bg-black rounded-t-3xl overflow-hidden">
+          <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
+          
+          {/* Overlays on top of persistent video */}
+          <div className="absolute inset-0 flex flex-col">
+            <AnimatePresence mode="wait">
+              {/* Loading state */}
+              {isInitializing && mode === "barcode" && (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex-1 flex flex-col items-center justify-center gap-3 p-4 bg-black/50"
+                >
+                  <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-muted-foreground">Opening camera...</p>
+                </motion.div>
+              )}
 
-            {/* Barcode scanner */}
-            {mode === "barcode" && !isInitializing && (
-              <motion.div key="barcode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col">
-                <ImprovedBarcodeScanner
-                  videoRef={videoRef}
-                  canvasRef={canvasRef}
-                  cameraManager={cameraManagerRef.current}
-                  onClose={onClose}
-                  onSwitchToLabel={handleSwitchToLabel}
-                />
-              </motion.div>
-            )}
+              {/* Barcode scanner overlay */}
+              {mode === "barcode" && !isInitializing && (
+                <motion.div key="barcode" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col">
+                  <ImprovedBarcodeScanner
+                    videoRef={videoRef}
+                    canvasRef={canvasRef}
+                    cameraManager={cameraManagerRef.current}
+                    onClose={onClose}
+                    onSwitchToLabel={handleSwitchToLabel}
+                  />
+                </motion.div>
+              )}
 
-            {/* Label scanner */}
-            {mode === "label" && (
-              <motion.div key="label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col p-4 justify-center">
-                <LabelScanner
-                  videoRef={videoRef}
-                  canvasRef={canvasRef}
-                  cameraManager={cameraManagerRef.current}
-                  onFound={handleLabelFound}
-                  onError={handleError}
-                  onBack={handleBackToBarcode}
-                />
-              </motion.div>
-            )}
+              {/* Label scanner overlay */}
+              {mode === "label" && (
+                <motion.div key="label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col p-4 justify-center">
+                  <LabelScanner
+                    videoRef={videoRef}
+                    canvasRef={canvasRef}
+                    cameraManager={cameraManagerRef.current}
+                    onFound={handleLabelFound}
+                    onError={handleError}
+                    onBack={handleBackToBarcode}
+                  />
+                </motion.div>
+              )}
 
-            {/* Error state */}
-            {mode === "error" && (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex-1 flex flex-col items-center justify-center gap-4 p-4"
-              >
-                <AlertCircle className="w-10 h-10 text-destructive" />
-                <div className="text-center">
-                  <p className="text-sm font-semibold mb-1">Error</p>
-                  <p className="text-xs text-muted-foreground">{errorMsg}</p>
-                </div>
-                <Button variant="outline" onClick={onClose} className="rounded-xl px-6">
-                  Close
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              {/* Error state */}
+              {mode === "error" && (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex-1 flex flex-col items-center justify-center gap-4 p-4 bg-black/80"
+                >
+                  <AlertCircle className="w-10 h-10 text-destructive" />
+                  <div className="text-center">
+                    <p className="text-sm font-semibold mb-1">Error</p>
+                    <p className="text-xs text-muted-foreground">{errorMsg}</p>
+                  </div>
+                  <Button variant="outline" onClick={onClose} className="rounded-xl px-6">
+                    Close
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 

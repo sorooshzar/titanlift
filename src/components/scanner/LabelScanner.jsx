@@ -69,10 +69,8 @@ export default function LabelScanner({ videoRef, canvasRef, cameraManager, onFou
         Frame the nutrition label clearly — include serving size and all nutrients
       </p>
 
-      {/* Camera with label frame guide */}
-      <div className="relative w-full rounded-2xl overflow-hidden bg-black" style={{ aspectRatio: "4/3" }}>
-        <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
-
+      {/* Camera overlay (video is now mounted in parent ScanFoodModal) */}
+      <div className="relative w-full rounded-2xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
         {/* Nutrition label frame overlay — taller vertical frame */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="border-2 border-primary rounded-lg" style={{ width: "75%", height: "80%" }} />

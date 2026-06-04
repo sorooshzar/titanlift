@@ -211,11 +211,7 @@ Deno.serve(async (req) => {
       if (!ex.muscle_group && ex.exercise_id) {
         ex = { ...ex, muscle_group: exerciseMuscleMap[ex.exercise_id] || null };
       }
-      const workingSets = (ex.sets || []).filter(s => s.completed && s.type !== "warmup");
-      if (workingSets.length === 0) {
-        return { ...ex, impressiveness_score: 0, rank: "wood", is_anchor_lift: false };
-      }
-
+      
       const maxE1rm = getBestE1RM(ex.sets);
       if (maxE1rm === 0) return { ...ex, impressiveness_score: 0, rank: "wood", is_anchor_lift: false };
 
@@ -260,16 +256,36 @@ Deno.serve(async (req) => {
 
     allLogsWithNew.forEach(log => {
       (log.exercises || []).forEach(ex => {
-        if (!ex.impressiveness_score || !ex.muscle_group) return;
+        // Enrich muscle_group if missing
+        let muscle = ex.muscle_group;
+        if (!muscle && ex.exercise_id) {
+          muscle = exerciseMuscleMap[ex.exercise_id] || null;
+        }
+        if (!muscle) return;
+        
+        // Calculate impressiveness_score on-the-fly if missing
+        let score = ex.impressiveness_score;
+        if (!score) {
+          const maxE1rm = getBestE1RM(ex.sets);
+          if (maxE1rm > 0) {
+            score = calculateImpressivenessScore(maxE1rm, bodyweightKg, ex.exercise_name, userGender || user.sex || "male");
+          } else {
+            return;
+          }
+        }
 
         // Primary muscle: full weight
-        if (!musclePools[ex.muscle_group]) musclePools[ex.muscle_group] = [];
-        musclePools[ex.muscle_group].push(ex.impressiveness_score);
+        if (!musclePools[muscle]) musclePools[muscle] = [];
+        musclePools[muscle].push(score);
 
-        // Secondary muscles: half weight
-        (ex.secondary_muscles || []).forEach(muscle => {
-          if (!musclePools[muscle]) musclePools[muscle] = [];
-          musclePools[muscle].push(ex.impressiveness_score * 0.5);
+        // Secondary muscles: half weight (look up from Exercise entity if not set)
+        let secondaryMuscles = ex.secondary_muscles;
+        if (!secondaryMuscles && ex.exercise_id) {
+          secondaryMuscles = allExercises.find(e => e.id === ex.exercise_id)?.secondary_muscles || [];
+        }
+        (secondaryMuscles || []).forEach(secondMuscle => {
+          if (!musclePools[secondMuscle]) musclePools[secondMuscle] = [];
+          musclePools[secondMuscle].push(score * 0.5);
         });
       });
     });

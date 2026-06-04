@@ -238,13 +238,36 @@ export default function Profile() {
   const latestWeightKg = bodyWeights[0]?.weight;
   const latestWeightDisplay = latestWeightKg ? toDisplay(latestWeightKg) : null;
 
-  // Compute muscle ranks directly from already-fetched workoutLogs (no extra API call)
+  // Fetch muscle ranks from database (primary source - permanently saved by calculateRanks backend)
+  const { data: dbMuscleRanks = [] } = useQuery({
+    queryKey: ["userMuscleRanks"],
+    queryFn: () => base44.entities.UserMuscleRank.filter({ created_by: user.email }, null, 100),
+    enabled: !!user,
+  });
+
+  // Convert database ranks to simple map
+  const dbMuscleRankMap = React.useMemo(() => {
+    return dbMuscleRanks.reduce((acc, record) => {
+      if (record.muscle && record.rank) {
+        acc[record.muscle] = record.rank;
+      }
+      return acc;
+    }, {});
+  }, [dbMuscleRanks]);
+
+  // Compute muscle ranks as fallback for client-side calculations
   const muscleRankDetails = computeMuscleRanks(workoutLogs, latestWeightKg || 80);
   const dynamicMuscleRanks = React.useMemo(() => computeMuscleRanksFromLogs(workoutLogs), [workoutLogs]);
-  const muscleRankNames = Object.keys(dynamicMuscleRanks).length > 0 ? dynamicMuscleRanks : {};
-  if (Object.keys(muscleRankNames).length === 0) {
-    Object.keys(muscleRankDetails).forEach(m => { muscleRankNames[m] = muscleRankDetails[m].rank.name; });
-  }
+  
+  // Use database ranks (source of truth), fall back to computed ranks only if empty
+  const muscleRankNames = Object.keys(dbMuscleRankMap).length > 0 
+    ? dbMuscleRankMap 
+    : (Object.keys(dynamicMuscleRanks).length > 0 
+        ? dynamicMuscleRanks 
+        : Object.keys(muscleRankDetails).reduce((acc, m) => {
+            acc[m] = muscleRankDetails[m].rank.name;
+            return acc;
+          }, {}));
 
   // totalVolume always in kg for XP — never affected by unit toggle
   const totalVolume = workoutLogs.reduce((s, l) => s + (l.total_volume || 0), 0);

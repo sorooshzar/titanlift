@@ -131,11 +131,9 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
 
   return (
     <div className="flex flex-col h-full">
-      {/* Camera view */}
+      {/* Camera overlay (video is now mounted in parent ScanFoodModal) */}
       {state !== "result" && state !== "notfound" && (
-        <div className="flex-1 relative bg-black rounded-t-3xl overflow-hidden">
-          <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
-
+        <div className="flex-1 relative overflow-hidden">
           {/* Barcode scanning frame */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
