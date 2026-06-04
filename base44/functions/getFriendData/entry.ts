@@ -1,5 +1,21 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+function getLevelData(volume) {
+  if (!volume || volume <= 0) return { level: 1, xpIntoLevel: 0, xpNeeded: 500, progress: 0 };
+  let level = 1;
+  let xpUsed = 0;
+  while (level <= 999) {
+    const xpNeeded = Math.floor(Math.pow(level, 1.5) * 500);
+    if (xpNeeded <= 0) break;
+    if (xpUsed + xpNeeded > volume) {
+      return { level, xpIntoLevel: volume - xpUsed, xpNeeded, progress: Math.min((volume - xpUsed) / xpNeeded, 1) };
+    }
+    xpUsed += xpNeeded;
+    level++;
+  }
+  return { level: 999, xpIntoLevel: 0, xpNeeded: 1, progress: 1 };
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -28,10 +44,16 @@ Deno.serve(async (req) => {
       created_by_id: friendId
     });
 
+    // Calculate total volume and XP
+    const totalVolume = (workoutLogs || []).reduce((sum, log) => sum + (log.total_volume || 0), 0);
+    const xp = getLevelData(totalVolume);
+
     return Response.json({
       workoutLogs,
       bodyWeights,
-      nutritionRanks
+      nutritionRanks,
+      totalVolume,
+      xp
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

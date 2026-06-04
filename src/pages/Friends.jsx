@@ -137,11 +137,32 @@ export default function Friends() {
   // Map to user objects
   const friends = allUsers.filter(u => friendEmails.includes(u.email));
 
-  // Build XP per friend from their workout logs
+  // Fetch friend data for XP calculation
+  const [friendsData, setFriendsData] = useState({});
+
+  useEffect(() => {
+    if (friends.length === 0) return;
+    
+    const fetchAllFriendsData = async () => {
+      const data = {};
+      for (const friend of friends) {
+        try {
+          const res = await base44.functions.invoke('getFriendData', { friendId: friend.id });
+          data[friend.id] = res.data;
+        } catch (err) {
+          console.error(`Error fetching data for ${friend.id}:`, err);
+          data[friend.id] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
+        }
+      }
+      setFriendsData(data);
+    };
+
+    fetchAllFriendsData();
+  }, [friends]);
+
   const friendsWithXp = friends.map(friend => {
-    const logs = allWorkoutLogs.filter(l => l.created_by === friend.email);
-    const totalVolume = logs.reduce((s, l) => s + (l.total_volume || 0), 0);
-    const xp = getLevelData(totalVolume);
+    const friendXpData = friendsData[friend.id];
+    const xp = friendXpData?.xp || getLevelData(0);
     return { friend, xp };
   });
 
@@ -154,15 +175,9 @@ export default function Friends() {
     queryClient.invalidateQueries({ queryKey: ["friendships"] });
   };
 
-  const handleViewFriend = async (friend, xp) => {
+  const handleViewFriend = (friend, xp) => {
     setViewingFriend({ friend, xp });
-    try {
-      const res = await base44.functions.invoke('getFriendData', { friendId: friend.id });
-      setFriendData(res.data);
-    } catch (err) {
-      console.error('Error fetching friend data:', err);
-      setFriendData({ workoutLogs: [], bodyWeights: [], nutritionRanks: [] });
-    }
+    setFriendData(friendsData[friend.id] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [] });
   };
 
   return (
