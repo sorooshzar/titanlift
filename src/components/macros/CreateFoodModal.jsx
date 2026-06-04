@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import IconPickerModal from "@/components/workouts/IconPickerModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import SingleColumnWheel from "@/components/macros/SingleColumnWheel";
 
 const ICON_PRESET = ["🍎", "🥕", "🥬", "🍌", "🍊", "🍋", "🥑", "🍅", "🥦", "🌽", "🥒", "🍞", "🥐", "🥯", "🧀", "🥛", "🍶", "☕", "🍺", "🥤", "🍊", "🥃", "🍲", "🥘", "🍛", "🍜", "🍝", "🍔", "🍟", "🌭", "🍿", "🥓", "🍖", "🍗", "🥩", "🍤", "🦐", "🐙", "🦑", "🦞", "🦀", "🐟", "🐠", "🐡", "🦈", "🥮", "🍱", "🍙", "🍚", "🍛", "🍜", "🍲", "🥞", "🧇", "🥟", "🦪", "🍗", "🍖", "🌭", "🍔", "🍟", "🍕", "🥪", "🥙", "🧆", "🌮", "🌯", "🥗", "🥘", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙", "🍚", "🍘", "🍥", "🥠", "🥮", "🍢", "🍡", "🍧", "🍨", "🍦", "🍰", "🎂", "🧁", "🍮", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "🌰", "🥜"];
 
@@ -228,7 +227,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
           {/* Serving Information */}
           <CollapsibleSection title="Serving Size" defaultOpen={true}>
-           <div className="flex items-center gap-1 bg-muted rounded-md px-3 py-2">
+           <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
              {/* Base serving size number */}
              <Input
                type="number"
@@ -236,12 +235,12 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
                step="1"
                value={form.serving_size}
                onChange={e => set("serving_size", e.target.value)}
-               className="w-14 bg-background border-0 h-8 rounded-md text-xs font-semibold text-right p-0 focus:ring-0"
+               className="w-14 bg-background border-0 h-7 rounded-md text-xs font-semibold text-right p-0 focus:ring-0"
              />
 
              {/* g/ml dropdown */}
              <Select value={form.serving_unit} onValueChange={val => set("serving_unit", val)}>
-               <SelectTrigger className="w-10 h-8 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
+               <SelectTrigger className="w-10 h-7 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
                  <SelectValue />
                </SelectTrigger>
                <SelectContent>
@@ -253,40 +252,41 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
              {/* Separator */}
              <span className="text-muted-foreground text-xs shrink-0">|</span>
 
-             {/* Portion quantity scroll dial */}
-             <SingleColumnWheel
-               items={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]}
-               selectedIndex={Math.max(0, Math.min(9, parseInt(form.portion_quantity) - 1))}
-               onChange={(idx) => set("portion_quantity", String(idx + 1))}
-               height={80}
-               itemHeight={24}
-             />
+             {/* Portion quantity dropdown */}
+             <Select value={form.portion_quantity} onValueChange={val => set("portion_quantity", val)}>
+               <SelectTrigger className="w-10 h-7 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
+                 <SelectValue />
+               </SelectTrigger>
+               <SelectContent>
+                 {["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map(num => (
+                   <SelectItem key={num} value={num}>{num}</SelectItem>
+                 ))}
+               </SelectContent>
+             </Select>
 
-             {/* Fraction scroll dial */}
-             <SingleColumnWheel
-               items={["0", "1/6", "1/4", "1/3", "1/2", "2/3", "3/4", "5/6"]}
-               selectedIndex={["0", "1/6", "1/4", "1/3", "1/2", "2/3", "3/4", "5/6"].indexOf(
-                 form.portion_fraction === 0 ? "0" : 
-                 form.portion_fraction === 1/6 ? "1/6" :
-                 form.portion_fraction === 1/4 ? "1/4" :
-                 form.portion_fraction === 1/3 ? "1/3" :
-                 form.portion_fraction === 1/2 ? "1/2" :
-                 form.portion_fraction === 2/3 ? "2/3" :
-                 form.portion_fraction === 3/4 ? "3/4" :
-                 form.portion_fraction === 5/6 ? "5/6" : "0"
-               )}
-               onChange={(idx) => {
-                 const fractionMap = {"0": 0, "1/6": 1/6, "1/4": 1/4, "1/3": 1/3, "1/2": 1/2, "2/3": 2/3, "3/4": 3/4, "5/6": 5/6};
-                 const items = ["0", "1/6", "1/4", "1/3", "1/2", "2/3", "3/4", "5/6"];
-                 set("portion_fraction", fractionMap[items[idx]]);
-               }}
-               height={80}
-               itemHeight={24}
-             />
+             {/* Fraction dropdown */}
+             <Select value={String(form.portion_fraction)} onValueChange={val => {
+               const fractionMap = {"0": 0, "0.16666666666666666": 1/6, "0.25": 1/4, "0.3333333333333333": 1/3, "0.5": 1/2, "0.6666666666666666": 2/3, "0.75": 3/4, "0.8333333333333334": 5/6};
+               set("portion_fraction", fractionMap[val]);
+             }}>
+               <SelectTrigger className="w-14 h-7 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
+                 <SelectValue />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="0">0</SelectItem>
+                 <SelectItem value="0.16666666666666666">1/6</SelectItem>
+                 <SelectItem value="0.25">1/4</SelectItem>
+                 <SelectItem value="0.3333333333333333">1/3</SelectItem>
+                 <SelectItem value="0.5">1/2</SelectItem>
+                 <SelectItem value="0.6666666666666666">2/3</SelectItem>
+                 <SelectItem value="0.75">3/4</SelectItem>
+                 <SelectItem value="0.8333333333333334">5/6</SelectItem>
+               </SelectContent>
+             </Select>
 
              {/* Serving type dropdown */}
              <Select value={form.portion_unit} onValueChange={val => set("portion_unit", val)}>
-               <SelectTrigger className="w-24 h-8 rounded-md bg-background border-0 text-xs p-2 focus:ring-0">
+               <SelectTrigger className="w-20 h-7 rounded-md bg-background border-0 text-xs p-1 focus:ring-0">
                  <SelectValue />
                </SelectTrigger>
                <SelectContent>
