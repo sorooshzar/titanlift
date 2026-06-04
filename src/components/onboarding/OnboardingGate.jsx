@@ -4,6 +4,7 @@ import OnboardingFlow from "./OnboardingFlow";
 import WelcomeScreen from "./WelcomeScreen";
 import LoginScreen from "./LoginScreen";
 import SignUpScreen from "./SignUpScreen";
+import UsernameSetupScreen from "./UsernameSetupScreen";
 import { initUserStorage, userStorage } from "@/components/utils/userStorage";
 import { applyTheme } from "@/components/profile/SettingsPanel";
 
@@ -59,7 +60,12 @@ export default function OnboardingGate({ children }) {
       }
 
       if (user.onboarding_completed) {
-        setStatus("app");
+        // Gate: require username before entering app
+        if (!user.username) {
+          setStatus("username_setup");
+        } else {
+          setStatus("app");
+        }
       } else {
         setStatus("onboarding");
       }
@@ -122,6 +128,10 @@ export default function OnboardingGate({ children }) {
         onComplete={checkState}
       />
     );
+  }
+
+  if (status === "username_setup") {
+    return <UsernameSetupScreen onComplete={checkState} />;
   }
 
   return <>{children}</>;
