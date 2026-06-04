@@ -154,6 +154,7 @@ export default function Friends() {
             console.error(`Error fetching data for ${friend.email}:`, err);
             data[friend.email] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
           }
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
         console.log('All friends data:', data);
         setFriendsData(data);
