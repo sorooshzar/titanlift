@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import IconPickerModal from "@/components/workouts/IconPickerModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import IosWheelPicker from "@/components/workout/IosWheelPicker";
+import SingleColumnWheel from "@/components/macros/SingleColumnWheel";
 
 const ICON_PRESET = ["🍎", "🥕", "🥬", "🍌", "🍊", "🍋", "🥑", "🍅", "🥦", "🌽", "🥒", "🍞", "🥐", "🥯", "🧀", "🥛", "🍶", "☕", "🍺", "🥤", "🍊", "🥃", "🍲", "🥘", "🍛", "🍜", "🍝", "🍔", "🍟", "🌭", "🍿", "🥓", "🍖", "🍗", "🥩", "🍤", "🦐", "🐙", "🦑", "🦞", "🦀", "🐟", "🐠", "🐡", "🦈", "🥮", "🍱", "🍙", "🍚", "🍛", "🍜", "🍲", "🥞", "🧇", "🥟", "🦪", "🍗", "🍖", "🌭", "🍔", "🍟", "🍕", "🥪", "🥙", "🧆", "🌮", "🌯", "🥗", "🥘", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙", "🍚", "🍘", "🍥", "🥠", "🥮", "🍢", "🍡", "🍧", "🍨", "🍦", "🍰", "🎂", "🧁", "🍮", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "🌰", "🥜"];
 
@@ -254,16 +254,16 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
              <span className="text-muted-foreground text-xs shrink-0">|</span>
 
              {/* Portion quantity scroll dial */}
-             <IosWheelPicker
+             <SingleColumnWheel
                items={["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]}
                selectedIndex={Math.max(0, Math.min(9, parseInt(form.portion_quantity) - 1))}
                onChange={(idx) => set("portion_quantity", String(idx + 1))}
-               containerHeight={80}
+               height={80}
                itemHeight={24}
              />
 
              {/* Fraction scroll dial */}
-             <IosWheelPicker
+             <SingleColumnWheel
                items={["0", "1/6", "1/4", "1/3", "1/2", "2/3", "3/4", "5/6"]}
                selectedIndex={["0", "1/6", "1/4", "1/3", "1/2", "2/3", "3/4", "5/6"].indexOf(
                  form.portion_fraction === 0 ? "0" : 
@@ -280,7 +280,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
                  const items = ["0", "1/6", "1/4", "1/3", "1/2", "2/3", "3/4", "5/6"];
                  set("portion_fraction", fractionMap[items[idx]]);
                }}
-               containerHeight={80}
+               height={80}
                itemHeight={24}
              />
 
