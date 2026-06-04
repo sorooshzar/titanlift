@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getFoodIcon } from "./foodIcons";
 import FoodDetailModal from "./FoodDetailModal";
-import ScanFoodModalNew from "./ScanFoodModalNew";
+import ScanFoodModal from "./ScanFoodModal";
 import RecipesTab from "./RecipesTab";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -351,7 +351,7 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
 
       {/* Scan modal */}
       {showScan && (
-        <ScanFoodModalNew
+        <ScanFoodModal
           onClose={() => setShowScan(false)}
         />
       )}

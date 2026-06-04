@@ -284,8 +284,8 @@ function FoodPicker({ foods, onSelect, onClose }) {
     onSelect({ ...food, ...form, calories_per_100g: parseFloat(form.calories_per_100g) || 0 });
   };
 
-  // Lazy-import ScanFoodModalNew to avoid circular
-  const ScanFoodModalNew = React.lazy(() => import("./ScanFoodModalNew"));
+  // Lazy-import ScanFoodModal to avoid circular
+  const ScanFoodModal = React.lazy(() => import("./ScanFoodModal"));
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[70] flex items-end justify-center">
@@ -368,7 +368,7 @@ function FoodPicker({ foods, onSelect, onClose }) {
       {/* Scan modal */}
       {showScan && (
         <React.Suspense fallback={null}>
-          <ScanFoodModalNew onClose={() => setShowScan(false)} />
+          <ScanFoodModal onClose={() => setShowScan(false)} />
         </React.Suspense>
       )}
     </div>
