@@ -97,7 +97,7 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
                   <p className="text-xs text-muted-foreground mt-0.5">@{friend.username}</p>
                 )}
                 {latestBodyWeight && (
-                  <p className="text-xs text-primary font-semibold mt-1">
+                  <p className="text-xs text-primary font-semibold mt-2">
                     {toDisplay(latestBodyWeight.weight) || latestBodyWeight.weight} {latestBodyWeight.unit}
                   </p>
                 )}
@@ -123,32 +123,30 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {/* Level card */}
-            <div className="bg-secondary rounded-2xl px-4 py-3.5">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Level</p>
-                <span className="text-xl font-black text-primary">{xp?.level ?? 1}</span>
-              </div>
-              <div className="h-1.5 bg-background/60 rounded-full overflow-hidden mb-1.5">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-700"
-                  style={{ width: `${Math.min((xp?.progress || 0) * 100, 100)}%` }}
-                />
-              </div>
-              <p className="text-[10px] text-muted-foreground text-right">
-                {Math.round(xp?.xpIntoLevel || 0).toLocaleString()} / {Math.round(xp?.xpNeeded || 500).toLocaleString()} XP
-              </p>
+          {/* Level card - full width */}
+          <div className="bg-secondary rounded-2xl px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Level</p>
+              <span className="text-lg font-black text-primary">{xp?.level ?? 1}</span>
             </div>
-
-            {/* Nutrition Rank card */}
-            {nutritionRank && (
-              <div className="bg-secondary rounded-2xl px-4 py-3.5 flex flex-col items-center justify-center">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-2">Nutrition</p>
-                <p className="text-lg font-black text-primary capitalize">{nutritionRank.rank}</p>
-              </div>
-            )}
+            <div className="h-1 bg-background/60 rounded-full overflow-hidden mb-1.5">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-700"
+                style={{ width: `${Math.min((xp?.progress || 0) * 100, 100)}%` }}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground text-right">
+              {Math.round(xp?.xpIntoLevel || 0).toLocaleString()} / {Math.round(xp?.xpNeeded || 500).toLocaleString()} XP
+            </p>
           </div>
+
+          {/* Nutrition Rank card */}
+          {nutritionRank && (
+            <div className="bg-secondary rounded-2xl px-4 py-3 flex flex-col items-center justify-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-2">Nutrition</p>
+              <p className="text-lg font-black text-primary capitalize">{nutritionRank.rank}</p>
+            </div>
+          )}
 
           {/* SBD Section */}
           <div className="grid grid-cols-4 gap-2.5">
