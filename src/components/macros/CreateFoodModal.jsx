@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import IconPickerModal from "@/components/workouts/IconPickerModal";
+import { Separator } from "@/components/ui/separator";
 
 const ICON_PRESET = ["🍎", "🥕", "🥬", "🍌", "🍊", "🍋", "🥑", "🍅", "🥦", "🌽", "🥒", "🍞", "🥐", "🥯", "🧀", "🥛", "🍶", "☕", "🍺", "🥤", "🍊", "🥃", "🍲", "🥘", "🍛", "🍜", "🍝", "🍔", "🍟", "🌭", "🍿", "🥓", "🍖", "🍗", "🥩", "🍤", "🦐", "🐙", "🦑", "🦞", "🦀", "🐟", "🐠", "🐡", "🦈", "🥮", "🍱", "🍙", "🍚", "🍛", "🍜", "🍲", "🥞", "🧇", "🥟", "🦪", "🍗", "🍖", "🌭", "🍔", "🍟", "🍕", "🥪", "🥙", "🧆", "🌮", "🌯", "🥗", "🥘", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙", "🍚", "🍘", "🍥", "🥠", "🥮", "🍢", "🍡", "🍧", "🍨", "🍦", "🍰", "🎂", "🧁", "🍮", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "🌰", "🥜"];
 
@@ -218,25 +219,36 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
           {/* Serving Information */}
           <CollapsibleSection title="Serving" defaultOpen={true}>
-           <div className="space-y-2">
-             <div>
-               <Input
-                 placeholder="e.g., 1 Slice"
-                 value={form.serving_description}
-                 onChange={e => set("serving_description", e.target.value)}
-                 className="bg-muted border-0 h-8 rounded-md text-xs"
-               />
-             </div>
-             <div className="flex items-center gap-2">
+           <div className="flex items-center gap-3 bg-muted rounded-md px-3 py-2">
+             <div className="flex-1 flex items-center gap-1">
                <Input
                  type="number"
                  placeholder="100"
                  step="1"
                  value={form.serving_size}
                  onChange={e => set("serving_size", e.target.value)}
-                 className="flex-1 bg-muted border-0 h-8 rounded-md text-xs"
+                 className="w-16 bg-background border-0 h-8 rounded-md text-xs font-semibold text-right p-0 focus:ring-0"
                />
-               <span className="text-xs font-semibold text-muted-foreground px-2">g</span>
+               <span className="text-xs font-semibold text-muted-foreground shrink-0">g</span>
+             </div>
+
+             <Separator orientation="vertical" className="h-6" />
+
+             <div className="flex items-center gap-2 flex-1">
+               <span className="text-xs font-semibold text-muted-foreground shrink-0">Per</span>
+               <Input
+                 type="number"
+                 placeholder="1"
+                 step="0.5"
+                 defaultValue="1"
+                 className="w-12 bg-background border-0 h-8 rounded-md text-xs font-semibold text-center p-0 focus:ring-0"
+               />
+               <Input
+                 placeholder="slice"
+                 value={form.serving_description}
+                 onChange={e => set("serving_description", e.target.value)}
+                 className="flex-1 bg-background border-0 h-8 rounded-md text-xs font-semibold p-2 focus:ring-0"
+               />
              </div>
            </div>
           </CollapsibleSection>
