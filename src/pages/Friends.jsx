@@ -144,18 +144,20 @@ export default function Friends() {
     if (friends.length === 0) return;
     
     const fetchAllFriendsData = async () => {
-      const data = {};
-      for (const friend of friends) {
-        try {
-          const res = await base44.functions.invoke('getFriendData', { friendId: friend.id });
-          data[friend.id] = res.data;
-        } catch (err) {
-          console.error(`Error fetching data for ${friend.id}:`, err);
-          data[friend.id] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
+        const data = {};
+        for (const friend of friends) {
+          try {
+            const res = await base44.functions.invoke('getFriendData', { friendId: friend.id });
+            console.log(`Fetched data for ${friend.id}:`, res.data);
+            data[friend.id] = res.data;
+          } catch (err) {
+            console.error(`Error fetching data for ${friend.id}:`, err);
+            data[friend.id] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
+          }
         }
-      }
-      setFriendsData(data);
-    };
+        console.log('All friends data:', data);
+        setFriendsData(data);
+      };
 
     fetchAllFriendsData();
   }, [friends]);
@@ -176,8 +178,9 @@ export default function Friends() {
   };
 
   const handleViewFriend = (friend, xp) => {
-    setViewingFriend({ friend, xp });
-    setFriendData(friendsData[friend.id] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [] });
+    const data = friendsData[friend.id] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [], xp: getLevelData(0) };
+    setViewingFriend({ friend, xp: data.xp || xp });
+    setFriendData(data);
   };
 
   return (
