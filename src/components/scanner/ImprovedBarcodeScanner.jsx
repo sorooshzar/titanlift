@@ -23,16 +23,17 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
   // Wait for camera to be ready
   useEffect(() => {
     if (!videoRef.current || !cameraManager.isActive()) return;
-    
+
     const checkCameraReady = () => {
       if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_FUTURE_FRAME) {
+        console.log("[Barcode Scanner] ✓ Camera ready, videoWidth:", videoRef.current.videoWidth, "videoHeight:", videoRef.current.videoHeight);
         setCameraReady(true);
       }
     };
-    
+
     const interval = setInterval(checkCameraReady, 100);
     checkCameraReady();
-    
+
     return () => clearInterval(interval);
   }, [videoRef, cameraManager]);
 
@@ -40,17 +41,27 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
   useEffect(() => {
     if (!videoRef.current || !cameraManager.isActive() || !cameraReady) return;
 
+    console.log("[Barcode Scanner] ✓ Scanner initialized, starting detection loop (600ms interval)");
+
     const detectBarcode = async () => {
       if (hasDetectedRef.current) return;
 
       try {
         const dataUrl = cameraManager.captureFrame(canvasRef.current);
-        if (!dataUrl) return;
+        if (!dataUrl) {
+          console.log("[Barcode Scanner] ⚠ captureFrame returned null");
+          return;
+        }
+        console.log("[Barcode Scanner] ✓ Frame captured, size:", dataUrl.length);
 
         const file = dataURLtoFile(dataUrl);
+        console.log("[Barcode Scanner] ✓ Frame converted to file");
+
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        console.log("[Barcode Scanner] ✓ Frame uploaded, URL:", file_url);
 
         // Extract barcode number from image (works for all barcode sizes/orientations)
+        console.log("[Barcode Scanner] → Invoking LLM for barcode detection...");
         const result = await base44.integrations.Core.InvokeLLM({
           prompt:
             "Look at this product image and extract ONLY the barcode/UPC number. Return the numeric code exactly as printed. Return null if no barcode is visible. Do NOT guess — only return codes you can clearly see.",
@@ -63,14 +74,19 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
           },
         });
 
+        console.log("[Barcode Scanner] ✓ LLM response:", result);
+
         if (result.barcode && /^\d{8,}$/.test(result.barcode)) {
+          console.log("[Barcode Scanner] ✓ Valid barcode detected:", result.barcode);
           hasDetectedRef.current = true;
           setScannedBarcode(result.barcode);
           setState("detected");
           await lookupBarcode(result.barcode);
+        } else {
+          console.log("[Barcode Scanner] ✗ Invalid barcode or no barcode found:", result.barcode);
         }
       } catch (e) {
-        // Silent fail — keep scanning
+        console.error("[Barcode Scanner] ✗ Error during detection:", e.message, e);
       }
     };
 
@@ -83,6 +99,7 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
   }, [videoRef, cameraManager, canvasRef, cameraReady]);
 
   const lookupBarcode = async (barcode) => {
+    console.log("[Barcode Scanner] → Starting product lookup for barcode:", barcode);
     setState("loading");
     try {
       // Try Open Food Facts API
@@ -90,6 +107,7 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
         `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
       );
       const data = await response.json();
+      console.log("[Barcode Scanner] ✓ Open Food Facts response:", data);
 
       if (data.status === 1 && data.product) {
         const product = data.product;
@@ -109,12 +127,15 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
           barcode: barcode,
           is_custom: true,
         };
+        console.log("[Barcode Scanner] ✓ Product found:", food.name);
         setProductData(food);
         setState("result");
       } else {
+        console.log("[Barcode Scanner] ✗ Product not found in database");
         setState("notfound");
       }
     } catch (e) {
+      console.error("[Barcode Scanner] ✗ Lookup error:", e.message);
       setState("notfound");
     }
   };

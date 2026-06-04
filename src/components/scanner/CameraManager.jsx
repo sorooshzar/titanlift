@@ -50,10 +50,19 @@ export class CameraManager {
   }
 
   captureFrame(canvasRef) {
-    if (!this.videoRef || !canvasRef) return null;
+    if (!this.videoRef || !canvasRef) {
+      console.log("[CameraManager] captureFrame: invalid refs");
+      return null;
+    }
     const canvas = canvasRef;
     canvas.width = this.videoRef.videoWidth;
     canvas.height = this.videoRef.videoHeight;
+    
+    if (canvas.width === 0 || canvas.height === 0) {
+      console.log("[CameraManager] captureFrame: canvas dimensions are 0");
+      return null;
+    }
+    
     const ctx = canvas.getContext("2d");
     
     // Flip horizontally to handle mirrored camera streams (front-facing cameras)
