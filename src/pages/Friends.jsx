@@ -163,8 +163,8 @@ export default function Friends() {
   };
 
   const friendsWithXp = friends.map(friend => {
-    const friendXpData = friendsData[friend.email];
-    const xp = friendXpData?.xp || getLevelData(0);
+    const cachedData = queryClient.getQueryData(['friendData', friend.email]);
+    const xp = cachedData?.xp || getLevelData(0);
     return { friend, xp };
   });
 
