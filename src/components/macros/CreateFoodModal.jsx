@@ -227,7 +227,7 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
           {/* Serving Information */}
           <CollapsibleSection title="Serving Size" defaultOpen={true}>
-           <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1">
+           <div className="flex items-center gap-1 bg-muted rounded-md px-2 py-1 mt-1">
              {/* Base serving size number */}
              <Input
                type="number"
@@ -254,10 +254,11 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
              {/* Portion quantity dropdown */}
              <Select value={form.portion_quantity} onValueChange={val => set("portion_quantity", val)}>
-               <SelectTrigger className="w-10 h-7 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
-                 <SelectValue />
+               <SelectTrigger className="w-14 h-7 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
+                 <SelectValue placeholder="#" />
                </SelectTrigger>
                <SelectContent>
+                 <SelectItem value={null}>-</SelectItem>
                  {["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map(num => (
                    <SelectItem key={num} value={num}>{num}</SelectItem>
                  ))}
@@ -266,13 +267,18 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
              {/* Fraction dropdown */}
              <Select value={String(form.portion_fraction)} onValueChange={val => {
-               const fractionMap = {"0": 0, "0.16666666666666666": 1/6, "0.25": 1/4, "0.3333333333333333": 1/3, "0.5": 1/2, "0.6666666666666666": 2/3, "0.75": 3/4, "0.8333333333333334": 5/6};
-               set("portion_fraction", fractionMap[val]);
+               if (val === "") {
+                 set("portion_fraction", "");
+               } else {
+                 const fractionMap = {"0": 0, "0.16666666666666666": 1/6, "0.25": 1/4, "0.3333333333333333": 1/3, "0.5": 1/2, "0.6666666666666666": 2/3, "0.75": 3/4, "0.8333333333333334": 5/6};
+                 set("portion_fraction", fractionMap[val]);
+               }
              }}>
                <SelectTrigger className="w-14 h-7 rounded-md bg-background border-0 text-xs p-0 px-1 focus:ring-0">
-                 <SelectValue />
+                 <SelectValue placeholder="1/2" />
                </SelectTrigger>
                <SelectContent>
+                 <SelectItem value={null}>-</SelectItem>
                  <SelectItem value="0">0</SelectItem>
                  <SelectItem value="0.16666666666666666">1/6</SelectItem>
                  <SelectItem value="0.25">1/4</SelectItem>
