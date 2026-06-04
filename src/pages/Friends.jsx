@@ -64,7 +64,12 @@ export default function Friends() {
    const [friendData, setFriendData] = useState(null); // { workoutLogs, bodyWeights, nutritionRanks }
 
   useEffect(() => {
-    base44.auth.me().then(u => setCurrentUser(u)).catch(() => {});
+    base44.auth.me().then(u => {
+      setCurrentUser(u);
+      // Ensure this user's own SBD cache is seeded from history
+      base44.functions.invoke("updateSBDCache", { rebuildFromHistory: true })
+        .catch(() => {});
+    }).catch(() => {});
   }, []);
 
   const { data: allFriendships = [], refetch: refetchFriendships } = useQuery({
@@ -82,6 +87,24 @@ export default function Friends() {
     });
     return () => unsubscribe();
   }, [refetchFriendships]);
+
+  // Subscribe to SBD cache changes — when a friend finishes a workout, refresh their data
+  useEffect(() => {
+    const unsubscribe = base44.entities.UserSBDCache.subscribe((event) => {
+      if (event.type === "update" || event.type === "create") {
+        // Invalidate all friendData queries so the next view is fresh
+        queryClient.invalidateQueries({ queryKey: ['friendData'] });
+        // If we're currently viewing a friend's modal, update it live
+        setViewingFriend(prev => {
+          if (!prev) return prev;
+          const cached = queryClient.getQueryData(['friendData', prev.friend.email]);
+          if (cached) setFriendData(cached);
+          return prev;
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, [queryClient]);
 
   // Accepted friendships involving current user
   const acceptedFriendships = allFriendships.filter(f =>
