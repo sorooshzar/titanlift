@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import MacrosDashboard from "../components/macros/MacrosDashboard";
 import MacrosJournal from "../components/macros/MacrosJournal";
 import MacrosFoods from "../components/macros/MacrosFoods";
-import RecipesTab from "../components/macros/RecipesTab";
 import FoodDetailModal from "../components/macros/FoodDetailModal";
 import PullToRefresh from "../components/mobile/PullToRefresh";
 
@@ -129,7 +128,6 @@ const TABS = [
   { id: "dashboard", label: "Dashboard" },
   { id: "journal", label: "Journal" },
   { id: "foods", label: "Foods" },
-  { id: "recipes", label: "Recipes" },
 ];
 
 export default function Macros() {
@@ -285,14 +283,7 @@ export default function Macros() {
         />
       )}
 
-      {tab === "recipes" && (
-        <RecipesTab
-          date={date}
-          addingMeal={addingMeal}
-          onAdd={handleAddEntry}
-          onClearMeal={() => setAddingMeal(null)}
-        />
-      )}
+
 
       {/* Mini calendar */}
       {showCalendar && (

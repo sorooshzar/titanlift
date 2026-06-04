@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getFoodIcon } from "./foodIcons";
 import FoodDetailModal from "./FoodDetailModal";
 import ScanFoodModalNew from "./ScanFoodModalNew";
+import RecipesTab from "./RecipesTab";
 import { motion, AnimatePresence } from "framer-motion";
 
 const PROTEIN_COLOR = "#FF0055";
@@ -144,6 +145,7 @@ function AddFoodForm({ onClose, onCreate, prefill }) {
 }
 
 export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal, onAdd, onClearMeal }) {
+  const [foodsView, setFoodsView] = useState("foods"); // "foods" | "recipes"
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showScan, setShowScan] = useState(false);
@@ -212,6 +214,26 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
 
   return (
     <div className="space-y-3">
+      {/* Foods / Recipes toggle */}
+      <div className="flex bg-secondary/80 rounded-xl p-0.5">
+        {["foods", "recipes"].map(v => (
+          <button key={v} onClick={() => setFoodsView(v)}
+            className={`flex-1 py-1.5 rounded-[10px] text-xs font-semibold capitalize transition-all duration-200 ${
+              foodsView === v ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+            }`}>
+            {v === "foods" ? "Foods" : "Recipes"}
+          </button>
+        ))}
+      </div>
+
+      {/* Recipes view */}
+      {foodsView === "recipes" && (
+        <RecipesTab date={date} addingMeal={addingMeal} onAdd={onAdd} onClearMeal={onClearMeal} />
+      )}
+
+      {/* Foods view */}
+      {foodsView === "foods" && <>
+
       {/* Meal context banner */}
       {addingMeal && (
         <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-xl px-3 py-2">
@@ -333,6 +355,8 @@ export default function MacrosFoods({ macroGoals, dailyTotals, date, addingMeal,
           onClose={() => setShowScan(false)}
         />
       )}
+
+      </> /* end foods view */}
     </div>
   );
 }
