@@ -108,6 +108,11 @@ export default function WorkoutSummary() {
           exercises: log.exercises,
         }).catch(err => console.warn("[WorkoutSummary] Background rank persist failed:", err));
 
+        // Update SBD cache so friends see latest 1RMs immediately
+        base44.functions.invoke("updateSBDCache", {
+          exercises: log.exercises,
+        }).catch(err => console.warn("[WorkoutSummary] SBD cache update failed:", err));
+
       } catch (err) {
         console.error("[WorkoutSummary] Error calculating ranks:", err);
       } finally {

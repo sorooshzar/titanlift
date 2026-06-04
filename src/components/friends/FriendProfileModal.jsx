@@ -27,7 +27,7 @@ function MedalTile({ medal, unlocked }) {
   );
 }
 
-export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, bodyWeights = [], nutritionRanks = [] }) {
+export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, bodyWeights = [], nutritionRanks = [], sbdCache = null }) {
   const { unit: weightUnit, toDisplay } = useWeightUnit();
   const [showBodyModel, setShowBodyModel] = useState(false);
   const [showWorkoutHistory, setShowWorkoutHistory] = useState(false);
@@ -44,23 +44,10 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
   const unlockedCount = friend.unlockedMedals?.length || 0;
   const totalCount = ALL_MEDALS.length;
 
-  // Calculate best 1RM for squat, bench, deadlift
-  const calculateBest1RM = (exerciseName) => {
-    if (!workoutLogs?.length) return 0;
-    const exerciseLogs = workoutLogs.flatMap(log =>
-      log.exercises?.filter(e => e.exercise_name?.toLowerCase().includes(exerciseName.toLowerCase())) || []
-    );
-    if (!exerciseLogs.length) return 0;
-    
-    const maxWeight = Math.max(...exerciseLogs.flatMap(e => 
-      e.sets?.map(s => s.weight || 0) || []
-    ));
-    return Math.round(maxWeight);
-  };
-
-  const squat1RM = calculateBest1RM("squat");
-  const bench1RM = calculateBest1RM("bench");
-  const deadlift1RM = calculateBest1RM("deadlift");
+  // Use cached SBD values (updated live when friend finishes a workout)
+  const squat1RM = sbdCache?.squat_1rm || 0;
+  const bench1RM = sbdCache?.bench_1rm || 0;
+  const deadlift1RM = sbdCache?.deadlift_1rm || 0;
   const totalSBD = squat1RM + bench1RM + deadlift1RM;
 
   return (

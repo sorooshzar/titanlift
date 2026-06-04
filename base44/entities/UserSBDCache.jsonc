@@ -1,0 +1,36 @@
+{
+  "name": "UserSBDCache",
+  "type": "object",
+  "properties": {
+    "squat_1rm": {
+      "type": "number",
+      "description": "Best estimated 1RM for Barbell Squat"
+    },
+    "bench_1rm": {
+      "type": "number",
+      "description": "Best estimated 1RM for Barbell Bench Press"
+    },
+    "deadlift_1rm": {
+      "type": "number",
+      "description": "Best estimated 1RM for Barbell Deadlift"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this was last updated"
+    }
+  },
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": true,
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  },
+  "required": []
+}

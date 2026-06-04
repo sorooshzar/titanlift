@@ -44,6 +44,11 @@ Deno.serve(async (req) => {
       created_by: friendEmail
     });
 
+    const sbdCacheList = await base44.asServiceRole.entities.UserSBDCache.filter({
+      created_by: friendEmail
+    });
+    const sbdCache = sbdCacheList[0] || null;
+
     // Calculate total volume and XP
     const totalVolume = (workoutLogs || []).reduce((sum, log) => sum + (log.total_volume || 0), 0);
     const xp = getLevelData(totalVolume);
@@ -52,6 +57,7 @@ Deno.serve(async (req) => {
       workoutLogs,
       bodyWeights,
       nutritionRanks,
+      sbdCache,
       totalVolume,
       xp
     });

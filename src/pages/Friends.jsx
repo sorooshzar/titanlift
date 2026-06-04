@@ -252,6 +252,7 @@ export default function Friends() {
           workoutLogs={friendData?.workoutLogs || []}
           bodyWeights={friendData?.bodyWeights || []}
           nutritionRanks={friendData?.nutritionRanks || []}
+          sbdCache={friendData?.sbdCache || null}
         />
       )}
 
