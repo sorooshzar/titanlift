@@ -112,7 +112,7 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
              </div>
 
              {/* Right: Buttons - moved left with smaller gap */}
-             <div className="flex flex-col gap-2 flex-shrink-0 -mr-4">
+             <div className="flex flex-col gap-2 flex-shrink-0 -ml-4">
                <Button
                  variant="outline"
                  size="sm"
