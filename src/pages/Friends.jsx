@@ -202,6 +202,7 @@ export default function Friends() {
           friend={viewingFriend.friend}
           xp={viewingFriend.xp}
           onClose={() => setViewingFriend(null)}
+          workoutLogs={allWorkoutLogs.filter(l => l.created_by === viewingFriend.friend.email)}
         />
       )}
 
