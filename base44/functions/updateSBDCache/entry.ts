@@ -7,11 +7,11 @@ function calcE1RM(weight, reps) {
   return weight * (1 + reps / 30);
 }
 
-// Flexible matchers — catches variations like "Back Squat", "Low Bar Squat", "Bench Press", etc.
+// Exact exercise name matchers
 const SBD_MATCHERS = {
-  squat: (name) => /squat/i.test(name) && !/hack/i.test(name),
-  bench: (name) => /bench/i.test(name),
-  deadlift: (name) => /deadlift/i.test(name),
+  squat: (name) => /^squat\s*\[barbell\]$/i.test(name.trim()),
+  bench: (name) => /^bench press\s*\[barbell\]$/i.test(name.trim()),
+  deadlift: (name) => /^deadlift\s*\[barbell\]$/i.test(name.trim()),
 };
 
 function getBestFromExercises(exercises) {
