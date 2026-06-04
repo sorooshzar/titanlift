@@ -3,10 +3,8 @@ import { X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import IconPickerModal from "@/components/workouts/IconPickerModal";
+import FoodEmojiPickerModal from "@/components/macros/FoodEmojiPickerModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const ICON_PRESET = ["🍎", "🥕", "🥬", "🍌", "🍊", "🍋", "🥑", "🍅", "🥦", "🌽", "🥒", "🍞", "🥐", "🥯", "🧀", "🥛", "🍶", "☕", "🍺", "🥤", "🍊", "🥃", "🍲", "🥘", "🍛", "🍜", "🍝", "🍔", "🍟", "🌭", "🍿", "🥓", "🍖", "🍗", "🥩", "🍤", "🦐", "🐙", "🦑", "🦞", "🦀", "🐟", "🐠", "🐡", "🦈", "🥮", "🍱", "🍙", "🍚", "🍛", "🍜", "🍲", "🥞", "🧇", "🥟", "🦪", "🍗", "🍖", "🌭", "🍔", "🍟", "🍕", "🥪", "🥙", "🧆", "🌮", "🌯", "🥗", "🥘", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙", "🍚", "🍘", "🍥", "🥠", "🥮", "🍢", "🍡", "🍧", "🍨", "🍦", "🍰", "🎂", "🧁", "🍮", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "🌰", "🥜"];
 
 function CollapsibleSection({ title, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -442,8 +440,8 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
           </Button>
         </div>
 
-        {/* Icon Picker Modal */}
-        <IconPickerModal
+        {/* Food Icon Picker Modal */}
+        <FoodEmojiPickerModal
           open={showIconPicker}
           current={form.icon}
           onSelect={(icon) => {
