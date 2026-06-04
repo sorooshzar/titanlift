@@ -122,6 +122,14 @@
         "calisthenics",
         "mixed"
       ]
+    },
+    "unlockedMedals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of unlocked medal IDs",
+      "default": []
     }
   },
   "required": [

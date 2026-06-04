@@ -20,6 +20,7 @@ export default function WorkoutSummary() {
   const { unit: weightUnit, toDisplay } = useWeightUnit();
   const [loading, setLoading] = useState(false);
   const [displayLog, setDisplayLog] = useState(null);
+  const [newMedals, setNewMedals] = useState([]);
   // Capture the log on first mount — so clearing completedLog doesn't wipe the UI
   const capturedLogRef = useRef(null);
 
@@ -101,11 +102,13 @@ export default function WorkoutSummary() {
 
         setDisplayLog({ ...log, exercises: rankedExercises });
 
-        // Fire backend in background to persist ranks to DB (don't await for UI)
+        // Fire backend in background to persist ranks to DB and evaluate medals
         base44.functions.invoke("calculateRanks", {
           workoutLogId: log.id,
           userGender,
           exercises: log.exercises,
+        }).then(res => {
+          if (res?.data?.newMedals?.length > 0) setNewMedals(res.data.newMedals);
         }).catch(err => console.warn("[WorkoutSummary] Background rank persist failed:", err));
 
         // Update SBD cache — always rebuild from history to ensure accuracy
@@ -201,6 +204,16 @@ export default function WorkoutSummary() {
             <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             Calculating ranks…
           </div>
+        </div>
+      )}
+
+      {/* Medal notification */}
+      {newMedals.length > 0 && (
+        <div className="bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3 mb-4">
+          <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Medals Earned!</p>
+          {newMedals.map(id => (
+            <p key={id} className="text-sm font-semibold">🏅 {id.replace(/_/g, ' ')}</p>
+          ))}
         </div>
       )}
 

@@ -326,12 +326,93 @@ Deno.serve(async (req) => {
       })
     );
 
+    // ─── Medal evaluation ────────────────────────────────────────────────────
+    const currentMedals = user.unlockedMedals || [];
+    const newMedals = [];
+
+    function award(id) {
+      if (!currentMedals.includes(id) && !newMedals.includes(id)) newMedals.push(id);
+    }
+
+    // Strength medals — find best single set weight across all logs
+    const bestBench = Math.max(0, ...allLogsWithNew.flatMap(l =>
+      (l.exercises || []).filter(e => e.exercise_name?.toLowerCase().includes('bench'))
+        .flatMap(e => (e.sets || []).filter(s => s.completed && s.type !== 'warmup').map(s => s.weight || 0))
+    ));
+    const bestSquat = Math.max(0, ...allLogsWithNew.flatMap(l =>
+      (l.exercises || []).filter(e => e.exercise_name?.toLowerCase().includes('squat'))
+        .flatMap(e => (e.sets || []).filter(s => s.completed && s.type !== 'warmup').map(s => s.weight || 0))
+    ));
+    const bestDeadlift = Math.max(0, ...allLogsWithNew.flatMap(l =>
+      (l.exercises || []).filter(e => e.exercise_name?.toLowerCase().includes('deadlift'))
+        .flatMap(e => (e.sets || []).filter(s => s.completed && s.type !== 'warmup').map(s => s.weight || 0))
+    ));
+
+    // Convert to lbs for medal thresholds
+    const weightUnit = user.weight_unit || 'kg';
+    const toLbs = (w) => weightUnit === 'lbs' ? w : w * 2.20462;
+
+    if (toLbs(bestBench) >= 135) award('bench_135');
+    if (toLbs(bestBench) >= 185) award('bench_185');
+    if (toLbs(bestBench) >= 225) award('bench_225');
+    if (toLbs(bestBench) >= 315) award('bench_315');
+    if (toLbs(bestSquat) >= 225) award('squat_225');
+    if (toLbs(bestSquat) >= 315) award('squat_315');
+    if (toLbs(bestDeadlift) >= 315) award('dead_315');
+    if (toLbs(bestDeadlift) >= 405) award('dead_405');
+
+    // Consistency medals
+    const workoutDates = allLogsWithNew
+      .map(l => l.finished_at || l.started_at)
+      .filter(Boolean)
+      .map(d => new Date(d).toDateString());
+    const uniqueDates = [...new Set(workoutDates)].sort();
+
+    let maxStreak = 0, currentStreak = 1;
+    for (let i = 1; i < uniqueDates.length; i++) {
+      const prev = new Date(uniqueDates[i - 1]);
+      const curr = new Date(uniqueDates[i]);
+      const diff = (curr.getTime() - prev.getTime()) / 86400000;
+      if (diff === 1) { currentStreak++; maxStreak = Math.max(maxStreak, currentStreak); }
+      else { currentStreak = 1; }
+    }
+    if (maxStreak >= 7) award('streak_7');
+    if (maxStreak >= 30) award('streak_30');
+
+    // 5 workouts in a single week
+    const weekCounts = {};
+    allLogsWithNew.forEach(l => {
+      const d = new Date(l.finished_at || l.started_at || '');
+      if (isNaN(d.getTime())) return;
+      const weekStart = new Date(d); weekStart.setDate(d.getDate() - d.getDay());
+      const key = weekStart.toDateString();
+      weekCounts[key] = (weekCounts[key] || 0) + 1;
+    });
+    const maxWeekWorkouts = Math.max(0, ...Object.values(weekCounts));
+    if (maxWeekWorkouts >= 5) award('workouts_5');
+
+    // Cardio medals (duration_seconds field)
+    try {
+      const cardioLogs = await base44.entities.CardioLog.filter({ created_by: user.email }, null, 1000);
+      const bestDurationSecs = Math.max(0, ...cardioLogs.map(l => l.duration_seconds || 0));
+      if (bestDurationSecs >= 30 * 60)  award('cardio_30');
+      if (bestDurationSecs >= 60 * 60)  award('cardio_60');
+      if (bestDurationSecs >= 120 * 60) award('cardio_120');
+    } catch {}
+
+    // Persist newly earned medals
+    if (newMedals.length > 0) {
+      await base44.auth.updateMe({ unlockedMedals: [...currentMedals, ...newMedals] });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     return Response.json({
       updatedLog: { ...workoutLog, exercises: updatedExercises },
       muscleRanks: Object.entries(muscleRanks).reduce((acc, [muscle, data]) => {
         acc[muscle] = data.rank;
         return acc;
       }, {}),
+      newMedals,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
