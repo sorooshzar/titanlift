@@ -88,7 +88,7 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
 
           {/* Avatar + name + username + action buttons */}
            <div className="flex items-start justify-between gap-4 pt-2">
-             {/* Left: Avatar + Name */}
+             {/* Left: Avatar + Name + Username + Weight */}
              <div className="flex items-center gap-3 flex-shrink-0">
                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/30 flex-shrink-0">
                  <span className="text-xl font-black text-primary">
@@ -97,20 +97,18 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
                </div>
                <div>
                  <p className="font-bold text-sm">{friend.full_name || "Unknown"}</p>
+                 {friend.username && (
+                   <p className="text-xs text-muted-foreground">@{friend.username}</p>
+                 )}
+                 {latestBodyWeight && (
+                   <p className="text-xs text-primary font-semibold mt-0.5">
+                     {latestBodyWeight.unit === 'kg' && weightUnit === 'kg' ? toDisplay(latestBodyWeight.weight) : latestBodyWeight.unit === 'kg' ? toDisplay(latestBodyWeight.weight * 2.20462) : toDisplay(latestBodyWeight.weight / 2.20462)} {weightUnit}
+                   </p>
+                 )}
                </div>
              </div>
 
-             {/* Center: Username + Bodyweight */}
-             <div className="flex flex-col items-center justify-start flex-1 min-w-0">
-               {friend.username && (
-                 <p className="text-xs text-muted-foreground">@{friend.username}</p>
-               )}
-               {latestBodyWeight && (
-                 <p className="text-xs text-primary font-semibold mt-1">
-                   {latestBodyWeight.unit === 'kg' && weightUnit === 'kg' ? toDisplay(latestBodyWeight.weight) : latestBodyWeight.unit === 'kg' ? toDisplay(latestBodyWeight.weight * 2.20462) : toDisplay(latestBodyWeight.weight / 2.20462)} {weightUnit}
-                 </p>
-               )}
-             </div>
+
 
              {/* Right: Buttons - moved left with smaller gap */}
              <div className="flex flex-col gap-2 flex-shrink-0 -ml-4">

@@ -24,9 +24,10 @@ export default function FriendWorkoutHistory({ workoutLogs = [], friend }) {
     }
   });
 
-  // Get workouts for selected date
-  const selectedDateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null;
-  const selectedWorkouts = selectedDateKey ? (workoutsByDate[selectedDateKey] || []) : [];
+  // Get 8 most recent workouts
+  const recentWorkouts = workoutLogs
+    .sort((a, b) => new Date(b.started_at || 0) - new Date(a.started_at || 0))
+    .slice(0, 8);
 
   // Calendar days
   const days = [];
@@ -124,11 +125,11 @@ export default function FriendWorkoutHistory({ workoutLogs = [], friend }) {
       {/* Divider */}
       <div className="h-px bg-border my-3" />
 
-      {/* Workout List */}
+      {/* Recent Workouts List */}
       <div className="flex-1 overflow-y-auto">
-        {selectedWorkouts.length > 0 ? (
+        {recentWorkouts.length > 0 ? (
           <div className="space-y-2">
-            {selectedWorkouts.map((log) => (
+            {recentWorkouts.map((log) => (
               <div
                 key={log.id}
                 className="bg-secondary rounded-xl p-3 space-y-2"
@@ -137,7 +138,7 @@ export default function FriendWorkoutHistory({ workoutLogs = [], friend }) {
                   <div>
                     <p className="font-semibold text-sm">{log.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {log.duration_minutes ? `${log.duration_minutes} min` : 'Duration unknown'} • {log.total_sets || 0} sets
+                      {log.started_at ? format(new Date(log.started_at), 'MMM d') : 'Unknown date'} • {log.duration_minutes ? `${log.duration_minutes} min` : 'Duration unknown'} • {log.total_sets || 0} sets
                     </p>
                   </div>
                   <p className="text-sm font-bold text-primary">
@@ -153,13 +154,9 @@ export default function FriendWorkoutHistory({ workoutLogs = [], friend }) {
               </div>
             ))}
           </div>
-        ) : selectedDate ? (
-          <p className="text-xs text-muted-foreground text-center py-4">
-            No workouts on this date
-          </p>
         ) : (
           <p className="text-xs text-muted-foreground text-center py-4">
-            Select a date to view workouts
+            No workouts found
           </p>
         )}
       </div>
