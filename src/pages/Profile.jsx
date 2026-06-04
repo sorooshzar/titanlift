@@ -25,6 +25,7 @@ import MuscleRankModal from "../components/profile/MuscleRankModal";
 import RankTester from "../components/profile/RankTester";
 import NutritionRankCard from "../components/macros/NutritionRank";
 import { computeNutritionStreak } from "../components/macros/NutritionRank";
+import ProfilePictureModal from "../components/profile/ProfilePictureModal";
 
 
 
@@ -74,7 +75,7 @@ function LogWeightModal({ onClose }) {
   );
 }
 
-function ProfileInfoPanel({ user, onClose, xp }) {
+function ProfileInfoPanel({ user, onClose, xp, profilePictureUrl }) {
   const handleSignOut = () => {
     base44.auth.logout();
   };
@@ -97,8 +98,16 @@ function ProfileInfoPanel({ user, onClose, xp }) {
 
           {/* User identity */}
           <div className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-3.5">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="text-lg font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+              {profilePictureUrl || user?.profile_picture_url ? (
+                <img 
+                  src={profilePictureUrl || user?.profile_picture_url} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-lg font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               {user?.full_name && <p className="text-sm font-bold truncate">{user.full_name}</p>}
@@ -148,6 +157,8 @@ export default function Profile() {
   const navigate = useNavigate();
   const [showRecovery, setShowRecovery] = useState(false);
   const [showLogWeight, setShowLogWeight] = useState(false);
+  const [showProfilePicture, setShowProfilePicture] = useState(false);
+  const [profilePictureUrl, setProfilePictureUrl] = useState(null);
   const [rankModalMuscle, setRankModalMuscle] = useState(null);
   const [showRankTester, setShowRankTester] = useState(false);
   const [showProfileInfo, setShowProfileInfo] = useState(false);
@@ -327,9 +338,22 @@ export default function Profile() {
           return (
             <button onClick={() => setShowProfileInfo(true)}
               className="w-full flex items-center gap-3 bg-card rounded-2xl border border-border px-4 py-3.5 text-left active:scale-[0.98] transition-all duration-150">
-              <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-primary/30 shrink-0">
-                <span className="text-base font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
-              </div>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowProfilePicture(true);
+                }}
+                className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center ring-2 ring-primary/30 shrink-0 hover:opacity-80 transition-opacity">
+                {profilePictureUrl || user?.profile_picture_url ? (
+                  <img 
+                    src={profilePictureUrl || user?.profile_picture_url} 
+                    alt="Profile" 
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="text-base font-bold text-primary">{user?.full_name?.[0]?.toUpperCase() || "A"}</span>
+                )}
+              </button>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
                   <span className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{workoutLogs.length}</span> workouts</span>
@@ -479,7 +503,7 @@ export default function Profile() {
       </div>
 
       {showLogWeight && <LogWeightModal onClose={() => setShowLogWeight(false)} />}
-      {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} xp={xp} />}
+      {showProfileInfo && <ProfileInfoPanel user={user} onClose={() => setShowProfileInfo(false)} xp={xp} profilePictureUrl={profilePictureUrl} />}
       {showAddTracker && <AddTrackerModal onClose={() => setShowAddTracker(false)} onAdded={refetchTrackers} />}
       {showRankTester && (
         <RankTester onClose={() => setShowRankTester(false)} bodyWeightKg={latestWeightKg} />
@@ -489,6 +513,12 @@ export default function Profile() {
           muscle={rankModalMuscle}
           rankData={muscleRankDetails[rankModalMuscle]}
           onClose={() => setRankModalMuscle(null)}
+        />
+      )}
+      {showProfilePicture && (
+        <ProfilePictureModal 
+          onClose={() => setShowProfilePicture(false)}
+          onSuccess={(url) => setProfilePictureUrl(url)}
         />
       )}
     </div>
