@@ -147,12 +147,12 @@ export default function Friends() {
         const data = {};
         for (const friend of friends) {
           try {
-            const res = await base44.functions.invoke('getFriendData', { friendId: friend.id });
-            console.log(`Fetched data for ${friend.id}:`, res.data);
-            data[friend.id] = res.data;
+            const res = await base44.functions.invoke('getFriendData', { friendEmail: friend.email });
+            console.log(`Fetched data for ${friend.email}:`, res.data);
+            data[friend.email] = res.data;
           } catch (err) {
-            console.error(`Error fetching data for ${friend.id}:`, err);
-            data[friend.id] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
+            console.error(`Error fetching data for ${friend.email}:`, err);
+            data[friend.email] = { xp: getLevelData(0), workoutLogs: [], bodyWeights: [], nutritionRanks: [] };
           }
         }
         console.log('All friends data:', data);
@@ -163,7 +163,7 @@ export default function Friends() {
   }, [friends]);
 
   const friendsWithXp = friends.map(friend => {
-    const friendXpData = friendsData[friend.id];
+    const friendXpData = friendsData[friend.email];
     const xp = friendXpData?.xp || getLevelData(0);
     return { friend, xp };
   });
@@ -178,7 +178,7 @@ export default function Friends() {
   };
 
   const handleViewFriend = (friend, xp) => {
-    const data = friendsData[friend.id] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [], xp: getLevelData(0) };
+    const data = friendsData[friend.email] || { workoutLogs: [], bodyWeights: [], nutritionRanks: [], xp: getLevelData(0) };
     setViewingFriend({ friend, xp: data.xp || xp });
     setFriendData(data);
   };

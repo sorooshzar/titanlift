@@ -25,23 +25,23 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { friendId } = await req.json();
+    const { friendEmail } = await req.json();
 
-    if (!friendId) {
-      return Response.json({ error: 'Missing friendId' }, { status: 400 });
+    if (!friendEmail) {
+      return Response.json({ error: 'Missing friendEmail' }, { status: 400 });
     }
 
     // Use service role to bypass RLS
     const workoutLogs = await base44.asServiceRole.entities.WorkoutLog.filter({
-      created_by_id: friendId
+      created_by: friendEmail
     });
 
     const bodyWeights = await base44.asServiceRole.entities.BodyWeight.filter({
-      created_by_id: friendId
+      created_by: friendEmail
     });
 
     const nutritionRanks = await base44.asServiceRole.entities.UserMuscleRank.filter({
-      created_by_id: friendId
+      created_by: friendEmail
     });
 
     // Calculate total volume and XP

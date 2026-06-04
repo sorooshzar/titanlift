@@ -102,7 +102,16 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
                  )}
                  {latestBodyWeight && (
                    <p className="text-xs text-primary font-semibold mt-0.5">
-                     {toDisplay(latestBodyWeight.unit === weightUnit ? latestBodyWeight.weight : latestBodyWeight.unit === 'kg' ? latestBodyWeight.weight * 2.20462 : latestBodyWeight.weight / 2.20462)} {weightUnit}
+                     {(() => {
+                       const w = latestBodyWeight.weight;
+                       const storedUnit = latestBodyWeight.unit || 'kg';
+                       const displayWeight = storedUnit === weightUnit
+                         ? w
+                         : storedUnit === 'kg'
+                         ? Math.round(w * 2.20462 * 10) / 10
+                         : Math.round(w / 2.20462 * 10) / 10;
+                       return `${displayWeight} ${weightUnit}`;
+                     })()}
                    </p>
                  )}
                </div>
