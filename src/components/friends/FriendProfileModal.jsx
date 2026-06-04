@@ -3,6 +3,7 @@ import { X, Zap, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ALL_MEDALS } from "@/components/profile/MedalsBook";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
+import FriendWorkoutHistory from "./FriendWorkoutHistory";
 
 function MedalTile({ medal, unlocked }) {
   return (
@@ -211,14 +212,16 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, b
           {/* Workout History Modal */}
           {showWorkoutHistory && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setShowWorkoutHistory(false)}>
-          <div className="w-full max-w-sm bg-card rounded-3xl border border-border/40 p-6" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
+          <div className="w-full max-w-sm bg-card rounded-3xl border border-border/40 p-6 flex flex-col" style={{ maxHeight: "80vh" }} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
               <h3 className="font-bold text-base">Workout History</h3>
               <button onClick={() => setShowWorkoutHistory(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary/80">
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </div>
-            <p className="text-xs text-muted-foreground text-center py-8">Workout history view coming soon</p>
+            <div className="flex-1 overflow-hidden">
+              <FriendWorkoutHistory workoutLogs={workoutLogs} friend={friend} />
+            </div>
           </div>
           </div>
           )}
