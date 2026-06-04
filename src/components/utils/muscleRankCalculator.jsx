@@ -11,7 +11,7 @@ const MUSCLE_SCALE = {
   "Wrist Flexor": 0.2, "Brachioradialis": 0.4,
 };
 
-const BASE_THRESHOLDS = [0.2, 0.5, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2];
+const BASE_THRESHOLDS = [0.1, 0.4, 0.7, 1.1, 1.5, 2.0, 2.5, 3.0, 3.5, 99];
 
 function getRankFromScore(score, muscleName) {
   const scale = MUSCLE_SCALE[muscleName] || 0.7;
