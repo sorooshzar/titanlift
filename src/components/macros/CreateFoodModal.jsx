@@ -44,6 +44,32 @@ function NumericInput({ label, value, onChange, unit = "", required = false, col
   );
 }
 
+function MacroDropdown({ title, value, onChange, unit, color, expanded, onToggle, children }) {
+  return (
+    <div>
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center gap-3 bg-secondary/50 hover:bg-secondary/70 rounded-lg px-3 py-2.5 transition-colors"
+      >
+        {color && <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />}
+        <span className="text-xs font-semibold text-muted-foreground w-24 shrink-0">{title}</span>
+        <Input
+          type="number"
+          placeholder="0"
+          step="0.1"
+          value={value}
+          onChange={onChange}
+          onClick={e => e.stopPropagation()}
+          className="flex-1 bg-transparent border-0 text-right font-semibold h-7 p-0 focus:ring-0 text-sm"
+        />
+        <span className="text-[10px] text-muted-foreground w-8 shrink-0 text-right">{unit}</span>
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform shrink-0 ${expanded ? "rotate-180" : ""}`} />
+      </button>
+      {expanded && <div className="mt-2 pl-6 space-y-2">{children}</div>}
+    </div>
+  );
+}
+
 export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
   const [form, setForm] = useState({
     icon: prefill?.icon || "🍎",
@@ -80,6 +106,11 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
   });
 
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const [expandedMacros, setExpandedMacros] = useState({
+    protein: false,
+    carbs: false,
+    fat: false,
+  });
 
   const set = (key, val) => setForm(p => ({ ...p, [key]: val }));
 
@@ -150,45 +181,42 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
 
         {/* Content */}
         <div className="flex-1 px-4 py-4 space-y-4">
-          {/* Food Icon Selector */}
-          <div className="flex items-center gap-3 p-4 bg-secondary/50 rounded-xl">
+          {/* Food Info & Icon Selector */}
+          <div className="flex gap-4">
+            {/* Food Information */}
+            <div className="flex-1 border border-border rounded-xl overflow-hidden">
+              <div className="p-4 bg-secondary/50 space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+                    Food Name <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    placeholder="e.g., Whole Wheat Bread"
+                    value={form.name}
+                    onChange={e => set("name", e.target.value)}
+                    className="bg-secondary border-0 h-11 rounded-lg font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground mb-1 block">Brand</label>
+                  <Input
+                    placeholder="e.g., Kirkland"
+                    value={form.brand}
+                    onChange={e => set("brand", e.target.value)}
+                    className="bg-secondary border-0 h-11 rounded-lg"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Icon Picker */}
             <button
               onClick={() => setShowIconPicker(true)}
-              className="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-4xl hover:bg-secondary/80 transition-colors"
+              className="w-24 h-24 bg-secondary rounded-xl flex items-center justify-center text-5xl hover:bg-secondary/80 transition-colors shrink-0 border border-border"
             >
               {form.icon}
             </button>
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Food Icon</p>
-              <p className="text-sm font-semibold">Tap to choose</p>
-            </div>
           </div>
-
-          {/* Food Information */}
-          <CollapsibleSection title="Food Information" defaultOpen={true}>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-1 block">
-                  Food Name <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  placeholder="e.g., Whole Wheat Bread"
-                  value={form.name}
-                  onChange={e => set("name", e.target.value)}
-                  className="bg-secondary border-0 h-11 rounded-lg font-medium"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-1 block">Brand</label>
-                <Input
-                  placeholder="e.g., Kirkland"
-                  value={form.brand}
-                  onChange={e => set("brand", e.target.value)}
-                  className="bg-secondary border-0 h-11 rounded-lg"
-                />
-              </div>
-            </div>
-          </CollapsibleSection>
 
           {/* Serving Information */}
           <CollapsibleSection title="Serving Information" defaultOpen={true}>
@@ -225,9 +253,9 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
           </CollapsibleSection>
 
           {/* Macronutrients */}
-          <CollapsibleSection title="Macronutrients" defaultOpen={true}>
-            <div className="space-y-2">
-              <p className="text-[10px] text-muted-foreground font-semibold">Per 100g</p>
+          <div className="border border-border rounded-xl overflow-hidden">
+            <div className="p-4 bg-secondary/50 space-y-4">
+              <p className="text-xs font-semibold text-muted-foreground">Per 100g</p>
               <NumericInput
                 label="Calories"
                 value={form.calories_per_100g}
@@ -236,109 +264,80 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
                 required={true}
                 color="#FFD700"
               />
-              <NumericInput
-                label="Protein"
+              <MacroDropdown
+                title="Protein"
                 value={form.protein_per_100g}
                 onChange={e => set("protein_per_100g", e.target.value)}
                 unit="g"
-                required={true}
                 color="#FF0055"
-              />
-              <NumericInput
-                label="Carbohydrates"
+                expanded={expandedMacros.protein}
+                onToggle={() => setExpandedMacros(p => ({ ...p, protein: !p.protein }))}
+              >
+                <NumericInput
+                  label="(none)"
+                  value={form.protein_per_100g}
+                  onChange={e => set("protein_per_100g", e.target.value)}
+                  unit="g"
+                />
+              </MacroDropdown>
+              <MacroDropdown
+                title="Carbs"
                 value={form.carbs_per_100g}
                 onChange={e => set("carbs_per_100g", e.target.value)}
                 unit="g"
-                required={true}
                 color="#00AAFF"
-              />
-              <NumericInput
-                label="Fat"
+                expanded={expandedMacros.carbs}
+                onToggle={() => setExpandedMacros(p => ({ ...p, carbs: !p.carbs }))}
+              >
+                <NumericInput
+                  label="Fiber"
+                  value={form.fiber_per_100g}
+                  onChange={e => set("fiber_per_100g", e.target.value)}
+                  unit="g"
+                />
+                <NumericInput
+                  label="Sugar"
+                  value={form.sugar_per_100g}
+                  onChange={e => set("sugar_per_100g", e.target.value)}
+                  unit="g"
+                />
+              </MacroDropdown>
+              <MacroDropdown
+                title="Fat"
                 value={form.fat_per_100g}
                 onChange={e => set("fat_per_100g", e.target.value)}
                 unit="g"
-                required={true}
                 color="#00CC66"
-              />
+                expanded={expandedMacros.fat}
+                onToggle={() => setExpandedMacros(p => ({ ...p, fat: !p.fat }))}
+              >
+                <NumericInput
+                  label="Saturated"
+                  value={form.saturated_fat_per_100g}
+                  onChange={e => set("saturated_fat_per_100g", e.target.value)}
+                  unit="g"
+                />
+                <NumericInput
+                  label="Trans"
+                  value={form.trans_fat_per_100g}
+                  onChange={e => set("trans_fat_per_100g", e.target.value)}
+                  unit="g"
+                />
+                <NumericInput
+                  label="Polyunsat"
+                  value={form.polyunsaturated_fat_per_100g}
+                  onChange={e => set("polyunsaturated_fat_per_100g", e.target.value)}
+                  unit="g"
+                />
+                <NumericInput
+                  label="Monounsat"
+                  value={form.monounsaturated_fat_per_100g}
+                  onChange={e => set("monounsaturated_fat_per_100g", e.target.value)}
+                  unit="g"
+                />
+              </MacroDropdown>
             </div>
-          </CollapsibleSection>
-
-          {/* Additional Nutrition */}
-          <CollapsibleSection title="Additional Nutrition" defaultOpen={false}>
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground mb-2">Carbohydrate Details</p>
-                <div className="space-y-2">
-                  <NumericInput
-                    label="Fiber"
-                    value={form.fiber_per_100g}
-                    onChange={e => set("fiber_per_100g", e.target.value)}
-                    unit="g"
-                  />
-                  <NumericInput
-                    label="Sugar"
-                    value={form.sugar_per_100g}
-                    onChange={e => set("sugar_per_100g", e.target.value)}
-                    unit="g"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground mb-2">Fat Details</p>
-                <div className="space-y-2">
-                  <NumericInput
-                    label="Saturated Fat"
-                    value={form.saturated_fat_per_100g}
-                    onChange={e => set("saturated_fat_per_100g", e.target.value)}
-                    unit="g"
-                  />
-                  <NumericInput
-                    label="Trans Fat"
-                    value={form.trans_fat_per_100g}
-                    onChange={e => set("trans_fat_per_100g", e.target.value)}
-                    unit="g"
-                  />
-                  <NumericInput
-                    label="Polyunsaturated"
-                    value={form.polyunsaturated_fat_per_100g}
-                    onChange={e => set("polyunsaturated_fat_per_100g", e.target.value)}
-                    unit="g"
-                  />
-                  <NumericInput
-                    label="Monounsaturated"
-                    value={form.monounsaturated_fat_per_100g}
-                    onChange={e => set("monounsaturated_fat_per_100g", e.target.value)}
-                    unit="g"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground mb-2">Other Nutrients</p>
-                <div className="space-y-2">
-                  <NumericInput
-                    label="Sodium"
-                    value={form.sodium_per_100g}
-                    onChange={e => set("sodium_per_100g", e.target.value)}
-                    unit="mg"
-                  />
-                  <NumericInput
-                    label="Potassium"
-                    value={form.potassium_per_100g}
-                    onChange={e => set("potassium_per_100g", e.target.value)}
-                    unit="mg"
-                  />
-                  <NumericInput
-                    label="Cholesterol"
-                    value={form.cholesterol_per_100g}
-                    onChange={e => set("cholesterol_per_100g", e.target.value)}
-                    unit="mg"
-                  />
-                </div>
-              </div>
-            </div>
-          </CollapsibleSection>
+          </div>
 
           {/* Micronutrients */}
           <CollapsibleSection title="Micronutrients" defaultOpen={false}>
