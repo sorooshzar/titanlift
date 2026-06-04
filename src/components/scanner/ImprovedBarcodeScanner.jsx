@@ -121,6 +121,17 @@ export default function ImprovedBarcodeScanner({ videoRef, canvasRef, cameraMana
 
   const navigate = useNavigate();
 
+  // Auto-navigate when product data is loaded (skip result screen)
+  useEffect(() => {
+    if (state === "result" && productData) {
+      navigate("/FoodPreview", {
+        state: { food: productData },
+        replace: false,
+      });
+      onClose();
+    }
+  }, [state, productData, navigate, onClose]);
+
   const handleLogFood = () => {
     navigate("/FoodPreview", {
       state: { food: productData },

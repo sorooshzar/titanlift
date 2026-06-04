@@ -54,7 +54,12 @@ export class CameraManager {
     const canvas = canvasRef;
     canvas.width = this.videoRef.videoWidth;
     canvas.height = this.videoRef.videoHeight;
-    canvas.getContext("2d").drawImage(this.videoRef, 0, 0);
+    const ctx = canvas.getContext("2d");
+    
+    // Flip horizontally to handle mirrored camera streams (front-facing cameras)
+    ctx.scale(-1, 1);
+    ctx.drawImage(this.videoRef, -canvas.width, 0);
+    
     return canvas.toDataURL("image/jpeg", 0.85);
   }
 
