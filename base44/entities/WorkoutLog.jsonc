@@ -110,9 +110,7 @@
     "create": {
       "created_by": "{{user.email}}"
     },
-    "read": {
-      "created_by": "{{user.email}}"
-    },
+    "read": true,
     "update": {
       "created_by": "{{user.email}}"
     },

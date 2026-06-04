@@ -24,10 +24,9 @@ export default function FriendWorkoutHistory({ workoutLogs = [], friend }) {
     }
   });
 
-  // Get 8 most recent workouts
+  // Get all workouts sorted by most recent
   const recentWorkouts = workoutLogs
-    .sort((a, b) => new Date(b.started_at || 0) - new Date(a.started_at || 0))
-    .slice(0, 8);
+    .sort((a, b) => new Date(b.started_at || 0) - new Date(a.started_at || 0));
 
   // Calendar days
   const days = [];
@@ -126,7 +125,7 @@ export default function FriendWorkoutHistory({ workoutLogs = [], friend }) {
       <div className="h-px bg-border my-3" />
 
       {/* Recent Workouts List */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pr-2">
         {recentWorkouts.length > 0 ? (
           <div className="space-y-2">
             {recentWorkouts.map((log) => (
