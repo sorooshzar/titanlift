@@ -97,6 +97,18 @@ export default function Friends() {
     enabled: !!currentUser,
   });
 
+  const { data: allBodyWeights = [] } = useQuery({
+    queryKey: ["allBodyWeights"],
+    queryFn: () => base44.entities.BodyWeight.list(),
+    enabled: !!currentUser,
+  });
+
+  const { data: allNutritionRanks = [] } = useQuery({
+    queryKey: ["allNutritionRanks"],
+    queryFn: () => base44.entities.UserMuscleRank.list(),
+    enabled: !!currentUser,
+  });
+
   // Accepted friendships involving current user
   const acceptedFriendships = allFriendships.filter(f =>
     f.status === "accepted" &&
@@ -203,6 +215,8 @@ export default function Friends() {
           xp={viewingFriend.xp}
           onClose={() => setViewingFriend(null)}
           workoutLogs={allWorkoutLogs.filter(l => l.created_by === viewingFriend.friend.email)}
+          bodyWeights={allBodyWeights.filter(b => b.created_by === viewingFriend.friend.email)}
+          nutritionRanks={allNutritionRanks.filter(r => r.created_by === viewingFriend.friend.email)}
         />
       )}
 

@@ -25,10 +25,20 @@ function MedalTile({ medal, unlocked }) {
   );
 }
 
-export default function FriendProfileModal({ friend, xp, onClose, workoutLogs }) {
+export default function FriendProfileModal({ friend, xp, onClose, workoutLogs, bodyWeights = [], nutritionRanks = [] }) {
   const { unit: weightUnit, toDisplay } = useWeightUnit();
   const [showBodyModel, setShowBodyModel] = useState(false);
   const [showWorkoutHistory, setShowWorkoutHistory] = useState(false);
+
+  // Get latest body weight
+  const latestBodyWeight = bodyWeights.length > 0 
+    ? bodyWeights.sort((a, b) => new Date(b.date) - new Date(a.date))[0]
+    : null;
+
+  // Get nutrition rank (highest rank by impressiveness score)
+  const nutritionRank = nutritionRanks.length > 0
+    ? nutritionRanks.sort((a, b) => (b.impressiveness_score || 0) - (a.impressiveness_score || 0))[0]
+    : null;
   const unlockedCount = friend.unlockedMedals?.length || 0;
   const totalCount = ALL_MEDALS.length;
 
@@ -86,43 +96,58 @@ export default function FriendProfileModal({ friend, xp, onClose, workoutLogs })
                 {friend.username && (
                   <p className="text-xs text-muted-foreground mt-0.5">@{friend.username}</p>
                 )}
+                {latestBodyWeight && (
+                  <p className="text-xs text-primary font-semibold mt-1">
+                    {toDisplay(latestBodyWeight.weight) || latestBodyWeight.weight} {latestBodyWeight.unit}
+                  </p>
+                )}
               </div>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex flex-col gap-2 flex-shrink-0">
               <Button
                 variant="outline"
-                size="icon"
-                className="rounded-xl w-10 h-10"
+                size="sm"
+                className="rounded-xl text-xs px-3"
                 onClick={() => setShowBodyModel(true)}
               >
-                <User className="w-4 h-4" />
+                <User className="w-3 h-3 mr-1.5" /> Body
               </Button>
               <Button
                 variant="outline"
-                size="icon"
-                className="rounded-xl w-10 h-10"
+                size="sm"
+                className="rounded-xl text-xs px-3"
                 onClick={() => setShowWorkoutHistory(true)}
               >
-                <Zap className="w-4 h-4" />
+                <Zap className="w-3 h-3 mr-1.5" /> History
               </Button>
             </div>
           </div>
 
-          {/* Level card */}
-          <div className="bg-secondary rounded-2xl px-4 py-3.5">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Level</p>
-              <span className="text-xl font-black text-primary">{xp?.level ?? 1}</span>
+          <div className="grid grid-cols-2 gap-3">
+            {/* Level card */}
+            <div className="bg-secondary rounded-2xl px-4 py-3.5">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Level</p>
+                <span className="text-xl font-black text-primary">{xp?.level ?? 1}</span>
+              </div>
+              <div className="h-1.5 bg-background/60 rounded-full overflow-hidden mb-1.5">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-700"
+                  style={{ width: `${Math.min((xp?.progress || 0) * 100, 100)}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground text-right">
+                {Math.round(xp?.xpIntoLevel || 0).toLocaleString()} / {Math.round(xp?.xpNeeded || 500).toLocaleString()} XP
+              </p>
             </div>
-            <div className="h-1.5 bg-background/60 rounded-full overflow-hidden mb-1.5">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-700"
-                style={{ width: `${Math.min((xp?.progress || 0) * 100, 100)}%` }}
-              />
-            </div>
-            <p className="text-[10px] text-muted-foreground text-right">
-              {Math.round(xp?.xpIntoLevel || 0).toLocaleString()} / {Math.round(xp?.xpNeeded || 500).toLocaleString()} XP
-            </p>
+
+            {/* Nutrition Rank card */}
+            {nutritionRank && (
+              <div className="bg-secondary rounded-2xl px-4 py-3.5 flex flex-col items-center justify-center">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-2">Nutrition</p>
+                <p className="text-lg font-black text-primary capitalize">{nutritionRank.rank}</p>
+              </div>
+            )}
           </div>
 
           {/* SBD Section */}
