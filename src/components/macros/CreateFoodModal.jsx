@@ -25,9 +25,8 @@ function CollapsibleSection({ title, children, defaultOpen = true }) {
 
 function NumericInput({ label, value, onChange, unit = "", required = false, color = null }) {
   return (
-    <div className="flex items-center gap-3 bg-secondary/50 rounded-lg px-3 py-2.5">
-      {color && <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />}
-      <span className="text-xs font-semibold text-muted-foreground w-24 shrink-0">
+    <div className="flex items-center gap-2 bg-muted hover:bg-muted/80 rounded-md px-2.5 py-1.5 transition-colors">
+      <span className={`text-xs font-bold w-20 shrink-0 ${color ? "text-white" : "text-muted-foreground"}`} style={color ? { color } : {}}>
         {label}
         {required && <span className="text-destructive">*</span>}
       </span>
@@ -37,9 +36,9 @@ function NumericInput({ label, value, onChange, unit = "", required = false, col
         step="0.1"
         value={value}
         onChange={onChange}
-        className="flex-1 bg-transparent border-0 text-right font-semibold h-7 p-0 focus:ring-0 text-sm"
+        className="flex-1 bg-background border-0 text-right font-semibold h-6 p-0 focus:ring-0 text-xs rounded-sm"
       />
-      {unit && <span className="text-[10px] text-muted-foreground w-8 shrink-0 text-right">{unit}</span>}
+      {unit && <span className="text-[9px] text-muted-foreground w-6 shrink-0 text-right">{unit}</span>}
     </div>
   );
 }
@@ -49,10 +48,9 @@ function MacroDropdown({ title, value, onChange, unit, color, expanded, onToggle
     <div>
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-3 bg-secondary/50 hover:bg-secondary/70 rounded-lg px-3 py-2.5 transition-colors"
+        className="w-full flex items-center gap-2 bg-muted hover:bg-muted/80 rounded-md px-2.5 py-1.5 transition-colors"
       >
-        {color && <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />}
-        <span className="text-xs font-semibold text-muted-foreground w-24 shrink-0">{title}</span>
+        <span className="text-xs font-bold w-20 shrink-0" style={color ? { color } : {}}>{title}</span>
         <Input
           type="number"
           placeholder="0"
@@ -60,12 +58,12 @@ function MacroDropdown({ title, value, onChange, unit, color, expanded, onToggle
           value={value}
           onChange={onChange}
           onClick={e => e.stopPropagation()}
-          className="flex-1 bg-transparent border-0 text-right font-semibold h-7 p-0 focus:ring-0 text-sm"
+          className="flex-1 bg-background border-0 text-right font-semibold h-6 p-0 focus:ring-0 text-xs rounded-sm"
         />
-        <span className="text-[10px] text-muted-foreground w-8 shrink-0 text-right">{unit}</span>
-        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform shrink-0 ${expanded ? "rotate-180" : ""}`} />
+        <span className="text-[9px] text-muted-foreground w-6 shrink-0 text-right">{unit}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform shrink-0 ${expanded ? "rotate-180" : ""}`} />
       </button>
-      {expanded && <div className="mt-2 pl-6 space-y-2">{children}</div>}
+      {expanded && <div className="mt-1.5 pl-5 space-y-1.5">{children}</div>}
     </div>
   );
 }
@@ -182,40 +180,40 @@ export default function CreateFoodModal({ onClose, onCreate, prefill = null }) {
         {/* Content */}
         <div className="flex-1 px-4 py-4 space-y-4">
           {/* Food Info & Icon Selector */}
-          <div className="flex gap-4">
+          <div className="flex gap-3">
+            {/* Icon Picker - LEFT SIDE */}
+            <button
+              onClick={() => setShowIconPicker(true)}
+              className="w-20 h-20 bg-muted hover:bg-muted/80 rounded-lg flex items-center justify-center text-4xl transition-colors shrink-0 border border-border"
+            >
+              {form.icon}
+            </button>
+
             {/* Food Information */}
-            <div className="flex-1 border border-border rounded-xl overflow-hidden">
-              <div className="p-4 bg-secondary/50 space-y-3">
+            <div className="flex-1 border border-border rounded-lg overflow-hidden">
+              <div className="p-3 bg-secondary/50 space-y-2">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+                  <label className="text-xs font-semibold text-muted-foreground mb-0.5 block">
                     Food Name <span className="text-destructive">*</span>
                   </label>
                   <Input
-                    placeholder="e.g., Whole Wheat Bread"
+                    placeholder="e.g., Bread"
                     value={form.name}
                     onChange={e => set("name", e.target.value)}
-                    className="bg-secondary border-0 h-11 rounded-lg font-medium"
+                    className="bg-secondary border-0 h-9 rounded-md font-medium text-sm"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground mb-1 block">Brand</label>
+                  <label className="text-xs font-semibold text-muted-foreground mb-0.5 block">Brand</label>
                   <Input
                     placeholder="e.g., Kirkland"
                     value={form.brand}
                     onChange={e => set("brand", e.target.value)}
-                    className="bg-secondary border-0 h-11 rounded-lg"
+                    className="bg-secondary border-0 h-9 rounded-md text-sm"
                   />
                 </div>
               </div>
             </div>
-
-            {/* Icon Picker */}
-            <button
-              onClick={() => setShowIconPicker(true)}
-              className="w-24 h-24 bg-secondary rounded-xl flex items-center justify-center text-5xl hover:bg-secondary/80 transition-colors shrink-0 border border-border"
-            >
-              {form.icon}
-            </button>
           </div>
 
           {/* Serving Information */}
