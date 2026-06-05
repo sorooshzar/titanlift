@@ -24,7 +24,7 @@ export default function SignIn() {
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-3xl font-black mb-1">Welcome back 👋</h1>
-        <p className="text-muted-foreground text-sm mb-8">Sign in to access your IronLog data.</p>
+        <p className="text-muted-foreground text-sm mb-8">Sign in to access your Olympus data.</p>
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-3">
@@ -53,7 +53,7 @@ export default function SignIn() {
 
         <div className="bg-secondary/50 rounded-2xl p-4 text-center mt-2">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            🔒 IronLog uses secure OAuth sign-in. No passwords stored.
+            🔒 Olympus uses secure OAuth sign-in. No passwords stored.
           </p>
         </div>
 
