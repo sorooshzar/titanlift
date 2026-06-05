@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, ChevronRight, Archive, Calculator, Star, Bot } from "lucide-react";
+import { Zap, Plus, FolderPlus, Dumbbell, History, Search, Library, Calculator, Star, Bot } from "lucide-react";
 import MuscleGroupIcon from "../components/utils/MuscleGroupIcon";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -52,7 +52,7 @@ function WorkoutsTab({ folders, templates, queryClient, navigate, startWorkout, 
       ...sortedUnfoldered.map(t => ({ type: "workout", id: `workout-${t.id}`, data: t })),
     ].sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
     setOuterItems(items);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [folders, templates, isDraggingOuter]);
 
   const handleCreateFolder = async ({ name }) => {

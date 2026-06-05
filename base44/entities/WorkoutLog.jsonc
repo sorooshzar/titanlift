@@ -89,7 +89,7 @@
           },
           "rank": {
             "type": "string",
-            "description": "Medal rank (wood, bronze, silver, gold, platinum, diamond, champion, titan, olympian)"
+            "description": "Medal rank (wood, bronze, silver, gold, emerald, diamond, champion, titan, olympian)"
           }
         }
       }

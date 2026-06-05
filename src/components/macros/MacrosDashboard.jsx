@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays } from "date-fns";
-import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip, LineChart, Line, YAxis } from "recharts";
+import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { NutritionBadge, computeNutritionStreak, getNutritionLevelFromStreak } from "./NutritionRank";
 
 const PROTEIN_COLOR = "#FF0055";

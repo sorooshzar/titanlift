@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { Camera, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
+import React, { useState } from "react";
+import { Camera, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 

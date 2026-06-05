@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { format, getDaysInMonth, startOfMonth, getDay } from "date-fns";
-import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function FriendWorkoutHistory({ workoutLogs = [], friend }) {
   const [currentDate, setCurrentDate] = useState(new Date());

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { X, BookOpen, BarChart3, Trash2 } from "lucide-react";
+import { BookOpen, BarChart3, Trash2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
 import { useWeightUnit } from "@/components/utils/useWeightUnit";
@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 
 export default function ExerciseDetailModal({ exercise, isOpen, onClose, workoutLogs = [], onDelete }) {

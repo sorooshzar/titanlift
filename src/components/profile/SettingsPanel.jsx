@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Moon, Sun } from "lucide-react";
 import { userStorage } from "@/components/utils/userStorage";

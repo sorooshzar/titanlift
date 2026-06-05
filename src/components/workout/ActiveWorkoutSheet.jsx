@@ -7,7 +7,6 @@ import { useRestTimer } from "./RestTimerContext";
 import ExerciseList from "./ExerciseList";
 import { useActiveWorkout, getRestDurationForSet } from "@/components/workout/ActiveWorkoutContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import { EXERCISE_SELECTOR_KEY } from "@/pages/ExerciseSelector";
 import confetti from "canvas-confetti";
 

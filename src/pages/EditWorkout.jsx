@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { X, Save, Plus, Link2 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ExerciseList from "../components/workout/ExerciseList";
 import { EXERCISE_SELECTOR_KEY } from "./ExerciseSelector";
 import { createPageUrl } from "@/utils";
@@ -112,7 +112,7 @@ export default function EditWorkout() {
         isDirty.current = true;
       }
     } catch {}
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const handleExercisesChange = (newExercises) => {

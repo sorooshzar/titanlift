@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,9 @@ import MedalsBook from "../components/profile/MedalsBook";
 import MuscleModel from "../components/profile/MuscleModel";
 import WeightChart from "../components/profile/WeightChart";
 import RankLegend from "../components/profile/RankLegend";
-import SettingsPanel, { applyTheme } from "../components/profile/SettingsPanel";
+import { applyTheme } from "../components/profile/SettingsPanel";
 import { Switch } from "@/components/ui/switch";
 
-import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import AddTrackerModal from "../components/profile/AddTrackerModal";
 import { MeasurementTracker, ExerciseTracker, HabitsTracker, MacrosTracker } from "../components/profile/TrackerWidgets";

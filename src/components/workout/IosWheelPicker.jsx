@@ -44,7 +44,7 @@ export default function IosWheelPicker({ value, onChange }) {
     if (secRef.current && sIdx !== -1) {
       secRef.current.scrollTop = sIdx * ITEM_HEIGHT;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const handleMinScroll = (e) => {

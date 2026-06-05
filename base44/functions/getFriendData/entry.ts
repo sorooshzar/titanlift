@@ -31,6 +31,21 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing friendEmail' }, { status: 400 });
     }
 
+    // Authorization: only allow viewing data for an accepted friend (or yourself).
+    // Without this guard, any authenticated user could read anyone's full training
+    // history just by passing their email. Mirrors the client-side friend check.
+    if (friendEmail !== user.email) {
+      const friendships = await base44.asServiceRole.entities.Friendship.list();
+      const isAcceptedFriend = friendships.some(f =>
+        f.status === 'accepted' &&
+        ((f.requester_email === user.email && f.recipient_email === friendEmail) ||
+         (f.requester_email === friendEmail && f.recipient_email === user.email))
+      );
+      if (!isAcceptedFriend) {
+        return Response.json({ error: 'Not authorized to view this user' }, { status: 403 });
+      }
+    }
+
     // Use service role to bypass RLS
     const [workoutLogs, bodyWeights, allMuscleRankRecords, allSbdCaches, allUsers] = await Promise.all([
       base44.asServiceRole.entities.WorkoutLog.filter({ created_by: friendEmail }),

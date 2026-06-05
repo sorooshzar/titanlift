@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, X, ScanLine, ChevronRight } from "lucide-react";
+import { Search, Plus, ScanLine } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { getFoodIcon } from "./foodIcons";
 import FoodDetailModal from "./FoodDetailModal";
 import ScanFoodModal from "./ScanFoodModal";
 import CreateFoodModal from "./CreateFoodModal";
 import RecipesTab from "./RecipesTab";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 
 

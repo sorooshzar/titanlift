@@ -155,7 +155,7 @@ export default function Friends() {
         await base44.entities.Friendship.update(f.id, updates);
       }
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [acceptedFriendships.length, currentUser?.username]);
 
   // Preload all friend data in parallel using React Query
