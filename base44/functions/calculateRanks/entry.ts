@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 const RANKS = [
   { name: "wood",     label: "Wood" },
@@ -17,6 +17,10 @@ const RANKS = [
 // Keep these in sync manually — Deno functions cannot import frontend modules.
 // ────────────────────────────────────────────────────────────────────────────
 const BASE_THRESHOLDS = [0.1, 0.4, 0.7, 1.1, 1.5, 2.0, 2.5, 3.0, 3.5, 99];
+
+// Fallback bodyweight when a user has never logged one. Ranks are e1RM/bodyweight,
+// so we need a sane default rather than dividing by zero.
+const DEFAULT_BODYWEIGHT_KG = 80;
 
 const MUSCLE_SCALE = {
   "Quads":           1.0,
@@ -145,7 +149,8 @@ function getBestE1RM(sets) {
   let maxE1rm = 0;
   (sets || []).forEach(s => {
     if (s.completed && s.type !== "warmup" && s.weight > 0 && s.reps > 0) {
-      const e1rm = s.weight * (1 + s.reps / 30); // Epley
+      // Epley formula. A true single is by definition the 1RM, so don't inflate it.
+      const e1rm = s.reps === 1 ? s.weight : s.weight * (1 + s.reps / 30);
       if (e1rm > maxE1rm) maxE1rm = e1rm;
     }
   });
@@ -181,7 +186,7 @@ Deno.serve(async (req) => {
       base44.entities.WorkoutLog.filter({ created_by: user.email }, "-finished_at", 2000),
     ]);
     const rawBW = bodyWeights[0]?.weight;
-    const bodyweightKg = (rawBW && rawBW > 0) ? rawBW : 80;
+    const bodyweightKg = (rawBW && rawBW > 0) ? rawBW : DEFAULT_BODYWEIGHT_KG;
 
     // Build exercise id → primary_muscle lookup
     const exerciseMuscleMap = {};

@@ -120,7 +120,8 @@ export function computeMuscleRanks(workoutLogs, bodyWeightKg) {
       ex.sets?.forEach(s => {
         if (!s.completed || s.type === "warmup") return;
         if (!s.weight || !s.reps || s.reps < 1) return;
-        const e1rm = s.weight * (1 + s.reps / 30); // Epley formula
+        // Epley formula. A true single is by definition the 1RM, so don't inflate it.
+        const e1rm = s.reps === 1 ? s.weight : s.weight * (1 + s.reps / 30);
         if (!bestE1RM[muscle] || e1rm > bestE1RM[muscle].value) {
           bestE1RM[muscle] = { value: e1rm, exerciseName: ex.exercise_name };
         }
